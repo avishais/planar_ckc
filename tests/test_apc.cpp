@@ -32,7 +32,7 @@ int main() {
 	std::ofstream f;
 	f.open("/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/tests/results/apc_verification.txt", ios::app);
 
-	int N = 1;//0.5e6;
+	int N = 0.5e6;
 	State q(n), qp_apc(n);
 	double aph_time = 0;
 
@@ -60,12 +60,15 @@ int main() {
 		if (tries==20)
 			continue;
 
-		A.printVector(q);
-		A.printVector(A.constraint(q));
+		Vector C = A.constraint(q);
+		bool verify = true;
+		for (int j = 0; j < 3 && verify; j++)
+			if (fabs(C[j]) > 0.05)
+				verify = false;
 
-		f << Asuc << " " << aph_time << endl;
+		f << Asuc << " " << verify << " " << aph_time << endl;
 
-		A.log_q(q);
+		//A.log_q(q);
 
 		i++;
 	}
