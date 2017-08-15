@@ -19,6 +19,8 @@ vid = 0;
 withObs = false;
 %%
 D = dlmread('/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/paths/path.txt',' ',1,0);
+% D = D(:,1:end-1);
+% n = size(D,2);
 % D = load('C:\Users\Avishai\Dropbox\UIUC\backup\ckc2d\path.txt');
 qs = D(1,:);
 qg = D(end,:);
@@ -130,9 +132,9 @@ if vid
 end
 % print sgconf.png -dpng -r200
 %%
-figure(2)
-plot(rad2deg(D(:,:)),'.-');
-hold on
-plot(xlim, qminmax*[1 1], '--');
-plot(xlim, -qminmax*[1 1], '--');
-hold off
+% figure(2)
+% plot(rad2deg(D(:,:)),'.-');
+% hold on
+% plot(xlim, qminmax*[1 1], '--');
+% plot(xlim, -qminmax*[1 1], '--');
+% hold off

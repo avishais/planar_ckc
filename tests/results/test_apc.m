@@ -1,6 +1,6 @@
 % In this test, I project random points with the APC (Active-Passive Chains) and verify the constraint.
 % Unsuccessful projections were disregarded.
-% Seed = 1502770976
+% Seed = 1502822605
 % last updated: 08/14/17
 
 % Results in apc_verification.txt in this form:

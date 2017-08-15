@@ -49,8 +49,8 @@ int main() {
 		int tries;
 		bool Asuc;
 		for (tries = 0; tries < 20; tries++) {
-			int active_chain = 0;//rand()/RAND_MAX * (n-2);
-			int ik_sol = 0;//rand()/RAND_MAX * 2;
+			int active_chain = rand()/RAND_MAX * n;
+			int ik_sol = rand()/RAND_MAX * 2;
 			clock_t begin = clock();
 			Asuc = A.project(q, active_chain, ik_sol); // q is updated
 			aph_time = double(clock() - begin) / CLOCKS_PER_SEC;

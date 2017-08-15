@@ -20,7 +20,7 @@ class ckc
 {
 private:
 	double L; // Links lengths
-	double bx, by; // base length
+	double bx, by, b; // base coordinates
 	double qminmax; // Joint limits
 
 
@@ -43,8 +43,7 @@ public:
 	Vector get_FK_sol_right();
 
 	// Inverse kinematics
-	bool IKp(Vector, int);
-	bool IKp(Vector, int, Vector); // For robots_class5.cpp
+	bool IKp(Vector, int, Vector);
 	Vector get_IK_sol_q();
 
 	// Project

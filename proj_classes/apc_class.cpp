@@ -4,9 +4,11 @@
 ckc::ckc(int joints_num, double custom_num) {
 	bx = 7; // Base for scenarion with obs (n = 20)
 	by = 4;
+	//bx = 1.5;
+	//by = 0;
 	L = 1;
 
-/*	if (custom_num==-1)
+	/*	if (custom_num==-1)
 		custom_num = 0.3;
 
 	double total_length = 6.5;
@@ -19,6 +21,8 @@ ckc::ckc(int joints_num, double custom_num) {
 	L = total_length/((joints_num-1)*(1+base_links_ratio)); // Link length.
 	bx = base_links_ratio*(L*(joints_num-1));
 	by = 0;*/
+
+	b = sqrt(bx*bx + by*by);
 
 	n = joints_num;
 	//m = n-2;
@@ -66,7 +70,7 @@ bool ckc::project(Vector &q, int nc, int IK_sol) {
 		if (pose[2] < -PI)
 			pose[2] += 2*PI;
 
-		if (IKp(pose, IK_sol))
+		if (IKp(pose, IK_sol, {L,L,L}))
 			q_IK = get_IK_sol_q();
 		else
 			return false;
@@ -75,7 +79,7 @@ bool ckc::project(Vector &q, int nc, int IK_sol) {
 		q[nc+1] = q_IK[1];
 		q[nc+2] = q_IK[2];
 	}
-	else { // The last passive chain - special treatment
+	if (nc == n-3)  { // The last passive chain (not including base) - special treatment
 		FK_left_half(q, n-3);
 		p_left = get_FK_sol_left();
 		p_left[2] += PI;
@@ -91,7 +95,7 @@ bool ckc::project(Vector &q, int nc, int IK_sol) {
 		if (pose[2] < -PI)
 			pose[2] += 2*PI;
 
-		if (IKp(pose, IK_sol))
+		if (IKp(pose, IK_sol, {L,L,L}))
 			q_IK = get_IK_sol_q();
 		else
 			return false;
@@ -102,6 +106,89 @@ bool ckc::project(Vector &q, int nc, int IK_sol) {
 		q[n-1] = q_IK[0];
 		q[n-2] = -q_IK[1];
 		q[n-3] = -q_IK[2];
+	}
+	if (nc == n-2) { // Passive chain including the base and the right base joint
+		p_left = {0,0,0};
+
+		Vector qr(n-3);
+		for (int i = n-2, j = 0; i > 1; i--, j++)
+			qr[j] = -q[i];
+
+		double x = L, y = 0, theta = 0, Lp;
+		for (int i = 0; i < qr.size(); i++) {
+			Lp = L;
+			if (i==qr.size()-1)
+				Lp = L/2;
+
+			theta += qr[i];
+			x += Lp*cos(theta);
+			y += Lp*sin(theta);
+		}
+
+		p_right = {x, y, theta - PI};
+		p_right[2] = fmod (p_right[2],  2*PI);
+		if (p_right[2] > PI)
+			p_right[2] -= 2*PI;
+		if (p_right[2] < -PI)
+			p_right[2] += 2*PI;
+
+		pose = {p_right[0]*cos(p_left[2]) - p_left[0]*cos(p_left[2]) - p_left[1]*sin(p_left[2]) + p_right[1]*sin(p_left[2]), p_right[1]*cos(p_left[2]) - p_left[1]*cos(p_left[2]) + p_left[0]*sin(p_left[2]) - p_right[0]*sin(p_left[2]), (p_right[2]-p_left[2])};
+		if (pose[2] > PI)
+			pose[2] -= 2*PI;
+		if (pose[2] < -PI)
+			pose[2] += 2*PI;
+
+		if (IKp(pose, IK_sol, {b, L, L}))
+			q_IK = get_IK_sol_q();
+		else
+			return false;
+
+		double al = atan(by/bx);
+
+		q[n-1] = PI - q_IK[0] + al;
+		q[0] = PI + q_IK[1] + al;
+		q[1] = q_IK[2];
+	}
+	if (nc == n-1) { // Passive chain including the base and the left base joint
+		Vector ql(n-3);
+		for (int i = 1; i < n-2; i++)
+			ql[i-1] = q[i];
+		ql[0] = PI + ql[0];
+
+		double x = 0, y = 0, theta = 0, Lp;
+		for (int i = 0; i < ql.size(); i++) {
+			Lp = L;
+			if (i==ql.size()-1)
+				Lp = L/2;
+
+			theta += ql[i];
+			x += Lp*cos(theta);
+			y += Lp*sin(theta);
+		}
+
+		p_left = {x, y, theta + PI};
+		p_left[2] = fmod (p_left[2],  2*PI);
+		if (p_left[2] > PI)
+			p_left[2] -= 2*PI;
+		if (p_left[2] < -PI)
+			p_left[2] += 2*PI;
+
+		pose = {p_left[0] - L, p_left[1], p_left[2]};
+		if (pose[2] > PI)
+			pose[2] -= 2*PI;
+		if (pose[2] < -PI)
+			pose[2] += 2*PI;
+
+		if (IKp(pose, IK_sol, {b,L,L}))
+			q_IK = get_IK_sol_q();
+		else
+			return false;
+
+		double al = atan(by/bx);
+
+		q[0] = PI - q_IK[0] + al;
+		q[n-1] = q_IK[1] + al;
+		q[n-2] = -q_IK[2];
 	}
 
 	return true;
@@ -202,7 +289,7 @@ Vector ckc::get_FK_sol_right() {
 
 // -------IK----------
 
-bool ckc::IKp(Vector pose, int ik_sol) {
+bool ckc::IKp(Vector pose, int ik_sol, Vector Lp) {
 	IK_counter++;
 	clock_t begin = clock();
 
@@ -211,22 +298,22 @@ bool ckc::IKp(Vector pose, int ik_sol) {
 	int sign;
 
 	double theta = pose[2];
-	double x2 = pose[0] - L/2 * cos(theta);
-	double y2 = pose[1] - L/2 * sin(theta);
+	double x2 = pose[0] - Lp[2]/2 * cos(theta);
+	double y2 = pose[1] - Lp[2]/2 * sin(theta);
 
 	double r = sqrt(x2*x2+y2*y2);
-	double S = (r*r-L*L-L*L)/(-2*L*L);
+	double S = (r*r-Lp[0]*Lp[0]-Lp[1]*Lp[1])/(-2*Lp[0]*Lp[1]);
 	double Ss = (1-S*S);
 
 	if (ik_sol == 1)
-	    sign = 1;
+		sign = 1;
 	else
-	    sign = -1;
+		sign = -1;
 
 	if (Ss<=1e-6) {
 		clock_t end = clock();
 		IK_time += double(end - begin) / CLOCKS_PER_SEC;
-	    return false;
+		return false;
 	}
 
 	double Phi = atan2(sign*sqrt(Ss), S);
@@ -236,7 +323,7 @@ bool ckc::IKp(Vector pose, int ik_sol) {
 	if (q[1] > PI)
 		q[1] -= 2*PI;
 
-	q[0] = atan2(L*sin(Phi), L-L*cos(Phi)) + atan2(y2, x2);
+	q[0] = atan2(Lp[1]*sin(Phi), Lp[0]-Lp[1]*cos(Phi)) + atan2(y2, x2);
 	if (q[0] < -PI)
 		q[0] += 2*PI;
 	if (q[0] > PI)
