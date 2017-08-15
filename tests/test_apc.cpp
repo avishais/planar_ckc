@@ -4,12 +4,6 @@
 #include <stdlib.h>
 #include <fstream>
 
-double fRand(double fMin, double fMax)
-{
-	double f = (double)rand() / RAND_MAX;
-	return fMin + f * (fMax - fMin);
-}
-
 double dist(State p1, State p2) {
 	double sum = 0;
 	for (int i = 0; i < p1.size(); i++)
@@ -40,8 +34,8 @@ int main() {
 	while (i < N) {
 
 		for (int j = 0; j < n-1; j++)
-			q[j] = fRand(-PI, PI);
-		q[n-1] = fRand(0, 2*PI);
+			q[j] = A.fRand(-PI, PI);
+		q[n-1] = A.fRand(0, 2*PI);
 
 		State q_rand = q;
 

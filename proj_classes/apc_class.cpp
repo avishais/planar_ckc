@@ -2,10 +2,15 @@
 
 // Constructor for the robots
 ckc::ckc(int joints_num, double custom_num) {
-	bx = 7; // Base for scenarion with obs (n = 20)
-	by = 4;
-	//bx = 1.5;
-	//by = 0;
+
+	if (joints_num == 20) {
+		bx = 7; // Base for scenarion with obs (n = 20)
+		by = 4;
+	}
+	else {
+		bx = 1.5;
+		by = 0;
+	}
 	L = 1;
 
 	/*	if (custom_num==-1)
@@ -106,6 +111,9 @@ bool ckc::project(Vector &q, int nc, int IK_sol) {
 		q[n-1] = q_IK[0];
 		q[n-2] = -q_IK[1];
 		q[n-3] = -q_IK[2];
+
+		if (q[n-1] < 0)	q[n-1] += 2*PI;
+		if (q[n-1] > 2*PI) q[n-1] -= 2*PI;
 	}
 	if (nc == n-2) { // Passive chain including the base and the right base joint
 		p_left = {0,0,0};
@@ -148,6 +156,13 @@ bool ckc::project(Vector &q, int nc, int IK_sol) {
 		q[n-1] = PI - q_IK[0] + al;
 		q[0] = PI + q_IK[1] + al;
 		q[1] = q_IK[2];
+
+		if (q[0] < -PI)	q[0] += 2*PI;
+		if (q[0] > PI) q[0] -= 2*PI;
+		if (q[1] < -PI)	q[1] += 2*PI;
+		if (q[1] > PI) q[1] -= 2*PI;
+		if (q[n-1] < 0)	q[n-1] += 2*PI;
+		if (q[n-1] > 2*PI) q[n-1] -= 2*PI;
 	}
 	if (nc == n-1) { // Passive chain including the base and the left base joint
 		Vector ql(n-3);
@@ -189,6 +204,13 @@ bool ckc::project(Vector &q, int nc, int IK_sol) {
 		q[0] = PI - q_IK[0] + al;
 		q[n-1] = q_IK[1] + al;
 		q[n-2] = -q_IK[2];
+
+		if (q[0] < -PI)	q[0] += 2*PI;
+		if (q[0] > PI) q[0] -= 2*PI;
+		if (q[n-2] < -PI)	q[n-2] += 2*PI;
+		if (q[n-2] > PI) q[n-2] -= 2*PI;
+		if (q[n-1] < 0)	q[n-1] += 2*PI;
+		if (q[n-1] > 2*PI) q[n-1] -= 2*PI;
 	}
 
 	return true;
@@ -392,5 +414,9 @@ void ckc::log_q(Vector q) {
 		myfile << q[i] << " ";
 	myfile << endl;
 
+	myfile.close();
+
+	myfile.open("../paths/path_info.txt");
+	myfile << n << endl << 0 << endl << getL() << endl << get_bx() << endl << get_by() << endl << get_qminmax() << endl;
 	myfile.close();
 }

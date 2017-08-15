@@ -9,7 +9,7 @@
 clear all
 clc
 
-D = load('apc_verification.txt');
+D = load('apc_verification6.txt');
 
 disp(['Number of projections: ' num2str(size(D,1)) ]);
 disp(['Avg. runtime: ' num2str(mean(D(:,3))*1e3) ' +/- ' num2str(std(D(:,3))/sqrt(size(D(:,3),1))*1e3) ' msec ']);

@@ -14,6 +14,7 @@ using namespace std;
 
 typedef vector<double> State;
 typedef vector< double > Vector;
+typedef vector< int > VectorInt;
 typedef vector<vector< double >> Matrix;
 
 class ckc
@@ -66,6 +67,16 @@ public:
 	}
 	double get_qminmax() {
 		return qminmax;
+	}
+	Vector get_q_IK() {
+		return q_IK;
+	}
+
+	// Generate random number
+	double fRand(double fMin, double fMax)
+	{
+		double f = (double)rand() / RAND_MAX;
+		return fMin + f * (fMax - fMin);
 	}
 
 	Vector LL;
