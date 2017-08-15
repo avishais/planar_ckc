@@ -1,28 +1,10 @@
-#include "robots_class.h"
+#include "apc_class.h"
 
 // Constructor for the robots
 ckc::ckc(int joints_num, double custom_num) {
 	bx = 7; // Base for scenarion with obs (n = 20)
 	by = 4;
 	L = 1;
-/*
-	// Automate dimensionality experiment
-	if (joints_num==30)
-		bx = 8; // Base for random exp. (n=30)
-	if (joints_num==25 || joints_num==27)
-		bx = 7; // Base for random exp. (n=25,27)
-	if (joints_num==20 || joints_num==22)
-		bx = 6; // Base for random exp. (n=20,22)
-	if (joints_num==14 || joints_num==15 || joints_num==17)
-		bx = 4; // Base for random exp. (n=14,15,17)
-	if (joints_num==10 || joints_num==12)
-		bx = 2.5; // For testing with n=10,12
-	if (joints_num==5 || joints_num==6 || joints_num==7)
-		bx = 1.5; // For testing with n=5,6,7
-
-	//bx = 0.7; // For testing with n=4
-
-	by = 0;*/
 
 /*	if (custom_num==-1)
 		custom_num = 0.3;
@@ -51,6 +33,78 @@ ckc::ckc(int joints_num, double custom_num) {
 	p_FK_r.resize(3);
 
 	cout << "CKC initialized." << endl;
+}
+
+// ----- project -----
+
+bool ckc::project(Vector &q, int nc, int IK_sol) {
+	// nc - passive chain number
+
+	Vector q_IK(3);
+	Vector p_left(3), p_right(3), pose(3);
+
+	if (nc < n-3) { // All passive chains except the last one
+		if (nc==0)
+			p_left = {0,0,0};
+		else {
+			FK_left(q, nc);
+			p_left = get_FK_sol_left();
+		}
+
+		FK_right(q, n-3-nc);
+		p_right = get_FK_sol_right();
+		p_right[2] -= PI;
+		p_right[2] = fmod (p_right[2],  2*PI);
+		if (p_right[2] > PI)
+			p_right[2] -= 2*PI;
+		if (p_right[2] < -PI)
+			p_right[2] += 2*PI;
+
+		pose = {p_right[0]*cos(p_left[2]) - p_left[0]*cos(p_left[2]) - p_left[1]*sin(p_left[2]) + p_right[1]*sin(p_left[2]), p_right[1]*cos(p_left[2]) - p_left[1]*cos(p_left[2]) + p_left[0]*sin(p_left[2]) - p_right[0]*sin(p_left[2]), (p_right[2]-p_left[2])};
+		if (pose[2] > PI)
+			pose[2] -= 2*PI;
+		if (pose[2] < -PI)
+			pose[2] += 2*PI;
+
+		if (IKp(pose, IK_sol))
+			q_IK = get_IK_sol_q();
+		else
+			return false;
+
+		q[nc] = q_IK[0];// + p_left[2];
+		q[nc+1] = q_IK[1];
+		q[nc+2] = q_IK[2];
+	}
+	else { // The last passive chain - special treatment
+		FK_left_half(q, n-3);
+		p_left = get_FK_sol_left();
+		p_left[2] += PI;
+		p_left[2] = fmod (p_left[2],  2*PI);
+		if (p_left[2] > PI)
+			p_left[2] -= 2*PI;
+		if (p_left[2] < -PI)
+			p_left[2] += 2*PI;
+
+		pose = {p_left[0] - get_bx(), p_left[1] - get_by(), p_left[2]};
+		if (pose[2] > PI)
+			pose[2] -= 2*PI;
+		if (pose[2] < -PI)
+			pose[2] += 2*PI;
+
+		if (IKp(pose, IK_sol))
+			q_IK = get_IK_sol_q();
+		else
+			return false;
+
+		/*if (q_IK[0] < 0)
+			q_IK[0] += 2*PI;*/
+
+		q[n-1] = q_IK[0];
+		q[n-2] = -q_IK[1];
+		q[n-3] = -q_IK[2];
+	}
+
+	return true;
 }
 
 // -----FK-------
@@ -206,6 +260,19 @@ Vector ckc::get_IK_sol_q() {
 	return q_IK;
 }
 
+Vector ckc::constraint(Vector q) {
+
+	FK_left(q, q.size()-1);
+
+	Vector C = get_FK_sol_left();
+
+	C[0] -= bx;
+	C[1] -= by;
+	C[2] = C[2] - q[q.size()-1] + PI;
+
+	return C;
+}
+
 
 // ------- MISC ---------
 
@@ -228,3 +295,15 @@ void ckc::printVector(Vector p) {
 	cout << "]" << endl;
 }
 
+void ckc::log_q(Vector q) {
+	std::ofstream myfile;
+	myfile.open("../paths/path.txt");
+
+	myfile << 1 << endl;
+
+	for (int i = 0; i < q.size(); i++)
+		myfile << q[i] << " ";
+	myfile << endl;
+
+	myfile.close();
+}

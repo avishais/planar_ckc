@@ -47,9 +47,14 @@ public:
 	bool IKp(Vector, int, Vector); // For robots_class5.cpp
 	Vector get_IK_sol_q();
 
+	// Project
+	bool project(Vector &q, int nc, int IK_sol);
+
 	// Misc
 	void printMatrix(Matrix M);
 	void printVector(Vector p);
+	void log_q(Vector q);
+	Vector constraint(Vector q);
 
 	double get_bx() {
 		return bx;
