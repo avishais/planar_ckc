@@ -43,7 +43,7 @@ bool isStateValid(const ob::State *state)
 	return true;
 }
 
-void plan_C::plan(Vector c_start, Vector c_goal, int n, int m, double runtime, double range) {
+void plan_C::plan(Vector c_start, Vector c_goal, int n, int m, double runtime, double custom) {
 
 	//int n = c_start.size();
 	//int m = n - 2;
@@ -112,7 +112,7 @@ void plan_C::plan(Vector c_start, Vector c_goal, int n, int m, double runtime, d
 
 	// create a planner for the defined space
 	// To add a planner, the #include library must be added above
-	ob::PlannerPtr planner(new og::RRTConnect(si, n, m, range));
+	ob::PlannerPtr planner(new og::RRTConnect(si, n, m, custom));
 
 	// set the problem we are trying to solve for the planner
 	planner->setProblemDefinition(pdef);
@@ -170,7 +170,7 @@ int main(int argn, char ** args) {
 
 	plan_C Plan;
 
-	int mode = 3;
+	int mode = 4;
 	switch (mode) {
 	case 1: {//Manual check
 		//c_start = {-0.166233, 0.33943, 0.953414, -1.24087, -0.806106, 2.22124};
@@ -214,7 +214,7 @@ int main(int argn, char ** args) {
 				Plan.plan(c_start, c_goal, n, m, runtime);
 
 				mf << m << " ";
-				pf.open("perf_log.txt");
+				pf.open("./paths/perf_log.txt");
 				getline(pf, line);
 				mf << line << endl;
 				pf.close();
@@ -241,7 +241,7 @@ int main(int argn, char ** args) {
 		break;
 	}
 	case 4: {// Benchmark the same scenario
-		int N = 300; // Number of points to take for each k<=m
+		int N = 1000; // Number of points to take for each k<=m
 		string line;
 
 		Vector c_start = {1.6581, 0.17453, 0.17453, 0.17453, -0.034907, -0.17453, -0.17453, -0.5236, -0.69813, -0.5236, -0.87266, -0.17453, 0.087266, 0.34907, 0.17453, 0.17453, 0.17453, 0.18147, -0.80904, 2.4791};
@@ -252,21 +252,28 @@ int main(int argn, char ** args) {
 
 		std::ofstream mf;
 		std::ifstream pf;
-		mf.open("/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/matlab/benchmarkRBS_" + std::to_string((int)runtime) + "_obs_new_wRejectionCount.txt", ios::app);
+		mf.open("/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/matlab/benchmark_PCS_obs_range2.txt", ios::app);
 
-
+		verification_class vfc(n);
+		
 		for (int i = 0; i < N; i++) { // N points for this number of passive chains
-			for (int m = 1; m <= n-2; m++) { // All possible passive chains
+			for (int m = 1; m <= n; m++) { // All possible passive chains
 
-				Plan.plan(c_start, c_goal, n, m, runtime, 2);
+				Plan.plan(c_start, c_goal, n, m, runtime, 0);
+				
+				bool verf = vfc.verify_path();
+				if (!verf) {
+					cout << "Verification error. press to continue...\n";
+					cin.ignore();
+				}
 
 				mf << m << " ";
-				pf.open("perf_log.txt");
+				mf << verf << " ";
+				pf.open("./paths/perf_log.txt");
 				getline(pf, line);
 				mf << line << endl;
 				pf.close();
 			}
-			mf << endl;
 		}
 		mf.close();
 		break;

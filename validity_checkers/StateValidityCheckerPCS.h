@@ -109,9 +109,9 @@ public:
 	
 	// Include constraints?
 	const bool include_constraints = true; // Enable/Disable constraints
-	bool check_angles(Vector q);
-	bool self_collision(Vector q);
-	bool obstacle_collision(Vector q);
+	bool check_angles(Vector);
+	bool self_collision(Vector, double = 1);
+	bool obstacle_collision(Vector, double = 0.3);
 	bool LinesIntersect(double, double, double, double, double, double, double, double);
 
 	//Matrix obs = {{-4, 4, 1},{3.4, 7.5, 1}, {4.2, -2.9, 1.5}, {8, 2, 0.8}};

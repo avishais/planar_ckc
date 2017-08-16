@@ -83,7 +83,7 @@ bool verification_class::verify_path(Matrix M) {
 
 	// Validate obstacle collisions
 	for (int i = 0; i < m; i++) {
-		if (!obstacle_collision(M[i])) {
+		if (!obstacle_collision(M[i], 0.2)) {
 			cout << "***************************************" << endl;
 			cout << "@ Obstacle collision failure!" << endl;
 			cout << "@ Node " << i << endl;
@@ -93,7 +93,7 @@ bool verification_class::verify_path(Matrix M) {
 
 	// Validate sel collisions
 	for (int i = 0; i < m; i++) {
-		if (!self_collision(M[i])) {
+		if (!self_collision(M[i], 0.8)) {
 			cout << "***************************************" << endl;
 			cout << "@ Self collision failure!" << endl;
 			cout << "@ Node " << i << endl;

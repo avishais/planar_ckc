@@ -456,7 +456,7 @@ bool StateValidityChecker::check_angles(Vector q) {
 	return true;
 }
 
-bool StateValidityChecker::self_collision(Vector q) {
+bool StateValidityChecker::self_collision(Vector q, double factor) {
 	double Ax, Ay, Bx, By, Cx, Cy, Dx, Dy, l = getL();
 	Ax = Ay = 0;
 
@@ -485,10 +485,9 @@ bool StateValidityChecker::self_collision(Vector q) {
 			double s = (-s1_y * (Ax - Cx) + s1_x * (Ay - Cy)) / (-s2_x * s1_y + s1_x * s2_y);
 			double t = ( s2_x * (Ay - Cy) - s2_y * (Ax - Cx)) / (-s2_x * s1_y + s1_x * s2_y);
 
-			double minLim = -0.2, maxLim = 1.2;
-			if (s >= minLim && s <= maxLim && t >= minLim && t <= maxLim) {
+			double minLim = -0.2 * factor, maxLim = 1.2 * factor;
+			if (s >= minLim && s <= maxLim && t >= minLim && t <= maxLim)
 				return false;
-			}
 			// -------------------------------------
 
 			Cx = Dx;
@@ -523,7 +522,7 @@ bool StateValidityChecker::LinesIntersect(double Ax, double  Ay, double Bx, doub
 	return true; // No collision
 }
 
-bool StateValidityChecker::obstacle_collision(Vector q) {
+bool StateValidityChecker::obstacle_collision(Vector q, double factor) {
 	double x, y, l = getL();
 	x = y = 0;
 
@@ -535,7 +534,7 @@ bool StateValidityChecker::obstacle_collision(Vector q) {
 		y = y + l*sin(cum_q);
 
 		for (int j = 0; j < obs.size(); j++) {
-			if ( (x-obs[j][0])*(x-obs[j][0]) + (y-obs[j][1])*(y-obs[j][1]) < (obs[j][2]+0.3*l)*(obs[j][2]+0.3*l) )
+			if ( (x-obs[j][0])*(x-obs[j][0]) + (y-obs[j][1])*(y-obs[j][1]) < (obs[j][2]+factor*l)*(obs[j][2]+factor*l) )
 				return false;
 		}
 	}
