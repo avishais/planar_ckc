@@ -108,15 +108,15 @@ public:
 	}
 	
 	// Include constraints?
-	const bool include_constraints = false; // Enable/Disable constraints
+	const bool include_constraints = true; // Enable/Disable constraints
 	bool check_angles(Vector q);
 	bool self_collision(Vector q);
 	bool obstacle_collision(Vector q);
-	bool LinesIntersect(Vector A, Vector B, Vector C, Vector D);
+	bool LinesIntersect(double, double, double, double, double, double, double, double);
+
 	//Matrix obs = {{-4, 4, 1},{3.4, 7.5, 1}, {4.2, -2.9, 1.5}, {8, 2, 0.8}};
 	Matrix obs = {{-3.2, 4, 1},{2.6, 6.8, 1}, {4.2, -2.9, 1.5}, {8, 2, 0.8}};
 
-	
 private:
 	ob::StateSpace *stateSpace_;
 	ob::SpaceInformation *mysi_;
@@ -127,7 +127,7 @@ private:
 
 	const double dq = 0.1;
 	double RBS_tol = 0.05; // RBS local connection resolution
-	int RBS_max_depth = 150; // Maximum RBS recursion depth
+	int RBS_max_depth = 100; // Maximum RBS recursion depth
 	
 	ompl::RNG rng_;
 };

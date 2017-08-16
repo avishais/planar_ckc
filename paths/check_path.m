@@ -1,9 +1,14 @@
 clear all
 clc
 
-% D = load('../robot_paths.txt');
 D = dlmread('./path.txt',' ',1,0);
 D = D(:,1:end-1);
+
+DM = dlmread('./path_milestones.txt',' ',0,0);
+DM = DM(:,1:end-1);
+[k,d] = knnsearch(D,DM);
+
+%%
 
 figure(1)
 clf
@@ -11,6 +16,8 @@ hold on
 for i = 1:size(D,2)
     %     plot(D(:,1),D(:,i),'.-k');
     plot(rad2deg(D(:,i)),'.-k');
+    
+    plot(k, rad2deg(DM),'or','markerfacecolor','r');
     
     %     plot(Do(:,i),'x--r');
     plot(xlim,180*[1 1],':k','linewidth',1.5);

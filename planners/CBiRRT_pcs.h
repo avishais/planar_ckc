@@ -32,7 +32,7 @@
 *  POSSIBILITY OF SUCH DAMAGE.
 *********************************************************************/
 
-/* Author: Ioan Sucan */
+/* Author: Ioan Sucan, Avishai Sintov */
 
 #ifndef OMPL_GEOMETRIC_PLANNERS_RRT_RRT_CONNECT_
 #define OMPL_GEOMETRIC_PLANNERS_RRT_RRT_CONNECT_
@@ -43,7 +43,7 @@
 #include <iostream>
 #include <fstream>
 
-#include "../StateValidityChecker.h"
+#include "../validity_checkers/StateValidityCheckerPCS.h"
 
 namespace ompl
 {
@@ -104,18 +104,19 @@ namespace ompl
 
             virtual void setup();
 
-            // Performance handle
-            double total_runtime;
-            clock_t startTime;
-            clock_t endTime;
-            int nodes_in_path;
-            int nodes_in_trees;
-            double PlanDistance;
-            bool final_solved;
+            // ******************** My additions *********************
+            // Performance parameters and handle
+            double total_runtime; // Total planning time
+            clock_t startTime; // Start clock
+            clock_t endTime; // End clock
+            int nodes_in_path; // Log nodes in path
+            int nodes_in_trees; // Log nodes in both trees
+            double PlanDistance; // Norm distance from start to goal configurations
+            bool final_solved; // Planning query solved?
             int project_success, project_fail;
             int RBS_success, RBS_fail;
-            int zero_rejection_count;
-            void LogPerf2file();
+            
+            /** Reset log paprameters */
             void initiate_log_parameters() {
             	IK_counter = 0;
             	IK_time = 0;
@@ -124,18 +125,23 @@ namespace ompl
             	isValid_counter = 0;
             	nodes_in_path = 0;
             	nodes_in_trees = 0;
-            	zero_rejection_count = 0;
             	project_success = 0;
             	project_fail = 0;
             	RBS_success = 0;
             	RBS_fail = 0;
             }
-
+            
+            // Maximum local-connection distance
             double Range;
+
+            // Flag of successful reach to point in the growTree function
+            bool growTree_reached;
 
             int n; // Dimensionality of the CKC
             int m; // Number of passive chains
 
+            int active_chain;
+            int a_chain_connection;
 
         protected:
 
@@ -190,28 +196,11 @@ namespace ompl
             /** \brief Free the memory allocated by this planner */
             void freeMemory();
 
-            void save2file(vector<Motion*>, vector<Motion*>);
-
             /** \brief Compute distance between motions (actually distance between contained states) */
             double distanceFunction(const Motion *a, const Motion *b) const
             {
                 return si_->distance(a->state, b->state);
             }
-
-            // Measured the distance between to states only over the active chain
-            double activeDistance(const Motion *a, const Motion *b);
-            int active_chain; // 0 - (q1,a) is the active chain, 1 - (q2,a) is the active chain
-            int a_chain_connection;
-
-            /** \brief Grow a tree towards a random state */
-            Motion* growTree(TreeData &tree, TreeGrowingInfo &tgi, Motion *nmotion, Motion *tmotion, int, int);
-            bool growTree_reached;
-
-            double distanceBetweenTrees(TreeData &tree1, TreeData &tree2);
-            
-            void log_q(Vector q);
-
-            void collect_tree_data();
 
             /** \brief State sampler */
             base::StateSamplerPtr         sampler_;
@@ -230,6 +219,25 @@ namespace ompl
 
             /** \brief The pair of states in each tree connected during planning.  Used for PlannerData computation */
             std::pair<base::State*, base::State*>      connectionPoint_;
+
+            // ***************** My additional functions ************************
+
+            /** \brief Measured the distance between to states only over the active chain */
+            double activeDistance(const Motion *a, const Motion *b);
+
+            /** \brief Grow a tree towards a random state */
+            Motion* growTree(TreeData &tree, TreeGrowingInfo &tgi, Motion *nmotion, Motion *tmotion, int, int);
+
+            /** \brief Computes the minimum distance between files !!! Do not use in actual planning - very inefficient !!! */
+            double distanceBetweenTrees(TreeData &tree1, TreeData &tree2);
+
+            /** \brief Save solution path to two files */
+            void save2file(vector<Motion*>, vector<Motion*>);
+
+            /** \brief Log performance data of the planning to perf_log.txt */
+            void LogPerf2file();
+
+            void log_q(Vector q);
 
         };
 

@@ -19,7 +19,7 @@ typedef vector<vector< double >> Matrix;
 class verification_class : public StateValidityChecker
 {
 public:
-	verification_class(int joints_num, double custom_num) : StateValidityChecker(joints_num, custom_num) {
+	verification_class(int joints_num, double custom_num = 0.3) : StateValidityChecker(joints_num, custom_num) {
 		cout << "Initiated verification module." << endl;
 		continuity_tol = get_RBS_tol() * 1.1;
 
@@ -38,7 +38,7 @@ private:
 
 	double continuity_tol;
 	
-	string path_file = "../paths/path.txt";
+	string path_file = "./paths/path.txt";
 };
 
 

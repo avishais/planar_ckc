@@ -282,6 +282,7 @@ bool StateValidityChecker::isValidRBS(Vector& q, int active_chain, int IK_sol) {
 		return false;
 
 	// Check Constraints
+	clock_t s6 = clock();
 	if (include_constraints && (!check_angles(q) || !obstacle_collision(q) || !self_collision(q)))
 		return false;
 
@@ -461,6 +462,7 @@ bool StateValidityChecker::self_collision(Vector q) {
 
 	double cum_q = 0, cum_q_CD;
 	for (int i = 0; i < n-3; i++) {
+
 		cum_q += q[i];
 
 		Bx = Ax + l*cos(cum_q);
@@ -469,13 +471,26 @@ bool StateValidityChecker::self_collision(Vector q) {
 		cum_q_CD = cum_q + q[i+1];
 		Cx = Bx + l*cos(cum_q_CD);
 		Cy = By + l*sin(cum_q_CD);
+
 		for (int j = i+2; j < n-1; j++) {
 			cum_q_CD += q[j];
 			Dx = Cx + l*cos(cum_q_CD);
 			Dy = Cy + l*sin(cum_q_CD);
 
-			if (!LinesIntersect({Ax, Ay}, {Bx, By}, {Cx, Cy}, {Dx, Dy}))
+			// ---- Check if two lines intersect ---
+			double s1_x = Bx - Ax;
+			double s1_y = By - Ay;
+			double s2_x = Dx - Cx;
+			double s2_y = Dy - Cy;
+			double s = (-s1_y * (Ax - Cx) + s1_x * (Ay - Cy)) / (-s2_x * s1_y + s1_x * s2_y);
+			double t = ( s2_x * (Ay - Cy) - s2_y * (Ax - Cx)) / (-s2_x * s1_y + s1_x * s2_y);
+
+			double minLim = -0.2, maxLim = 1.2;
+			if (s >= minLim && s <= maxLim && t >= minLim && t <= maxLim) {
 				return false;
+			}
+			// -------------------------------------
+
 			Cx = Dx;
 			Cy = Dy;
 		}
@@ -483,26 +498,27 @@ bool StateValidityChecker::self_collision(Vector q) {
 		Ax = Bx;
 		Ay = By;
 	}
-
 	return true;
 }
 
 // Returns false if the lines AB and CD intersect, otherwise true.
 // Currently only checks when lines are not parallel
-bool StateValidityChecker::LinesIntersect(Vector A, Vector B, Vector C, Vector D) {
+bool StateValidityChecker::LinesIntersect(double Ax, double  Ay, double Bx, double By, double Cx, double Cy, double Dx, double Dy) {
+
 	double s1_x, s1_y, s2_x, s2_y;
-	s1_x = B[0] - A[0];
-	s1_y = B[1] - A[1];
-	s2_x = D[0] - C[0];
-	s2_y = D[1] - C[1];
+	s1_x = Bx - Ax;
+	s1_y = By - Ay;
+	s2_x = Dx - Cx;
+	s2_y = Dy - Cy;
 
 	double s, t;
-	s = (-s1_y * (A[0] - C[0]) + s1_x * (A[1] - C[1])) / (-s2_x * s1_y + s1_x * s2_y);
-	t = ( s2_x * (A[1] - C[1]) - s2_y * (A[0] - C[0])) / (-s2_x * s1_y + s1_x * s2_y);
+	s = (-s1_y * (Ax - Cx) + s1_x * (Ay - Cy)) / (-s2_x * s1_y + s1_x * s2_y);
+	t = ( s2_x * (Ay - Cy) - s2_y * (Ax - Cx)) / (-s2_x * s1_y + s1_x * s2_y);
 
 	double minLim = -0.2, maxLim = 1.2;
 	if (s >= minLim && s <= maxLim && t >= minLim && t <= maxLim)
 		return false;
+
 
 	return true; // No collision
 }

@@ -16,7 +16,7 @@ end
 
 vid = 0;
 
-withObs = false;
+withObs = true;
 %%
 D = dlmread('/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/paths/path.txt',' ',1,0);
 % D = D(:,1:end-1);
@@ -32,7 +32,7 @@ end
 
 figure(1)
 clf
-for j = 1:2:size(D,1)
+for j = 1:5:size(D,1)
     disp(j);
     clf;
     

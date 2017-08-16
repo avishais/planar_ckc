@@ -32,13 +32,13 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  *********************************************************************/
 
-/* Author: Ioan Sucan */
+/* Author: Ioan Sucan, Avishai Sintov */
 
 //#include "ompl/geometric/planners/rrt/RRTConnect.h"
 #include "ompl/base/goals/GoalSampleableRegion.h"
 #include "ompl/tools/config/SelfConfig.h"
 
-#include "myRRTConnect.h" // Avishai
+#include "CBiRRT_pcs.h" 
 
 // Debugging tool
 template <class T>
@@ -60,7 +60,6 @@ ompl::geometric::RRTConnect::RRTConnect(const base::SpaceInformationPtr &si, int
 	n = joints_num;
 	m = passive_chains_num;
 	Range = 2;
-
 }
 
 ompl::geometric::RRTConnect::~RRTConnect()
@@ -170,7 +169,7 @@ ompl::geometric::RRTConnect::Motion* ompl::geometric::RRTConnect::growTree(TreeD
 	growTree_reached = false;
 
 	//cout << "nmotion: "; printStateVector(nmotion->state);
-	
+
 	//int count_iterations = 500;
 	while (count_iterations) {
 		count_iterations--;
@@ -202,18 +201,8 @@ ompl::geometric::RRTConnect::Motion* ompl::geometric::RRTConnect::growTree(TreeD
 
 			ik = identify_state_ik(dstate);
 		}
-		else { // Added but not tested
+		else  // Added but not tested
 			retrieveStateVector(dstate, q, ik);
-			active_chain = -1;
-			for (int i = 0; i < m; i++) {
-				if (nmotion->ik_vect[i] == ik[i])
-					active_chain = i;
-			}
-			if (active_chain == -1) {
-				zero_rejection_count++;
-				return nmotion;
-			}
-		}
 
 		// Check motion
 		//bool validMotion = checkMotion(nmotion->state, dstate, active_chain, nmotion->ik_vect[active_chain]);
@@ -221,10 +210,12 @@ ompl::geometric::RRTConnect::Motion* ompl::geometric::RRTConnect::growTree(TreeD
 
 		bool validMotion = false;
 		for (int i = 0; i < ik.size(); i++) {
-			if (nmotion->ik_vect[i] == ik[i])
+			if (nmotion->ik_vect[i] == ik[i]) 
 				validMotion = checkMotionRBS(nmotion->state, dstate, i, nmotion->ik_vect[i]);
-			if (validMotion)
+			if (validMotion) {
+				active_chain = i;
 				break;
+			}
 		}
 
 		if (validMotion)
@@ -261,8 +252,8 @@ ompl::geometric::RRTConnect::Motion* ompl::geometric::RRTConnect::growTree(TreeD
 ompl::base::PlannerStatus ompl::geometric::RRTConnect::solve(const base::PlannerTerminationCondition &ptc)
 {
 	initiate_log_parameters();
-	setRange(Range);
 	base::State *start_node = si_->allocState();
+	setRange(Range);
 
 	Vector q(n), ik(m);
 
@@ -278,14 +269,9 @@ ompl::base::PlannerStatus ompl::geometric::RRTConnect::solve(const base::Planner
 
 	while (const base::State *st = pis_.nextStart())
 	{
-		if (0) {//!close_chain(st, 1)) {
-			OMPL_ERROR("%s: Start state not feasible!", getName().c_str());
-			return base::PlannerStatus::INVALID_START;
-		}
 		ik = identify_state_ik(st);
 		updateStateVectorIK(st, ik);
 		retrieveStateVector(st, q, ik);
-		cout << "Start: "; printStateVector(st);
 
 		Motion *motion = new Motion(si_);
 		si_->copyState(motion->state, st);
@@ -295,20 +281,9 @@ ompl::base::PlannerStatus ompl::geometric::RRTConnect::solve(const base::Planner
 		motion->a_chain = 0;
 		tStart_->add(motion);
 
+		cout << "Start: "; printStateVector(st);
 		si_->copyState(start_node,st);
 	}
-
-	// ------
-
-	/*Vector qq = sample_q();
-	updateStateVector(start_node, qq);
-	printStateVector(start_node);
-	ik = identify_state_ik(start_node);
-	printVector(ik);
-
-
-	return base::PlannerStatus::INVALID_START;*/
-	// ------
 
 	if (tStart_->size() == 0)
 	{
@@ -347,15 +322,9 @@ ompl::base::PlannerStatus ompl::geometric::RRTConnect::solve(const base::Planner
 			const base::State *st = tGoal_->size() == 0 ? pis_.nextGoal(ptc) : pis_.nextGoal();
 			if (st)
 			{
-				if (0){//!close_chain(st, 0)) {
-					OMPL_ERROR("%s: Goal state not feasible!", getName().c_str());
-					printStateVector(st);
-					return base::PlannerStatus::INVALID_GOAL;
-				}
 				ik = identify_state_ik(st);
 				updateStateVectorIK(st, ik);
 				retrieveStateVector(st, q, ik);
-				cout << "Goal: "; printStateVector(st);
 
 				Motion *motion = new Motion(si_);
 				si_->copyState(motion->state, st);
@@ -365,6 +334,8 @@ ompl::base::PlannerStatus ompl::geometric::RRTConnect::solve(const base::Planner
 				motion->a_chain = 0;
 				tGoal_->add(motion);
 				PlanDistance = si_->distance(start_node, st);
+
+				cout << "Goal: "; printStateVector(st);
 			}
 
 			if (tGoal_->size() == 0)
@@ -377,7 +348,7 @@ ompl::base::PlannerStatus ompl::geometric::RRTConnect::solve(const base::Planner
 		//cout << "Trees size: " << tStart_->size() << ", " << tGoal_->size() << endl;
 		//cout << "Current trees distance: " << distanceBetweenTrees(tree, otherTree) << endl << endl;
 
-		//===================== New ==========================
+		//===============================================
 		Motion* reached_motion;
 		// sample random state
 		sampler_->sampleUniform(rstate);
@@ -447,7 +418,9 @@ ompl::base::PlannerStatus ompl::geometric::RRTConnect::solve(const base::Planner
 				path->append(mpath1[i]->state);
 			for (unsigned int i = 0 ; i < mpath2.size() ; ++i)
 				path->append(mpath2[i]->state);
+
 			save2file(mpath1, mpath2);
+
 			pdef_->addSolutionPath(base::PathPtr(path), false, 0.0, getName());
 			solved = true;
 			break;
@@ -472,7 +445,7 @@ ompl::base::PlannerStatus ompl::geometric::RRTConnect::solve(const base::Planner
 
 	final_solved = solved;
 	LogPerf2file();
-
+	
 	return solved ? base::PlannerStatus::EXACT_SOLUTION : base::PlannerStatus::TIMEOUT;
 }
 
@@ -527,27 +500,6 @@ void ompl::geometric::RRTConnect::log_q(Vector q) {
 	myfile.close();
 }
 
-void ompl::geometric::RRTConnect::LogPerf2file() {
-
-	std::ofstream myfile;
-	myfile.open("perf_log.txt");
-
-	myfile << final_solved << " ";
-	myfile << PlanDistance << " "; // Distance between nodes 1
-	myfile << total_runtime << " "; // Overall planning runtime 2
-	myfile << get_IK_counter() << " "; // How many IK checks? 5
-	myfile << get_IK_time() << " "; // IK computation time 6
-	//myfile << get_collisionCheck_counter() << endl; // How many collision checks? 7
-	//myfile << get_collisionCheck_time() << endl; // Collision check computation time 8
-	myfile << get_isValid_counter() << " "; // How many nodes checked 9
-	myfile << nodes_in_path << " "; // Nodes in path 10
-	myfile << nodes_in_trees << " "; // 11
-	myfile << RBS_success << " " << RBS_fail << " ";
-	myfile << project_success << " " << project_fail;
-
-	myfile.close();
-}
-
 void ompl::geometric::RRTConnect::save2file(vector<Motion*> mpath1, vector<Motion*> mpath2) {
 
 	cout << "Logging path to files..." << endl;
@@ -559,19 +511,19 @@ void ompl::geometric::RRTConnect::save2file(vector<Motion*> mpath1, vector<Motio
 
 	// Log env. info
 	std::ofstream mf;
-	mf.open("path_info.txt");
+	mf.open("./paths/path_info.txt");
 	mf << n << endl << 0 << endl << getL() << endl << get_bx() << endl << get_by() << endl << get_qminmax() << endl;
 	if (include_constraints)
-	for (int i = 0; i < obs.size(); i++)
-		for (int j = 0; j < 3; j++)
-			mf << obs[i][j] << endl;
+		for (int i = 0; i < obs.size(); i++)
+			for (int j = 0; j < 3; j++)
+				mf << obs[i][j] << endl;
 	mf.close();
 
 	// Only milestones
 	{
 		// Open a_path file
 		std::ofstream myfile, ikfile;
-		myfile.open("path_ms.txt");
+		myfile.open("./paths/path_milestones.txt");
 
 		Vector temp;
 		for (int i = mpath1.size() - 1 ; i >= 0 ; --i) {
@@ -594,65 +546,90 @@ void ompl::geometric::RRTConnect::save2file(vector<Motion*> mpath1, vector<Motio
 		}
 		myfile.close();
 	}
-	
-	//printMatrix(path);
 
-	// Milestones with interpolation
-	{
-		ob::State *s1 = si_->allocState();
-		ob::State *s2 = si_->allocState();
-		Matrix interPath;
-		Vector q, ik1(m), ik2(m);
-
+	{ // Reconstruct RBS
 		// Open a_path file
-		std::ofstream qfile;
-		qfile.open("path.txt");
+		std::ofstream fp, myfile;
+		std::ifstream myfile1;
+		myfile.open("./paths/temp.txt",ios::out);
 
-		// First point
-		for (int j = 0; j < n; j++) {
-			qfile << path[0][j] << " ";
+		std::vector<Motion*> path;
+		
+		// Bulid basic path
+		for (int i = mpath1.size() - 1 ; i >= 0 ; --i)
+			path.push_back(mpath1[i]);
+		for (unsigned int i = 0 ; i < mpath2.size() ; ++i)
+			path.push_back(mpath2[i]);
+
+		retrieveStateVector(path[0]->state, q);
+		for (int j = 0; j < q.size(); j++) {
+			myfile << q[j] << " ";
 		}
-		qfile << endl;
+		myfile << endl;
 
-		// Rest of points
-		for (int i = 1; i < path.size() ; i++) {
-			updateStateVector(s1, path[i-1]);
-			ik1 = identify_state_ik(s1);
-			updateStateVector(s2, path[i]);
-			ik2 = identify_state_ik(s2);
-			//printVector(ik1);
-			//printVector(ik2);
-			bool flag = false;
-			int j = 0;
-			while (j < m) {
-				if (ik1[j]!=ik2[j]) {
-					j++;
-					continue;
-				}						
-				interPath.clear();
+		int count = 1;
+		for (int i = 1; i < path.size(); i++) {
 
-				if (InterMotion(s1, s2, interPath, j, ik1[j])) {
-					//cout << "Found connection: " << i << " and " << i-1 << endl;
-					flag  = true;
+			Matrix M;
+			bool valid = false;
+			for (int j = 0; j < m; j++) {
+				M.clear();
+				if (path[i]->ik_vect[j] == path[i-1]->ik_vect[j]) {
+					valid =  reconstructRBS(path[i-1]->state, path[i]->state, M, j, path[i-1]->ik_vect[j]);
+					bool validMotion = checkMotionRBS(path[i-1]->state, path[i]->state, j, path[i-1]->ik_vect[j]);
+				}
+					
+				if (valid)
 					break;
-				}
-				else {
-					j++;
-					continue;
-				}	
 			}
 
-			if (!flag)
-				cout << "Error in path interpolation between points " << i << " and " << i-1 << "." << endl;
-			else {
-				for (j = 1; j < interPath.size(); j++) {
-					for (int k = 0; k < n; k++) {
-						qfile << interPath[j][k] << " ";
-					}
-					qfile << endl;
+			if (!valid) {
+				cout << "Error in reconstructing...\n";
+				return;
+			}
+			
+			for (int k = 1; k < M.size(); k++) {
+				for (int j = 0; j < M[k].size(); j++) {
+					myfile << M[k][j] << " ";
 				}
+				myfile << endl;
+				count++;
 			}
 		}
-		qfile.close();
+
+		// Update file with number of conf.
+		myfile.close();
+		myfile1.open("./paths/temp.txt",ios::in);
+		fp.open("./paths/path.txt",ios::out);
+		fp << count << endl;
+		std::string line;
+		while(myfile1.good()) {
+			std::getline(myfile1, line ,'\n');
+			fp << line << endl;
+		}
+		myfile1.close();
+		fp.close();
+		std::remove("./paths/temp.txt");
 	}
+}
+
+void ompl::geometric::RRTConnect::LogPerf2file() {
+
+	std::ofstream myfile;
+	myfile.open("./paths/perf_log.txt");
+
+	myfile << final_solved << " ";
+	myfile << PlanDistance << " "; // Distance between nodes 1
+	myfile << total_runtime << " "; // Overall planning runtime 2
+	myfile << get_IK_counter() << " "; // How many IK checks? 5
+	myfile << get_IK_time() << " "; // IK computation time 6
+	//myfile << get_collisionCheck_counter() << endl; // How many collision checks? 7
+	//myfile << get_collisionCheck_time() << endl; // Collision check computation time 8
+	myfile << get_isValid_counter() << " "; // How many nodes checked 9
+	myfile << nodes_in_path << " "; // Nodes in path 10
+	myfile << nodes_in_trees << " "; // 11
+	myfile << RBS_success << " " << RBS_fail << " ";
+	myfile << project_success << " " << project_fail;
+
+	myfile.close();
 }
