@@ -40,6 +40,7 @@ public:
 
 	/** Project a configuration in the ambient space to the constraint surface */
 	bool IKproject(ob::State *, int, int);
+	bool IKproject(Vector &, int, int);
 
 	/** Identify the IK solutions of a configuration using all passive chains defined */
 	Vector identify_state_ik(const ob::State *);
@@ -60,12 +61,10 @@ public:
 
 	/** Reconstruct a local connection using RBS for post-processing  */
 	bool reconstructRBS(const ob::State *, const ob::State *, Matrix &, int, int);
-	bool reconstructRBS(Vector, Vector, int, int, Matrix &, int, int, int);
+	bool reconstructRBS(Vector, Vector, int, int, Matrix &, int, int, int, int);
 
 	Vector midpoint(Vector q1, Vector q2);
 	Vector angle_distance(Vector q1, Vector q2);
-	//bool checkMotionRBS(const ob::State *s1, const ob::State *s2, int active_chain, int ik_sol);
-	bool RBS(const ob::State *, const ob::State *, int active_chain, int ik_sol, int recusion_depth, ob::State *);
 
 	/** Retrieve state from ob::State to vector<double> */
 	void retrieveStateVector(const ob::State *state, Vector &q);
@@ -91,6 +90,10 @@ public:
 
 	int get_valid_solution_index() {
 		return valid_solution_index;
+	}
+
+	double get_RBS_tol() {
+		return RBS_tol;
 	}
 
 	// Performance parameters

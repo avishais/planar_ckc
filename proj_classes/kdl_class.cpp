@@ -2,8 +2,14 @@
 
 // Constructor for the robots
 kdl::kdl(int joints_num, double custom_num) {
-	bx = 7;
-	by = 4;
+	if (joints_num == 20) {
+		bx = 7; // Base for scenarion with obs (n = 20)
+		by = 4;
+	}
+	else {
+		bx = 1.5;
+		by = 0;
+	}
 
 	L.resize(joints_num-1);
 	for (int i = 0; i < joints_num-1; i++)
@@ -31,6 +37,12 @@ kdl::kdl(int joints_num, double custom_num) {
 	initMatrix(T_pose, 4, 4);
 	T_pose = {{1, 0, 0, bx}, {0, 1, 0, by}, {0, 0, 1, 0}, {0, 0, 0, 1}};
 
+	for (int i = 0; i < 3; i++) {
+		cartposIK.p(i) = T_pose[i][3];
+		for (int j = 0; j < 3; j++)
+			cartposIK.M(i,j) = T_pose[i][j];
+	}
+
 	//Definition of a kinematic chain & add segments to the chain
 		for (int i = 0; i < joints_num-1; i++)
 		chain.addSegment(Segment(Joint(Joint::RotZ),Frame(Vector(L[i],0.0,0.0)))); 
@@ -41,6 +53,8 @@ kdl::kdl(int joints_num, double custom_num) {
 	jointpositions = JntArray(nj);
 
 	initVector(q_solution, nj);
+
+	IK_time = 0;
 
 	cout << "Initiated chain with " << nj << " joints.\n";
 }
@@ -57,12 +71,6 @@ bool kdl::GD(State q_init) {
 	IK_counter++;
 	clock_t begin = clock();
 
-	for (int i = 0; i < 3; i++) {
-		cartposIK.p(i) = T_pose[i][3];
-		for (int j = 0; j < 3; j++)
-			cartposIK.M(i,j) = T_pose[i][j];
-	}
-
 	// KDL
 	ChainFkSolverPos_recursive fksolver = ChainFkSolverPos_recursive(chain); 	// Create solver based on kinematic chain
 	ChainIkSolverVel_pinv iksolverv(chain);//Inverse velocity solver
@@ -72,8 +80,11 @@ bool kdl::GD(State q_init) {
 	JntArray qKDL(chain.getNrOfJoints());
 	JntArray qInit(chain.getNrOfJoints());
 
-	for (int i = 0; i < chain.getNrOfJoints(); i++)
+	double scale = 0.00001;
+	for (int i = 0; i < chain.getNrOfJoints(); i++) {
+		q_init[i] = floor(q_init[i] / scale + 0.5) * scale; // Chop accuracy due to bug in KDL
 		qInit(i) = q_init[i];
+	}
 
 	//Set destination frame
 	KDL::Frame F_dest = cartposIK;//Frame(Vector(1.0, 1.0, 0.0));
@@ -88,13 +99,18 @@ bool kdl::GD(State q_init) {
 			else
 				q[i] = qKDL(i);
 
-		for (int i = 0; i < q.size(); i++) {
+		for (int i = 0; i < q.size()-1; i++) {
 			q[i] = fmod(q[i], 2*PI);
 			if (q[i]>PI)
 				q[i] -= 2*PI;
 			if (q[i]<-PI)
 				q[i] += 2*PI;
 		}
+		q[n-1] = fmod (q[n-1],  2*PI);
+		if (q[n-1] > 2*PI)
+			q[n-1] -= 2*PI;
+		if (q[n-1] < 0)
+			q[n-1] += 2*PI;
 
 		for (int i = 0; i < n; i++)
 			q_solution[i] = q[i];

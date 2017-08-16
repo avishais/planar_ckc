@@ -75,6 +75,25 @@ public:
 	void printVector(State);
 	void clearMatrix(Matrix &);
 
+	// Generate random number
+	double fRand(double fMin, double fMax)
+	{
+		double f = (double)rand() / RAND_MAX;
+		return fMin + f * (fMax - fMin);
+	}
+
+	double get_bx() {
+		return bx;
+	}
+	double get_by() {
+		return by;
+	}
+	State getL() {
+		return L;
+	}
+	double get_qminmax() {
+		return qminmax;
+	}
 	/** Log conf. to path.txt file */
 	void log_q(State q);
 

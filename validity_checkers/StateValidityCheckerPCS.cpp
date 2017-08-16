@@ -118,17 +118,24 @@ Vector StateValidityChecker::sample_q() {
 
 bool StateValidityChecker::IKproject(ob::State *state, int nc, int IK_sol) {
 	// nc - passive chain number
-	Vector q(n), ik(m), q_IK(3);
-	Vector p_left(3), p_right(3), pose(3);
+	Vector q(n), ik(m);
 
 	retrieveStateVector(state, q, ik);
 
-	if (!project(q, nc, IK_sol))
+	if (!IKproject(q, nc, IK_sol))
 		return false;
 
 	ik[nc] = IK_sol;
-
 	updateStateVector(state, q, ik);
+
+	return true;
+}
+
+bool StateValidityChecker::IKproject(Vector &q, int nc, int IK_sol) {
+	// nc - passive chain number
+
+	if (!project(q, nc, IK_sol))
+		return false;
 
 	return true;
 }
@@ -146,11 +153,9 @@ Vector StateValidityChecker::identify_state_ik(Vector q) {
 	double tol = 0.05;
 
 	for (int nc = 0; nc < m; nc++) {
-		cout << "* " << nc << endl;
 		for (int IK_sol = 1; IK_sol <= 2; IK_sol++) {
 			q_temp = q;
 			if (project(q_temp, nc, IK_sol)) {
-				printVector(q_temp);
 				VectorInt idx(3);
 				if (nc < n-2)
 					idx = {nc, nc+1, nc+2};
@@ -167,8 +172,8 @@ Vector StateValidityChecker::identify_state_ik(Vector q) {
 				}
 			}
 		}
-		if (ik[nc]==-1)
-			cout << "Error: IK not found.\n";
+		//if (ik[nc]==-1)
+		//	cout << "Error: IK not found.\n";
 	}
 
 	return ik;
@@ -357,16 +362,16 @@ Vector StateValidityChecker::midpoint(Vector q1, Vector q2) {
 bool StateValidityChecker::reconstructRBS(const ob::State *s1, const ob::State *s2, Matrix &Confs, int active_chain, int ik_sol)
 {
 	Vector q1(n), q2(n);
-	retrieveStateVector(s1, q);
+	retrieveStateVector(s1, q1);
 	retrieveStateVector(s2, q2);
 
 	Confs.push_back(q1);
 	Confs.push_back(q2);
 
-	return reconstructRBS(q1, q2, active_chain, ik_sol, Confs, 0, 1, 1);
+	return reconstructRBS(q1, q2, active_chain, ik_sol, Confs, 0, 1, 1, 0);
 }
 
-bool StateValidityChecker::reconstructRBS(Vector q1, Vector q2, int active_chain, int ik_sol, Matrix &M, int iteration, int last_index, int firstORsecond) {
+bool StateValidityChecker::reconstructRBS(Vector q1, Vector q2, int active_chain, int ik_sol, Matrix &M, int iteration, int last_index, int firstORsecond, int non_decrease_count) {
 	// firstORsecond - tells if the iteration is from the first or second call for the recursion (in the last iteration).
 	// last_index - the last index that was added to M.
 
@@ -398,10 +403,10 @@ bool StateValidityChecker::reconstructRBS(Vector q1, Vector q2, int active_chain
 		M.insert(M.begin()+(++last_index), q_mid); // Inefficient operation, but this is only for post-processing and validation
 
 	int prev_size = M.size();
-	if (!reconstructRBS(q1, q_mid, active_chain, ik_sol, M, iteration, last_index, 1))
+	if (!reconstructRBS(q1, q_mid, active_chain, ik_sol, M, iteration, last_index, 1, non_decrease_count))
 		return false;
 	last_index += M.size()-prev_size;
-	if (!reconstructRBS(q_mid, q2, active_chain, ik_sol, M, iteration, last_index, 2))
+	if (!reconstructRBS(q_mid, q2, active_chain, ik_sol, M, iteration, last_index, 2, non_decrease_count))
 		return false;
 
 	return true;

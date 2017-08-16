@@ -11,7 +11,7 @@ bool verification_class::verify_path() {
 
 	cout << "Verifying path in file: " << path_file << "..." << endl;
 
-	State q(12);
+	State q(n);
 	Matrix M;
 	int tmp;
 
@@ -22,7 +22,7 @@ bool verification_class::verify_path() {
 
 	int i = 0;
 	while(!fq.eof()) {
-		for (int j=0; j < 12; j++) {
+		for (int j=0; j < n; j++) {
 			fq >> q[j];
 		}
 		M.push_back(q);
@@ -49,16 +49,16 @@ bool verification_class::verify_path() {
 bool verification_class::verify_path(Matrix M) {
 
 	int m = M.size();
-
+/*
 	// Validate joint limits
 	for (int i = 0; i < m; i++) {
-		if (!check_angle_limits(M[i])) {
+		if (!check_angles(M[i])) {
 			cout << "***************************************" << endl;
 			cout << "@ Joint limits failure!" << endl;
 			cout << "@ Node " << i << endl;
 			return false; // Report joint limit breach
 		}
-	}
+	}*/
 
 	// Validate continuity
 	for (int i = 1; i < m; i++) {
@@ -80,7 +80,7 @@ bool verification_class::verify_path(Matrix M) {
 			return false;
 		}
 	}
-
+/*
 	// Validate collisions
 	State q1(M[0].size()/2), q2(M[0].size()/2);
 	for (int i = 0; i < m; i++) {
@@ -91,7 +91,7 @@ bool verification_class::verify_path(Matrix M) {
 			cout << "@ Node " << i << endl;
 			return false;
 		}
-	}
+	}*/
 
 	return true; // No errors
 }
@@ -111,24 +111,23 @@ void verification_class::log_path_file(Matrix M) {
 	}
 
 	mf.close();
+
+	/*State L = getL();
+	mf.open("../paths/path_info.txt");
+	mf << n << endl << 0 << endl << L[0] << endl << get_bx() << endl << get_by() << endl << get_qminmax() << endl;
+	mf.close();*/
 }
 
 bool verification_class::test_constraint(State q) {
-	Matrix Tsb = Tsb_matrix(q);
 
-	bool valid = true;
-	for (int j = 0; j < 3 && valid; j++)
-		for (int k = 0; k < 4; k++) {
-			if ((k < 3 && fabs(Tsb[j][k]-Tsd[j][k]) > 0.1) || (k==3 && fabs(Tsb[j][k]-Tsd[j][k]) > 0.5)) {
-				printVector(q);
-				printMatrix(Tsb);
-				printMatrix(Tsd);
-				valid = false;
-				break;
-			}
+	State C = constraint(q);
 
-		}
-	return valid;
+	bool verify = true;
+	for (int j = 0; j < C.size() && verify; j++)
+		if (fabs(C[j]) > 0.05)
+			verify = false;
+
+	return verify;
 
 }
 

@@ -3,6 +3,7 @@
 % Seed = 1502822605
 % last updated: 08/14/17
 
+% Uses test_apc.cpp
 % Results in apc_verification.txt in this form:
 % f << {successful projection} << " " << {verified constraint} << " " << apc_time << endl;
 
