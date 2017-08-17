@@ -1,5 +1,5 @@
 % Visibility plots based on the tests in: test_pcs_rbs.m, test_gd_rbs.m
-% last updated: 08/16/17
+% last updated: 08/17/17
 
 clear all
 clc

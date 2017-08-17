@@ -7,7 +7,7 @@
 
 int main() {
 
-	int Seed = time(NULL);//1501629079;//
+	int Seed = 1502899207;//time(NULL);//1501629079;//
 	srand( Seed );
 	cout << "Seed in testing: " << Seed << endl;
 

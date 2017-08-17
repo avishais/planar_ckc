@@ -170,7 +170,7 @@ int main(int argn, char ** args) {
 
 	plan_C Plan;
 
-	int mode = 3;
+	int mode = 4;
 	switch (mode) {
 	case 1: {//Manual check
 		//c_start = {-0.166233, 0.33943, 0.953414, -1.24087, -0.806106, 2.22124};
@@ -252,29 +252,28 @@ int main(int argn, char ** args) {
 
 		std::ofstream mf;
 		std::ifstream pf;
-		mf.open("/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/matlab/benchmark_PCS_obs_range2_m20.txt", ios::app);
+		mf.open("/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/matlab/benchmark_PCS_obs_range2.txt", ios::app);
 
 		verification_class vfc(n);
 
 		for (int i = 0; i < N; i++) { // N points for this number of passive chains
-			//for (int m = 1; m <= n; m++) { // All possible passive chains
-			int m = n;
+			for (int m = 1; m <= n; m++) { // All possible passive chains
 
-			Plan.plan(c_start, c_goal, n, m, runtime, 0);
+				Plan.plan(c_start, c_goal, n, m, runtime, 0);
 
-			bool verf = vfc.verify_path();
-			if (!verf) {
-				cout << "Verification error. press to continue...\n";
-				//cin.ignore();
+				bool verf = vfc.verify_path();
+				if (!verf) {
+					//cout << "Verification error. press to continue...\n";
+					//cin.ignore();
+				}
+
+				mf << m << " ";
+				mf << verf << " ";
+				pf.open("./paths/perf_log.txt");
+				getline(pf, line);
+				mf << line << endl;
+				pf.close();
 			}
-
-			mf << m << " ";
-			mf << verf << " ";
-			pf.open("./paths/perf_log.txt");
-			getline(pf, line);
-			mf << line << endl;
-			pf.close();
-			//}
 		}
 		mf.close();
 		break;

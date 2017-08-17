@@ -6,7 +6,7 @@
 % a random point and choping it from the first point, projecting and
 % checking local connection.
 % The success rate is also tracked to calculate visibility.
-% last updated: 08/16/17
+% last updated: 08/17/17
 
 % Uses test_rbs_pcs.cpp
 % pcs_rbs_verification.txt with seed: 1502896720
@@ -16,7 +16,7 @@
 clear all
 clc
 
-D = load('pcs_rbs_verification (copy).txt');
+D = load('pcs_rbs_verification.txt');
 
 %% Verification
 
@@ -40,7 +40,7 @@ clear td d
 Dd = D(suc,3);
 Td = D(suc,4);
 max_d = max(Dd);
-d = linspace(0, max_d, 8);
+d = linspace(0, max_d, 20);
 for i = 2:length(d)
     M = Td(Dd>=d(i-1) & Dd<d(i));
     td(i) = mean(M);
@@ -57,7 +57,7 @@ set(hAx,{'ycolor'},{'b';'k'})
 xlabel('distance');
 ylabel(hAx(1),'number of points');
 ylabel(hAx(2),'computation time [msec]');
-% ylim(hAx(1),[0 8500]);
+% ylim(hAx(1),[0 2500]);
 % ylim(hAx(2),[0 0.12]);
 
 %% Check uniformity

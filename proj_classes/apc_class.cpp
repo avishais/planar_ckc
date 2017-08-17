@@ -328,7 +328,7 @@ bool ckc::IKp(Vector pose, int ik_sol, double L1) {
 	double y2 = pose[1] - L/2 * sin(theta);
 
 	double r = sqrt(x2*x2+y2*y2);
-	double S = (r*r-L1*L1-L*L)/(-2*L*L);
+	double S = (r*r-L1*L1-L*L)/(-2*L1*L);
 	double Ss = (1-S*S);
 
 	if (ik_sol == 1)

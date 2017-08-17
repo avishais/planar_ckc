@@ -37,7 +37,6 @@ disp(['Results of ' num2str(size(D2,1)) ' queries.']);
 disp(['Percent of successful queries verified: ' num2str(sum(verf & suc)/sum(suc)*100) '%']);
 disp(['Plan distance: ' num2str(D2(1,3)) ]);
 disp(['Avg. runtime: ' num2str(mean(D2(:,4))*1e3)  ' +/- ' num2str(std(D2(:,4))/sqrt(size(D2,1))*1e3) ' msec ']);
-disp(['Avg. local-connection time: ' num2str(mean(D2(:,12))*1e3)  ' +/- ' num2str(std(D2(:,12))/sqrt(size(D2,1))*1e3) ' msec ']);
 disp(['Avg. nodes in path: ' num2str(floor(mean(D2(:,10)))) ]);
 disp(['Avg. nodes in trees: ' num2str(floor(mean(D2(:,11)))) ]);
 disp(['Avg. number of projections: ' num2str(floor(mean(D2(:,5)))) ]);

@@ -331,8 +331,6 @@ ompl::base::PlannerStatus ompl::geometric::RRTConnect::solve(const base::Planner
 			if (st)
 			{
 				ik = identify_state_ik(st);
-				printVector(ik);
-				exit(1);
 				updateStateVectorIK(st, ik);
 				retrieveStateVector(st, q, ik);
 

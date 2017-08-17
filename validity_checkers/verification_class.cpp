@@ -135,6 +135,9 @@ bool verification_class::test_constraint(State q) {
 		if (fabs(C[j]) > 0.05)
 			verify = false;
 
+	//if (!verify)
+	//	printVector(C);
+
 	return verify;
 
 }

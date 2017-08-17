@@ -9,22 +9,38 @@ clear all
 clc
 
 %%
-D = load('benchmark_PCS_obs_range2.txt');
+D1 = load('benchmark_PCS_obs_range2.txt');
+D2 = load('benchmark_GD_obs_range2.txt');
 
 %% Verification
 
-verf = D(:,2)==1;
-suc = D(:,3)==1;
+verf = D1(:,2)==1;
+suc = D1(:,3)==1;
 
-disp(['Results of ' num2str(size(D,1)) ' queries.']);
+disp(['Results of ' num2str(size(D1,1)) ' queries.']);
 disp(['Percent of successful queries verified: ' num2str(sum(verf & suc)/sum(suc)*100) '%']);
-disp(['Plan distance: ' num2str(D(1,4)) ]);
-disp(['Avg. runtime: ' num2str(mean(D(:,5))*1e3)  ' +/- ' num2str(std(D(:,5))/sqrt(size(D,1))*1e3) ' msec ']);
+disp(['Plan distance: ' num2str(D1(1,4)) ]);
+disp(['Avg. runtime: ' num2str(mean(D1(:,5))*1e3)  ' +/- ' num2str(std(D1(:,5))/sqrt(size(D1,1))*1e3) ' msec ']);
+
+Tgd = mean(D2(:,4);
 
 %% Break to passive chains
 
-m = sort(unique(D(:,1)));
+m = sort(unique(D1(:,1)));
 
 for i = 1:length(m)
-    M = D(D(:,1)==m(i), 2:end))
+    M = D1(D1(:,1)==m(i), 2:end);
+    Tavg(i) = mean(M(:,4))*1e3;
+    Tstd(i) = std(M(:,4))*1e3 / sqrt(size(M,1));
 end
+
+figure(1)
+errorbar(m, Tavg, Tstd,'-k','linewidth',2);
+hold on
+plot(xlim, Tgd*[1 1],'--k','linewidth',2);
+% plot(m, Tavg);
+hold off
+xlabel('m');
+ylabel('Avg. runtime [msec]');
+xlim([0 m(end)]);
+legend

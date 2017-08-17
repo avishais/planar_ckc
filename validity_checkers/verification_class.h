@@ -40,9 +40,9 @@ private:
 	
 	string path_file = "./paths/path.txt";
 
-	bool cAngles = false; // Check angle limits?
-	bool cObs = false; // Check collisions with obstacles?
-	bool cColl = false; // Check self collisions?
+	bool cAngles = true; // Check angle limits?
+	bool cObs = true; // Check collisions with obstacles?
+	bool cColl = true; // Check self collisions?
 };
 
 

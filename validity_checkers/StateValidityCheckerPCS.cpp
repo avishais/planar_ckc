@@ -93,7 +93,7 @@ void StateValidityChecker::printStateVector(const ob::State *state) {
 }
 
 Vector StateValidityChecker::sample_q() {
-	Vector q(n), q_IK(3), pose(3);
+	Vector q(n);
 
 	while (1) {
 		// Randomly generate a chain
@@ -106,9 +106,6 @@ Vector StateValidityChecker::sample_q() {
 			break;
 		}
 	}
-
-	for (int i = 0; i < 3; i++)
-		q[i] = q_IK[i];
 
 	// Check Constraints
 	if (include_constraints && (!check_angles(q) || !obstacle_collision(q) || !self_collision(q)))  {
@@ -321,14 +318,12 @@ Vector StateValidityChecker::identify_state_ik(const ob::State *state) {
 Vector StateValidityChecker::identify_state_ik(Vector q) {
 	State q_temp(n), ik(m, -1);
 
-	cout << "m: " << m << endl;
-
 	double tol = 0.05;
 
 	for (int nc = 0; nc < m; nc++) {
 		for (int IK_sol = 1; IK_sol <= 2; IK_sol++) {
 			q_temp = q;
-			cout << "---- " << nc << " " << IK_sol << endl;
+
 			if (IKproject(q_temp, nc, IK_sol)) {
 				VectorInt idx(3);
 				if (nc < n-2)
@@ -339,8 +334,6 @@ Vector StateValidityChecker::identify_state_ik(Vector q) {
 					if (nc == n-1)
 						idx = {n-1, 0, 1};
 				}
-				printVector(q);
-				printVector(q_temp);
 
 				if (fabs(q_temp[idx[0]]-q[idx[0]]) < tol && fabs(q_temp[idx[1]]-q[idx[1]]) < tol && fabs(q_temp[idx[2]]-q[idx[2]]) < tol) {
 					ik[nc] = IK_sol;

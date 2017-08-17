@@ -6,7 +6,7 @@
 % connection. The sampling strategy is sampling a feasible point, sampling
 % a random point and choping it from the first point, projecting and
 % checking local connection.
-% last updated: 08/16/17
+% last updated: 08/17/17
 
 % Uses test_pcs_vary_m.cpp
 % pcs_rbs_verification.txt with seed: 1502899207
