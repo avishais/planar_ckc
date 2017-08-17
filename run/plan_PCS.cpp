@@ -264,7 +264,7 @@ int main(int argn, char ** args) {
 				bool verf = vfc.verify_path();
 				if (!verf) {
 					cout << "Verification error. press to continue...\n";
-					cin.ignore();
+					//cin.ignore();
 				}
 
 				mf << m << " ";

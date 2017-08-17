@@ -27,7 +27,7 @@ all:
 	#$(CXX) test_gd_kdl.cpp ${CPPGDKDL} -o tgd $(CXXFLAGS) $(LDFLAGS) -std=c++11
 	#$(CXX) test_apc.cpp ${CPPAPC} -o tapc $(CXXFLAGS) $(LDFLAGS) -std=c++11
 
-	$(CXX) test_pcs_vary_m.cpp ${CPPAPC} ${CPPVRF} -o trbs $(CXXFLAGS) $(LDFLAGS) -std=c++11
+	$(CXX) test_pcs_vary_m.cpp ${CPPAPC} ${CPPVRF} -o tm $(CXXFLAGS) $(LDFLAGS) -std=c++11
 
 
 

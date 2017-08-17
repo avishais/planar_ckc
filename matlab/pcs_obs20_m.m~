@@ -10,7 +10,7 @@ clc
 
 %%
 D = load('benchmark_PCS_obs_range2.txt');
-D(111,:) = [];
+
 %% Verification
 
 verf = D(:,2)==1;
@@ -26,13 +26,5 @@ disp(['Avg. runtime: ' num2str(mean(D(:,5))*1e3)  ' +/- ' num2str(std(D(:,5))/sq
 m = sort(unique(D(:,1)));
 
 for i = 1:length(m)
-    M = D(D(:,1)==m(i), 2:end);
-    Tavg(i) = mean(M(:,4))*1e3;
-    Tstd(i) = std(M(:,4))*1e3 / sqrt(size(M,1));
+    M = D(D(:,1)==m(i), 2:end))
 end
-
-figure(1)
-errorbar(m, Tavg, Tstd);
-% plot(m, Tavg);
-xlabel('m');
-ylabel('Avg. runtime [msec]');

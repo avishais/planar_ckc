@@ -8,7 +8,7 @@
 % last updated: 08/16/17
 
 % Uses test_rbs_gd.cpp
-% gd_rbs_verification.txt - seed: 1502893974
+% gd_rbs_verification.txt - seed: 1502945582
 % Results in the above files in this form:
 % f << {success} << " " << {path verified} << " " << {distance between confs.} << " " << rbs_time << endl;
 
@@ -39,7 +39,7 @@ clear td d
 Dd = D(suc,3);
 Td = D(suc,4);
 max_d = max(Dd);
-d = linspace(0, max_d, 15);
+d = linspace(0, max_d, 12);
 for i = 2:length(d)
     M = Td(Dd>=d(i-1) & Dd<d(i));
     td(i) = mean(M);
@@ -57,7 +57,7 @@ xlabel('distance');
 ylabel(hAx(1),'number of points');
 ylabel(hAx(2),'computation time [msec]');
 % ylim(hAx(1),[0 8500]);
-% ylim(hAx(2),[0 0.12]);
+ylim(hAx(2),[0 60]);
 
 %% Visibility
 

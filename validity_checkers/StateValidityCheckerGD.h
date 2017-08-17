@@ -97,9 +97,9 @@ public:
 
 	// Include constraints?
 	const bool include_constraints = false; // Enable/Disable constraints
-	bool check_angles(State q);
-	bool self_collision(State q);
-	bool obstacle_collision(State q);
+	bool check_angles(State, double = 1);
+	bool self_collision(State, double = 1);
+	bool obstacle_collision(State, double = 0.3);
 	bool LinesIntersect(State A, State B, State C, State D);
 	//Matrix obs = {{-4, 4, 1},{3.4, 7.5, 1}, {4.2, -2.9, 1.5}, {8, 2, 0.8}};
 	Matrix obs = {{-3.2, 4, 1},{2.6, 6.8, 1}, {4.2, -2.9, 1.5}, {8, 2, 0.8}};
@@ -112,7 +112,7 @@ private:
 
 	double dq = 0.1;
 	double RBS_tol = 0.05; // RBS local connection resolution
-	int RBS_max_depth = 150; // Maximum RBS recursion depth
+	int RBS_max_depth = 100; // Maximum RBS recursion depth
 
 	ompl::RNG rng_;
 

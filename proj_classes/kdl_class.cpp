@@ -86,12 +86,18 @@ bool kdl::GD(State q_init) {
 		qInit(i) = q_init[i];
 	}
 
+	// This is a fix since the last joint in KDL terms is the extension of the arm and is relative to the last link
+	qInit(n-1) = PI - qInit(n-1);
+
 	//Set destination frame
 	KDL::Frame F_dest = cartposIK;//Frame(Vector(1.0, 1.0, 0.0));
 	int ret = iksolver.CartToJnt(qInit, F_dest, qKDL);
 
 	bool result = false;
 	if (ret >= 0) {
+
+		// Revert fix from above
+		qKDL(n-1) = PI - qKDL(n-1);
 
 		for (int i = 0; i < n; i++)
 			if (fabs(qKDL(i)) < 1e-4)
@@ -170,6 +176,9 @@ Matrix kdl::get_FK_solution() {
 
 State kdl::constraint(State q) {
 
+	// KDL fix
+	q[n-1] = PI - q[n-1];
+
 	FK(q);
 	Matrix T = get_FK_solution();
 
@@ -220,11 +229,16 @@ void kdl::clearMatrix(Matrix &M) {
 			M[i][j] = 0;;
 }
 
-void kdl::log_q(State q) {
+void kdl::log_q(State q, bool New) {
+	// New=true, erase and write new file
 	std::ofstream myfile;
-	myfile.open("../paths/path.txt");
 
-	myfile << 1 << endl;
+	if (New) {
+		myfile.open("./paths/path.txt");
+		myfile << 1 << endl;
+	}
+	else
+		myfile.open("./paths/path.txt", ios::app);
 
 	for (int i = 0; i < q.size(); i++)
 		myfile << q[i] << " ";

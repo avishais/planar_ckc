@@ -95,7 +95,7 @@ public:
 		return qminmax;
 	}
 	/** Log conf. to path.txt file */
-	void log_q(State q);
+	void log_q(State, bool = true);
 
 	/** Performance parameters */
 	int IK_counter;

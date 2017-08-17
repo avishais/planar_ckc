@@ -32,7 +32,7 @@ end
 
 figure(1)
 clf
-for j = 635:1:size(D,1)
+for j = 1:5:size(D,1)
     disp(j);
     clf;
     

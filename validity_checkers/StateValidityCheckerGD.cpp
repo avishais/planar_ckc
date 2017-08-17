@@ -197,10 +197,10 @@ double StateValidityChecker::MaxAngleDistance(State a1, State a2) {
 
 // ------------------------------- Constraints functions ---------------------------
 
-bool StateValidityChecker::check_angles(State q) {
+bool StateValidityChecker::check_angles(State q, double factor) {
 
 	for (int i = 0; i < n-1; i++)
-		if (q[i] > get_qminmax() || q[i] < -1*get_qminmax())
+		if (q[i] > factor*get_qminmax() || q[i] < -factor*get_qminmax())
 			return false;
 	if (q[n-1] < 0)
 		return false;
@@ -208,7 +208,7 @@ bool StateValidityChecker::check_angles(State q) {
 	return true;
 }
 
-bool StateValidityChecker::self_collision(State q) {
+bool StateValidityChecker::self_collision(State q, double factor) {
 	double Ax, Ay, Bx, By, Cx, Cy, Dx, Dy;
 	State L = getL();
 	Ax = Ay = 0;
@@ -228,8 +228,19 @@ bool StateValidityChecker::self_collision(State q) {
 			Dx = Cx + L[j]*cos(cum_q_CD);
 			Dy = Cy + L[j]*sin(cum_q_CD);
 
-			if (!LinesIntersect({Ax, Ay}, {Bx, By}, {Cx, Cy}, {Dx, Dy}))
+			// ---- Check if two lines intersect ---
+			double s1_x = Bx - Ax;
+			double s1_y = By - Ay;
+			double s2_x = Dx - Cx;
+			double s2_y = Dy - Cy;
+			double s = (-s1_y * (Ax - Cx) + s1_x * (Ay - Cy)) / (-s2_x * s1_y + s1_x * s2_y);
+			double t = ( s2_x * (Ay - Cy) - s2_y * (Ax - Cx)) / (-s2_x * s1_y + s1_x * s2_y);
+
+			double minLim = -0.2 * factor, maxLim = 1.2 * factor;
+			if (s >= minLim && s <= maxLim && t >= minLim && t <= maxLim)
 				return false;
+			// -------------------------------------
+
 			Cx = Dx;
 			Cy = Dy;
 		}
@@ -261,7 +272,7 @@ bool StateValidityChecker::LinesIntersect(State A, State B, State C, State D) {
 	return true; // No collision
 }
 
-bool StateValidityChecker::obstacle_collision(State q) {
+bool StateValidityChecker::obstacle_collision(State q, double factor) {
 	double x, y;
 	State L = getL();
 	x = y = 0;
@@ -274,7 +285,7 @@ bool StateValidityChecker::obstacle_collision(State q) {
 		y = y + L[i]*sin(cum_q);
 
 		for (int j = 0; j < obs.size(); j++) {
-			if ( (x-obs[j][0])*(x-obs[j][0]) + (y-obs[j][1])*(y-obs[j][1]) < (obs[j][2]+0.3*L[i])*(obs[j][2]+0.3*L[i]) )
+			if ( (x-obs[j][0])*(x-obs[j][0]) + (y-obs[j][1])*(y-obs[j][1]) < (obs[j][2]+factor*L[i])*(obs[j][2]+factor*L[i]) )
 				return false;
 		}
 	}

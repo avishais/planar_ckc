@@ -5,8 +5,8 @@
  *      Author: avishai
  */
 
-#include "StateValidityCheckerPCS.h"
-//#include "StateValidityCheckerGD.h"
+//#include "StateValidityCheckerPCS.h"
+#include "StateValidityCheckerGD.h"
 
 //#include <stdio.h>
 #include <iostream>
@@ -39,6 +39,10 @@ private:
 	double continuity_tol;
 	
 	string path_file = "./paths/path.txt";
+
+	bool cAngles = false; // Check angle limits?
+	bool cObs = false; // Check collisions with obstacles?
+	bool cColl = false; // Check self collisions?
 };
 
 

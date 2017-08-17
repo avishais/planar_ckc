@@ -51,8 +51,8 @@ bool verification_class::verify_path(Matrix M) {
 	int m = M.size();
 
 	// Validate joint limits
-	for (int i = 0; i < m; i++) {
-		if (!check_angles(M[i])) {
+	for (int i = 0; cAngles && i < m; i++) {
+		if (!check_angles(M[i], 1.15)) {
 			cout << "***************************************" << endl;
 			cout << "@ Joint limits failure!" << endl;
 			cout << "@ Node " << i << endl;
@@ -82,7 +82,7 @@ bool verification_class::verify_path(Matrix M) {
 	}
 
 	// Validate obstacle collisions
-	for (int i = 0; i < m; i++) {
+	for (int i = 0; cObs && i < m; i++) {
 		if (!obstacle_collision(M[i], 0.2)) {
 			cout << "***************************************" << endl;
 			cout << "@ Obstacle collision failure!" << endl;
@@ -92,8 +92,8 @@ bool verification_class::verify_path(Matrix M) {
 	}
 
 	// Validate sel collisions
-	for (int i = 0; i < m; i++) {
-		if (!self_collision(M[i], 0.8)) {
+	for (int i = 0; cColl && i < m; i++) {
+		if (!self_collision(M[i], 0.7)) {
 			cout << "***************************************" << endl;
 			cout << "@ Self collision failure!" << endl;
 			cout << "@ Node " << i << endl;

@@ -445,10 +445,10 @@ double StateValidityChecker::normDistance(Vector a1, Vector a2) {
 
 // ------------------------------- Constraints functions ---------------------------
 
-bool StateValidityChecker::check_angles(Vector q) {
+bool StateValidityChecker::check_angles(Vector q, double factor) {
 
 	for (int i = 0; i < n-1; i++)
-		if (q[i] > get_qminmax() || q[i] < -1*get_qminmax())
+		if (q[i] > factor*get_qminmax() || q[i] < -factor*get_qminmax())
 			return false;
 	if (q[n-1] < 0)
 		return false;
