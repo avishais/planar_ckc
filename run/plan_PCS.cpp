@@ -170,7 +170,7 @@ int main(int argn, char ** args) {
 
 	plan_C Plan;
 
-	int mode = 4;
+	int mode = 3;
 	switch (mode) {
 	case 1: {//Manual check
 		//c_start = {-0.166233, 0.33943, 0.953414, -1.24087, -0.806106, 2.22124};
@@ -231,7 +231,7 @@ int main(int argn, char ** args) {
 		Vector c_goal = {-2.1293, 0.34907, 0.5236, 0.5236, 0.69813, 0.61087, 0.61087, -0.17453, -0.7854, -0.5236, -0.34907, 0.5236, 0.7854, 0.7854, 0.2618, 0.43633, -0.17453, -1.2474, 1.2172, 5.0836}; // 4 obs
 
 		int n = c_start.size();
-		int m = n;//n-3;
+		int m = n;//n-2;//n-3;
 
 		Plan.plan(c_start, c_goal, n, m, runtime);
 
@@ -252,28 +252,29 @@ int main(int argn, char ** args) {
 
 		std::ofstream mf;
 		std::ifstream pf;
-		mf.open("/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/matlab/benchmark_PCS_obs_range2.txt", ios::app);
+		mf.open("/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/matlab/benchmark_PCS_obs_range2_m20.txt", ios::app);
 
 		verification_class vfc(n);
-		
+
 		for (int i = 0; i < N; i++) { // N points for this number of passive chains
-			for (int m = 1; m <= n; m++) { // All possible passive chains
+			//for (int m = 1; m <= n; m++) { // All possible passive chains
+			int m = n;
 
-				Plan.plan(c_start, c_goal, n, m, runtime, 0);
-				
-				bool verf = vfc.verify_path();
-				if (!verf) {
-					cout << "Verification error. press to continue...\n";
-					//cin.ignore();
-				}
+			Plan.plan(c_start, c_goal, n, m, runtime, 0);
 
-				mf << m << " ";
-				mf << verf << " ";
-				pf.open("./paths/perf_log.txt");
-				getline(pf, line);
-				mf << line << endl;
-				pf.close();
+			bool verf = vfc.verify_path();
+			if (!verf) {
+				cout << "Verification error. press to continue...\n";
+				//cin.ignore();
 			}
+
+			mf << m << " ";
+			mf << verf << " ";
+			pf.open("./paths/perf_log.txt");
+			getline(pf, line);
+			mf << line << endl;
+			pf.close();
+			//}
 		}
 		mf.close();
 		break;

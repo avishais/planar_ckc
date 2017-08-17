@@ -75,7 +75,7 @@ bool ckc::project(Vector &q, int nc, int IK_sol) {
 		if (pose[2] < -PI)
 			pose[2] += 2*PI;
 
-		if (IKp(pose, IK_sol, {L,L,L}))
+		if (IKp(pose, IK_sol, L))
 			q_IK = get_IK_sol_q();
 		else
 			return false;
@@ -83,8 +83,10 @@ bool ckc::project(Vector &q, int nc, int IK_sol) {
 		q[nc] = q_IK[0];// + p_left[2];
 		q[nc+1] = q_IK[1];
 		q[nc+2] = q_IK[2];
+
 	}
 	if (nc == n-3)  { // The last passive chain (not including base) - special treatment
+
 		FK_left_half(q, n-3);
 		p_left = get_FK_sol_left();
 		p_left[2] += PI;
@@ -100,7 +102,7 @@ bool ckc::project(Vector &q, int nc, int IK_sol) {
 		if (pose[2] < -PI)
 			pose[2] += 2*PI;
 
-		if (IKp(pose, IK_sol, {L,L,L}))
+		if (IKp(pose, IK_sol, L))
 			q_IK = get_IK_sol_q();
 		else
 			return false;
@@ -116,6 +118,7 @@ bool ckc::project(Vector &q, int nc, int IK_sol) {
 		if (q[n-1] > 2*PI) q[n-1] -= 2*PI;
 	}
 	if (nc == n-2) { // Passive chain including the base and the right base joint
+
 		p_left = {0,0,0};
 
 		Vector qr(n-3);
@@ -146,7 +149,7 @@ bool ckc::project(Vector &q, int nc, int IK_sol) {
 		if (pose[2] < -PI)
 			pose[2] += 2*PI;
 
-		if (IKp(pose, IK_sol, {b, L, L}))
+		if (IKp(pose, IK_sol, b))
 			q_IK = get_IK_sol_q();
 		else
 			return false;
@@ -165,6 +168,7 @@ bool ckc::project(Vector &q, int nc, int IK_sol) {
 		if (q[n-1] > 2*PI) q[n-1] -= 2*PI;
 	}
 	if (nc == n-1) { // Passive chain including the base and the left base joint
+
 		Vector ql(n-3);
 		for (int i = 1; i < n-2; i++)
 			ql[i-1] = q[i];
@@ -194,7 +198,7 @@ bool ckc::project(Vector &q, int nc, int IK_sol) {
 		if (pose[2] < -PI)
 			pose[2] += 2*PI;
 
-		if (IKp(pose, IK_sol, {b,L,L}))
+		if (IKp(pose, IK_sol, b))
 			q_IK = get_IK_sol_q();
 		else
 			return false;
@@ -311,7 +315,7 @@ Vector ckc::get_FK_sol_right() {
 
 // -------IK----------
 
-bool ckc::IKp(Vector pose, int ik_sol, Vector Lp) {
+bool ckc::IKp(Vector pose, int ik_sol, double L1) {
 	IK_counter++;
 	clock_t begin = clock();
 
@@ -320,11 +324,11 @@ bool ckc::IKp(Vector pose, int ik_sol, Vector Lp) {
 	int sign;
 
 	double theta = pose[2];
-	double x2 = pose[0] - Lp[2]/2 * cos(theta);
-	double y2 = pose[1] - Lp[2]/2 * sin(theta);
+	double x2 = pose[0] - L/2 * cos(theta);
+	double y2 = pose[1] - L/2 * sin(theta);
 
 	double r = sqrt(x2*x2+y2*y2);
-	double S = (r*r-Lp[0]*Lp[0]-Lp[1]*Lp[1])/(-2*Lp[0]*Lp[1]);
+	double S = (r*r-L1*L1-L*L)/(-2*L*L);
 	double Ss = (1-S*S);
 
 	if (ik_sol == 1)
@@ -345,7 +349,7 @@ bool ckc::IKp(Vector pose, int ik_sol, Vector Lp) {
 	if (q[1] > PI)
 		q[1] -= 2*PI;
 
-	q[0] = atan2(Lp[1]*sin(Phi), Lp[0]-Lp[1]*cos(Phi)) + atan2(y2, x2);
+	q[0] = atan2(L*sin(Phi), L1-L*cos(Phi)) + atan2(y2, x2);
 	if (q[0] < -PI)
 		q[0] += 2*PI;
 	if (q[0] > PI)

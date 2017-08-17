@@ -1,16 +1,9 @@
-% In this experiment I compare the performance of the GD (with KDL) and the
-% PCS on one scene with obstacles where the start and goal configurations
-% are:
-% Vector c_start = {1.6581, 0.17453, 0.17453, 0.17453, -0.034907, -0.17453, -0.17453, -0.5236, -0.69813, -0.5236, -0.87266, -0.17453, 0.087266, 0.34907, 0.17453, 0.17453, 0.17453, 0.18147, -0.80904, 2.4791};
-% Vector c_goal = {-2.1293, 0.34907, 0.5236, 0.5236, 0.69813, 0.61087, 0.61087, -0.17453, -0.7854, -0.5236, -0.34907, 0.5236, 0.7854, 0.7854, 0.2618, 0.43633, -0.17453, -1.2474, 1.2172, 5.0836}; // 4 obs
-% Last updated: 08/16/17
+
 
 clear all
 clc
 
 %%
-% F = load('benchmark_PCS_obs_range2.txt'); 
-% D1 = F(F(:,1)==20, 1:end);
 D1 = load('benchmark_PCS_obs_range2_m20.txt'); 
 
 verf = D1(:,2)==1;
@@ -27,20 +20,19 @@ disp(['Avg. nodes in trees: ' num2str(floor(mean(D1(:,8)))) ]);
 disp(['Avg. number of IK solutions: ' num2str(floor(mean(D1(:,4)))) ]);
 
 %%
-D2 = load('benchmark_GD_obs_range2.txt'); 
+D2 = load('benchmark_PCS_obs_range2_m18_old.txt'); 
 
-verf = D2(:,1)==1;
-suc = D2(:,2)==1;
+suc = D2(:,3)==1;
+D2 = D2(:,2:end);
 
-disp('GD:');
+disp('PCS - old:');
 disp(['Results of ' num2str(size(D2,1)) ' queries.']);
-disp(['Percent of successful queries verified: ' num2str(sum(verf & suc)/sum(suc)*100) '%']);
-disp(['Plan distance: ' num2str(D2(1,3)) ]);
-disp(['Avg. runtime: ' num2str(mean(D2(:,4))*1e3)  ' +/- ' num2str(std(D2(:,4))/sqrt(size(D2,1))*1e3) ' msec ']);
-disp(['Avg. local-connection time: ' num2str(mean(D2(:,12))*1e3)  ' +/- ' num2str(std(D2(:,12))/sqrt(size(D2,1))*1e3) ' msec ']);
-disp(['Avg. nodes in path: ' num2str(floor(mean(D2(:,10)))) ]);
-disp(['Avg. nodes in trees: ' num2str(floor(mean(D2(:,11)))) ]);
-disp(['Avg. number of projections: ' num2str(floor(mean(D2(:,5)))) ]);
+disp(['Plan distance: ' num2str(D2(1,2)) ]);
+disp(['Avg. runtime: ' num2str(mean(D2(:,3))*1e3)  ' +/- ' num2str(std(D2(:,3))/sqrt(size(D1,1))*1e3) ' msec ']);
+disp(['Avg. nodes in path: ' num2str(floor(mean(D2(:,7)))) ]);
+disp(['Avg. nodes in trees: ' num2str(floor(mean(D2(:,8)))) ]);
+disp(['Avg. number of IK solutions: ' num2str(floor(mean(D2(:,4)))) ]);
+
 
 %%
 % PCS
@@ -55,7 +47,7 @@ for i = 1:length(T1)
 end
 %%
 % GD
-tg = D2(:,4);
+tg = D2(:,3);
 maxT = max(tg);
 T2 = linspace(0,maxT,1000);
 T2 = T2(2:end);
@@ -93,4 +85,4 @@ legend('PCS','GD');
 
 %% 
 disp(' ');
-disp(['Speed-up t_{gd}/t_{pcs}: ' num2str(mean(D2(:,4))/mean(D1(:,3))) ]);
+disp(['Speed-up t_{pcs}/t_{gd}: ' num2str(mean(D1(:,3))/mean(D2(:,3))) ]);

@@ -201,8 +201,16 @@ ompl::geometric::RRTConnect::Motion* ompl::geometric::RRTConnect::growTree(TreeD
 
 			ik = identify_state_ik(dstate);
 		}
-		else  // Added but not tested
+		else  { // Added but not tested
 			retrieveStateVector(dstate, q, ik);
+			active_chain = -1;
+			for (int i = 0; i < m; i++) {
+				if (nmotion->ik_vect[i] == ik[i])
+					active_chain = i;
+			}
+			if (active_chain == -1)
+				return nmotion;
+		}
 
 		// Check motion
 		//bool validMotion = checkMotion(nmotion->state, dstate, active_chain, nmotion->ik_vect[active_chain]);
@@ -323,6 +331,8 @@ ompl::base::PlannerStatus ompl::geometric::RRTConnect::solve(const base::Planner
 			if (st)
 			{
 				ik = identify_state_ik(st);
+				printVector(ik);
+				exit(1);
 				updateStateVectorIK(st, ik);
 				retrieveStateVector(st, q, ik);
 
@@ -445,7 +455,7 @@ ompl::base::PlannerStatus ompl::geometric::RRTConnect::solve(const base::Planner
 
 	final_solved = solved;
 	LogPerf2file();
-	
+
 	return solved ? base::PlannerStatus::EXACT_SOLUTION : base::PlannerStatus::TIMEOUT;
 }
 

@@ -44,7 +44,7 @@ public:
 	Vector get_FK_sol_right();
 
 	// Inverse kinematics
-	bool IKp(Vector, int, Vector);
+	bool IKp(Vector, int, double);
 	Vector get_IK_sol_q();
 
 	// Project
@@ -61,6 +61,9 @@ public:
 	}
 	double get_by() {
 		return by;
+	}
+	double get_b() {
+		return b;
 	}
 	double getL() {
 		return L;
