@@ -110,7 +110,7 @@ public:
 	}
 	
 	// Include constraints?
-	const bool include_constraints = true; // Enable/Disable constraints
+	const bool include_constraints = false; // Enable/Disable constraints
 	bool check_angles(Vector, double = 1);
 	bool self_collision(Vector, double = 1);
 	bool obstacle_collision(Vector, double = 0.3);
@@ -131,8 +131,8 @@ private:
 
 	double L;
 	const double dq = 0.1;
-	double RBS_tol = 0.1; // RBS local connection resolution
-	int RBS_max_depth = 60; // Maximum RBS recursion depth
+	double RBS_tol = 0.05; // RBS local connection resolution
+	int RBS_max_depth = 100; // Maximum RBS recursion depth
 	
 	ompl::RNG rng_;
 };

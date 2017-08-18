@@ -16,7 +16,7 @@ end
 
 vid = 0;
 
-withObs = true;
+withObs = false;
 %%
 D = dlmread('/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/paths/path.txt',' ',1,0);
 % D = D(:,1:end-1);
@@ -81,13 +81,13 @@ for j = 1:5:size(D,1)
         
         %plot([xp x],[yp y],'k');
         %plot(x, y, 'ok','MarkerFaceColor','k');
-        plotLink([xp yp],[x y],'r');
+        plotLink([xp yp],[x y],'r',0.015);
         xp = x;
         yp = y;
     end
     hold on
-    plot(0, 0,'o','MarkerFaceColor','k','MarkerSize',7);
-    plot(b(1), b(2),'o','MarkerFaceColor','k','MarkerSize',7);
+    plot(0, 0,'o','MarkerFaceColor','k','MarkerSize',10);
+    plot(b(1), b(2),'o','MarkerFaceColor','k','MarkerSize',10);
     hold off
     
     if length(I)>6 && withObs
@@ -105,7 +105,7 @@ for j = 1:5:size(D,1)
     if withObs
         axis([-5 9 -5 9]);
     else
-        %axis([-b(1)*0.5 b(1)*1.5 -3 3]);        
+        axis([-b(1)*1 b(1)*2 -2 2]);        
     end
     set(gca,'xtick',[]);
     set(gca,'ytick',[]);

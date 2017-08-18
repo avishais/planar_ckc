@@ -321,11 +321,11 @@ ompl::base::PlannerStatus ompl::geometric::RRTConnect::solve(const base::Planner
 			}
 		}
 
-		if (!(co%100)) {
+		/*if (!(co%100)) {
 			cout << "Trees size: " << tStart_->size() << ", " << tGoal_->size() << endl;
 			cout << "Current trees distance: " << distanceBetweenTrees(tree, otherTree) << endl << endl;
 		}
-		co++;
+		co++;*/
 
 		//===============================================
 

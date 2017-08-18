@@ -35,7 +35,7 @@ class plan_C
 {
 public:
 
-	void plan(State c_start, State c_goal, double runtime, double = 0.3);
+	bool plan(State c_start, State c_goal, double runtime, double = 0.3);
 
 	bool solved_bool;
 	double total_runtime;

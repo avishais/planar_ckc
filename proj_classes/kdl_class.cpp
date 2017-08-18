@@ -2,32 +2,33 @@
 
 // Constructor for the robots
 kdl::kdl(int joints_num, double custom_num) {
-	if (joints_num == 20) {
+	double l;
+
+	/*if (joints_num == 20) {
 		bx = 7; // Base for scenarion with obs (n = 20)
 		by = 4;
+		l = 1;
+
 	}
 	else {
 		bx = 1.5;
 		by = 0;
-	}
+		l = 1;
+	}*/
 
-	L.resize(joints_num-1);
-	for (int i = 0; i < joints_num-1; i++)
-		L[i] = 1;
-
-	/*if (custom_num==-1)
+	if (custom_num==-1)
 		custom_num = 0.3;
 
 	double total_length = 6.5;
-	double base_links_ratio = custom_num; // 0.3
+	double base_links_ratio = 0.3;
 
-	// For general dimensionality analysis
-	//L = total_length/(joints_num*(1+base_links_ratio)); // Link length.
-	//bx = base_links_ratio*(L*joints_num);
+	l = total_length/((joints_num-1)*(1+base_links_ratio)); // Link length.
+	bx = base_links_ratio*(l*(joints_num-1));
+	by = 0;
 
-	L = total_length/((joints_num-1)*(1+base_links_ratio)); // Link length.
-	bx = base_links_ratio*(L*(joints_num-1));
-	by = 0;*/
+	L.resize(joints_num-1);
+	for (int i = 0; i < joints_num-1; i++)
+		L[i] = l;
 
 	n = joints_num;
 

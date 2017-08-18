@@ -41,7 +41,7 @@ bool isStateValid(const ob::State *state)
 	return true;
 }
 
-void plan_C::plan(State c_start, State c_goal, double runtime, double custom) {
+bool plan_C::plan(State c_start, State c_goal, double runtime, double custom) {
 
 	int n = c_start.size();
 
@@ -138,6 +138,8 @@ void plan_C::plan(State c_start, State c_goal, double runtime, double custom) {
 		std::cout << "No solutions found" << std::endl;
 		solved_bool = false;
 	}
+
+	return solved_bool;
 }
 
 int main(int argn, char ** args) {
@@ -152,8 +154,22 @@ int main(int argn, char ** args) {
 
 	plan_C Plan;
 
-	int mode = 4;
+	srand( time(NULL) );
+
+	int mode = 5;
 	switch (mode) {
+	case 1: {//Manual check
+		int n = 5; // Dimensionality of CKC
+		State c_start(n), c_goal(n);
+		StateValidityChecker svc(n); // The checker class
+		c_start = svc.sample_q();
+		c_goal = svc.sample_q();
+
+		int m = n;
+
+		Plan.plan(c_start, c_goal, runtime);
+		break;
+	}
 	case 3: { // Obstacle experiment
 		State c_start = {1.6581, 0.17453, 0.17453, 0.17453, -0.034907, -0.17453, -0.17453, -0.5236, -0.69813, -0.5236, -0.87266, -0.17453, 0.087266, 0.34907, 0.17453, 0.17453, 0.17453, 0.18147, -0.80904, 2.4791};
 		State c_goal = {-2.1293, 0.34907, 0.5236, 0.5236, 0.69813, 0.61087, 0.61087, -0.17453, -0.7854, -0.5236, -0.34907, 0.5236, 0.7854, 0.7854, 0.2618, 0.43633, -0.17453, -1.2474, 1.2172, 5.0836}; // 4 obs
@@ -199,34 +215,36 @@ int main(int argn, char ** args) {
 		break;
 	}
 	case 5: { // Dimensionality analysis
-		int N = 500; // Number of points to take for each d
+		int N = 200; // Number of points to take for each d
 		string line;
 
 		std::ofstream mf;
 		std::ifstream pf;
-		mf.open("/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/matlab/JulyAnalysis/benchmarkGD_dimensionality_" + std::to_string((int)runtime) + ".txt", ios::app);
+		mf.open("/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/matlab/benchmark_D_GD.txt", ios::app);
 
-		State nn = {5  ,   9  ,  13  ,  17  ,  21  ,  25  ,  29  ,  33  ,  37  ,  41  ,  45  ,  49  ,  52}; // Dimensionality of CKC
-		//State nn = {25};//, 20, 25, 27}; // Dimensionality of CKC
-		for (int j = 11; j < nn.size(); j++)
+		for (int j = 0; j < 11; j++)
 		{
-			int n = nn[j];
+			int n = 5 + j * 5;
 			StateValidityChecker svc(n); // The checker class
 			State c_start(n), c_goal(n);
+			verification_class vfc(n);
 
 			for (int i = 0; i < N; i++) { // N points for this number of passive chains
 
-				do {
-					c_start = svc.sample_q();
-				} while (c_start[0] < -900);
-				do {
-					c_goal = svc.sample_q();
-				} while (c_goal[0] < -900);
+				c_start = svc.sample_q();
+				c_goal = svc.sample_q();
 
-				Plan.plan(c_start, c_goal, runtime);
+				bool sol = Plan.plan(c_start, c_goal, runtime);
+
+				bool verf;
+				if (sol)
+					verf = vfc.verify_path();
+				else
+					verf = false;
 
 				mf << n << " ";
-				pf.open("perf_log_GD.txt");
+				mf << verf << " ";
+				pf.open("./paths/perf_log.txt");
 				getline(pf, line);
 				mf << line << endl;
 				pf.close();

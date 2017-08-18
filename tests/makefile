@@ -22,12 +22,12 @@ CPPGD = ${INC_CLASSES}kdl_class.cpp ${INC_VALIDITY}StateValidityCheckerGD.cpp
 CPP_P_PCS = ${INC_RUN}plan_PCS.cpp ${INC_PLANNERS}CBiRRT_PCS.cpp
 
 all:
-	#$(CXX) test_rbs_pcs.cpp ${CPPAPC} ${CPPVRF} -o trbs $(CXXFLAGS) $(LDFLAGS) -std=c++11
+	$(CXX) test_rbs_pcs.cpp ${CPPAPC} ${CPPVRF} -o trbs $(CXXFLAGS) $(LDFLAGS) -std=c++11
 	#$(CXX) test_rbs_gd.cpp ${CPPGD} ${CPPVRF} -o trbs $(CXXFLAGS) $(LDFLAGS) -std=c++11	
 	#$(CXX) test_gd_kdl.cpp ${CPPGDKDL} -o tgd $(CXXFLAGS) $(LDFLAGS) -std=c++11
 	#$(CXX) test_apc.cpp ${CPPAPC} -o tapc $(CXXFLAGS) $(LDFLAGS) -std=c++11
 
-	$(CXX) test_pcs_vary_m.cpp ${CPPAPC} ${CPPVRF} -o tm $(CXXFLAGS) $(LDFLAGS) -std=c++11
+	#$(CXX) test_pcs_vary_m.cpp ${CPPAPC} ${CPPVRF} -o tm $(CXXFLAGS) $(LDFLAGS) -std=c++11
 
 
 

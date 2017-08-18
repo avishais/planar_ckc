@@ -43,7 +43,7 @@ bool isStateValid(const ob::State *state)
 	return true;
 }
 
-void plan_C::plan(Vector c_start, Vector c_goal, int n, int m, double runtime, double custom) {
+bool plan_C::plan(Vector c_start, Vector c_goal, int n, int m, double runtime, double custom) {
 
 	//int n = c_start.size();
 	//int m = n - 2;
@@ -156,6 +156,8 @@ void plan_C::plan(Vector c_start, Vector c_goal, int n, int m, double runtime, d
 		std::cout << "No solutions found" << std::endl;
 		solved_bool = false;
 	}
+
+	return solved_bool;
 }
 
 int main(int argn, char ** args) {
@@ -170,7 +172,9 @@ int main(int argn, char ** args) {
 
 	plan_C Plan;
 
-	int mode = 4;
+	srand( time(NULL) );
+
+	int mode = 6;
 	switch (mode) {
 	case 1: {//Manual check
 		//c_start = {-0.166233, 0.33943, 0.953414, -1.24087, -0.806106, 2.22124};
@@ -182,47 +186,9 @@ int main(int argn, char ** args) {
 		c_start = svc.sample_q();
 		c_goal = svc.sample_q();
 
-		int m = n-2;
-		if (m > n-2) {
-			cout << "Error: To many passive chains." << endl;
-			return 1;
-		}
+		int m = n;
 
 		Plan.plan(c_start, c_goal, n, m, runtime, 0.3);
-		break;
-	}
-	case 2: {// Benchmark random points
-		int N = 1000; // Number of points to take for each k<=m
-		string line;
-
-		int n = 40; // Dimensionality of CKC
-		StateValidityChecker svc(n); // The checker class
-		Vector c_start(n), c_goal(n);
-
-		std::ofstream mf;
-		std::ifstream pf;
-		mf.open("/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/matlab/benchmark_RandomSG_RBS_" + std::to_string(n) + "_" + std::to_string(N) + "_" + std::to_string((int)runtime) + ".txt", ios::app);
-
-		for (int m = 0; m <= n-2; m++) { // All possible passive chains
-			int st = 0;
-
-			for (int i = st; i < N; i++) { // N points for this number of passive chains
-
-				c_start = svc.sample_q();
-				c_goal = svc.sample_q();
-
-				Plan.plan(c_start, c_goal, n, m, runtime);
-
-				mf << m << " ";
-				pf.open("./paths/perf_log.txt");
-				getline(pf, line);
-				mf << line << endl;
-				pf.close();
-			}
-			mf << endl;
-		}
-		mf.close();
-
 		break;
 	}
 	case 3: { // Obstacle experiment
@@ -258,12 +224,13 @@ int main(int argn, char ** args) {
 
 		for (int i = 0; i < N; i++) { // N points for this number of passive chains
 			for (int m = 1; m <= n; m++) { // All possible passive chains
+				//int m = n;
 
 				Plan.plan(c_start, c_goal, n, m, runtime, 0);
 
 				bool verf = vfc.verify_path();
 				if (!verf) {
-					//cout << "Verification error. press to continue...\n";
+					cout << "Verification error. press to continue...\n";
 					//cin.ignore();
 				}
 
@@ -278,72 +245,40 @@ int main(int argn, char ** args) {
 		mf.close();
 		break;
 	}
-	case 5: {
-		int N = 40; // Number of points to take for each k<=m
-		string line;
-
-		Vector c_start = {1.6581, 0.17453, 0.17453, 0.17453, -0.034907, -0.17453, -0.17453, -0.5236, -0.69813, -0.5236, -0.87266, -0.17453, 0.087266, 0.34907, 0.17453, 0.17453, 0.17453, 0.18147, -0.80904, 2.4791};
-		//Vector c_goal = {-2.1293, 0.34907, 0.5236, 0.5236, 0.69813, 0.5236, 0.34907, 0.34907, -0.34907, -0.40143, -0.61087, -0.5236, 0.61087, 0.69813, 0.69813, 0.5236, 0.34907, -0.44059, 0.52295, 5.4056}; // 3 obs
-		Vector c_goal = {-2.1293, 0.34907, 0.5236, 0.5236, 0.69813, 0.61087, 0.61087, -0.17453, -0.7854, -0.5236, -0.34907, 0.5236, 0.7854, 0.7854, 0.2618, 0.43633, -0.17453, -1.2474, 1.2172, 5.0836}; // 4 obs
-
-		int n = c_start.size();
-
-		std::ofstream mf;
-		std::ifstream pf;
-		mf.open("/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/matlab/benchmarkRBS_scene_range_allPassiveC_" + std::to_string(n) + "_" + std::to_string(N) + "_" + std::to_string((int)runtime) + "_obs.txt", ios::app);
-
-		int m = n-2;//n-3;
-		double dd = 0.2;
-		for (int j = 0; j < 40; j++) {
-			for (int i = 0; i < N; i++) { // N points for this number of passive chains
-
-				Plan.plan(c_start, c_goal, n, m, runtime, 0.2+dd*j);
-
-				mf << 0.2+dd*j << " ";
-				pf.open("perf_log.txt");
-				getline(pf, line);
-				mf << line << endl;
-				pf.close();
-			}
-			mf << endl;
-		}
-		mf.close();
-		break;
-	}
 	case 6: { // Dimensionality analysis
 
 		string line;
 
 		std::ofstream mf;
 		std::ifstream pf;
-		mf.open("/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/matlab/JulyAnalysis/benchmark_dimensionality_sf_" + std::to_string((int)runtime) + ".txt", ios::app);
+		mf.open("/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/matlab/benchmark_D_PCS.txt", ios::app);
 
-		//int n = 27; // Dimensionality of CKC
-		Vector nn = {5  ,   9  ,  13  ,  17  ,  21  ,  25  ,  29  ,  33  ,  37  ,  41  ,  45  ,  49  ,  52};
-		//Vector nn = {45};
-
-		for (int j = 0; j < nn.size(); j++)
+		for (int j = 0; j < 11; j++)
 		{
-			int n = nn[j];
+			int n = 5 + j * 5;
 			StateValidityChecker svc(n); // The checker class
 			Vector c_start(n), c_goal(n);
+			verification_class vfc(n);
 
 			int N = 200;//300; // Number of points to take for each d
 
 			for (int i = 0; i < N; i++) { // N points for this number of passive chains
 
-				do {
-					c_start = svc.sample_q();
-				} while (c_start[0] < -900);
-				do {
-					c_goal = svc.sample_q();
-				} while (c_goal[0] < -900);
+				c_start = svc.sample_q();
+				c_goal = svc.sample_q();
 
-				int m = n-2;
-				Plan.plan(c_start, c_goal, n, m, runtime, 2);
+				int m = n;
+				bool sol = Plan.plan(c_start, c_goal, n, m, runtime, 0);
+
+				bool verf;
+				if (sol)
+					verf = vfc.verify_path();
+				else
+					verf = false;
 
 				mf << n << " ";
-				pf.open("perf_log.txt");
+				mf << verf << " ";
+				pf.open("./paths/perf_log.txt");
 				getline(pf, line);
 				mf << line << endl;
 				pf.close();

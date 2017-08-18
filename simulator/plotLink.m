@@ -1,6 +1,8 @@
-function plotLink(p1, p2, color)
+function plotLink(p1, p2, color,b)
 
-b = 0.1;
+if nargin < 4
+    b = 0.01;
+end
 EdgeColor = 'k';
 
 phi = 0:0.1:2*pi;

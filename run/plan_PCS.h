@@ -37,7 +37,7 @@ class plan_C //: public StateValidityChecker
 {
 public:
 
-	void plan(Vector c_start, Vector c_goal, int n, int m, double runtime, double = 0.3);
+	bool plan(Vector c_start, Vector c_goal, int n, int m, double runtime, double = 0.3);
 
 	bool solved_bool;
 	double total_runtime;
