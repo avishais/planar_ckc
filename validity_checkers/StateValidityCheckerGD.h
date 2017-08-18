@@ -55,7 +55,7 @@ public:
 
 	/** Reconstruct a local connection using RBS for post-processing  */
 	bool reconstructRBS(const ob::State *, const ob::State *, Matrix &);
-	bool reconstructRBS(State, State, Matrix &, int, int, int);
+	bool reconstructRBS(State, State, Matrix &, int, int, int, int);
 
 	State midpoint(State, State, int = 0);
 	double midangle(double, double, int);
@@ -96,7 +96,7 @@ public:
 	int n;
 
 	// Include constraints?
-	const bool include_constraints = false; // Enable/Disable constraints
+	const bool include_constraints = true; // Enable/Disable constraints
 	bool check_angles(State, double = 1);
 	bool self_collision(State, double = 1);
 	bool obstacle_collision(State, double = 0.3);

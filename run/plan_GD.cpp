@@ -156,7 +156,7 @@ int main(int argn, char ** args) {
 
 	srand( time(NULL) );
 
-	int mode = 5;
+	int mode = 4;
 	switch (mode) {
 	case 1: {//Manual check
 		int n = 5; // Dimensionality of CKC
@@ -192,7 +192,7 @@ int main(int argn, char ** args) {
 
 		std::ofstream mf;
 		std::ifstream pf;
-		mf.open("/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/matlab/benchmark_GD_obs_range2.txt", ios::app);
+		mf.open("/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/matlab/benchmark_GD_obs_range2_test.txt", ios::app);
 
 		for (int i = 0; i < N; i++) { // N points for this number of passive chains
 
@@ -201,7 +201,7 @@ int main(int argn, char ** args) {
 			bool verf = vfc.verify_path();
 			if (!verf) {
 				cout << "Verification error. press to continue...\n";
-				cin.ignore();
+				//cin.ignore();
 			}
 
 			mf << verf << " ";

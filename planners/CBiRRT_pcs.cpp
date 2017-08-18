@@ -188,12 +188,31 @@ ompl::geometric::RRTConnect::Motion* ompl::geometric::RRTConnect::growTree(TreeD
 			reach = true;
 
 		if (mode==1 || !reach) { // equivalent to (!(mode==2 && reach))
-			if (!IKproject(dstate, active_chain, nmotion->ik_vect[active_chain])) {
+
+			// Try projecting one time
+			/*if (!IKproject(dstate, active_chain, nmotion->ik_vect[active_chain])) {
 				project_fail++;
 				return nmotion;
 			}
 			else
-				project_success++;
+				project_success++;*/
+
+			// Try projecting a few times
+			int max_proj_trials = 3;
+			active_chain = 0;
+			for (int i = 0; i <= max_proj_trials; i++) {
+				active_chain = rand() % m;
+
+				if (IKproject(dstate, active_chain, nmotion->ik_vect[active_chain])) {
+					project_success++;
+					break;
+				}
+
+				if (i==max_proj_trials) {
+					project_fail++;
+					return nmotion;
+				}
+			}
 
 			retrieveStateVector(dstate, q);
 			updateStateVector(tgi.xstate, q);
@@ -218,7 +237,7 @@ ompl::geometric::RRTConnect::Motion* ompl::geometric::RRTConnect::growTree(TreeD
 
 		bool validMotion = false;
 		for (int i = 0; i < ik.size(); i++) {
-			if (nmotion->ik_vect[i] == ik[i]) 
+			if (nmotion->ik_vect[i] == ik[i])
 				validMotion = checkMotionRBS(nmotion->state, dstate, i, nmotion->ik_vect[i]);
 			if (validMotion) {
 				active_chain = i;

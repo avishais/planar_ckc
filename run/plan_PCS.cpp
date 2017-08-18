@@ -174,7 +174,7 @@ int main(int argn, char ** args) {
 
 	srand( time(NULL) );
 
-	int mode = 6;
+	int mode = 4;
 	switch (mode) {
 	case 1: {//Manual check
 		//c_start = {-0.166233, 0.33943, 0.953414, -1.24087, -0.806106, 2.22124};

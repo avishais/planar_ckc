@@ -4,7 +4,7 @@
 kdl::kdl(int joints_num, double custom_num) {
 	double l;
 
-	/*if (joints_num == 20) {
+	if (joints_num == 20) {
 		bx = 7; // Base for scenarion with obs (n = 20)
 		by = 4;
 		l = 1;
@@ -14,9 +14,9 @@ kdl::kdl(int joints_num, double custom_num) {
 		bx = 1.5;
 		by = 0;
 		l = 1;
-	}*/
+	}
 
-	if (custom_num==-1)
+	/*if (custom_num==-1)
 		custom_num = 0.3;
 
 	double total_length = 6.5;
@@ -24,7 +24,7 @@ kdl::kdl(int joints_num, double custom_num) {
 
 	l = total_length/((joints_num-1)*(1+base_links_ratio)); // Link length.
 	bx = base_links_ratio*(l*(joints_num-1));
-	by = 0;
+	by = 0;*/
 
 	L.resize(joints_num-1);
 	for (int i = 0; i < joints_num-1; i++)

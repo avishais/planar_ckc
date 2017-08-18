@@ -335,7 +335,7 @@ bool StateValidityChecker::checkMotionRBS(State q1, State q2, int recursion_dept
 	if (d < RBS_tol)
 		return true;
 
-	if (recursion_depth > RBS_max_depth || non_decrease_count > 15)
+	if (recursion_depth > RBS_max_depth || non_decrease_count > 100)
 		return false;
 
 	State q_mid = midpoint(q1, q2);
@@ -379,10 +379,10 @@ bool StateValidityChecker::reconstructRBS(const ob::State *s1, const ob::State *
 	Confs.push_back(q1);
 	Confs.push_back(q2);
 
-	return reconstructRBS(q1, q2, Confs, 0, 1, 1);
+	return reconstructRBS(q1, q2, Confs, 0, 1, 1, 0);
 }
 
-bool StateValidityChecker::reconstructRBS(State q1, State q2, Matrix &M, int iteration, int last_index, int firstORsecond) {
+bool StateValidityChecker::reconstructRBS(State q1, State q2, Matrix &M, int iteration, int last_index, int firstORsecond, int non_decrease_count) {
 	// firstORsecond - tells if the iteration is from the first or second call for the recursion (in the last iteration).
 	// last_index - the last index that was added to M.
 
@@ -393,7 +393,7 @@ bool StateValidityChecker::reconstructRBS(State q1, State q2, Matrix &M, int ite
 	if (d < RBS_tol)
 		return true;
 
-	if (iteration > RBS_max_depth)// || non_decrease_count > 15)
+	if (iteration > RBS_max_depth || non_decrease_count > 100)
 		return false;
 
 	State q_mid = midpoint(q1, q2);
@@ -402,8 +402,8 @@ bool StateValidityChecker::reconstructRBS(State q1, State q2, Matrix &M, int ite
 	if (!isValidRBS(q_mid)) // Also updates s_mid with the projected value
 		return false;
 
-	//if ( normVector(angle_distance(q1, q_mid)) > d || normVector(angle_distance(q_mid, q2)) > d)
-	//	non_decrease_count++;
+	if ( normVector(angle_distance(q1, q_mid)) > d || normVector(angle_distance(q_mid, q2)) > d)
+		non_decrease_count++;
 
 	if (firstORsecond==1)
 		M.insert(M.begin()+last_index, q_mid); // Inefficient operation, but this is only for post-processing and validation
@@ -411,10 +411,10 @@ bool StateValidityChecker::reconstructRBS(State q1, State q2, Matrix &M, int ite
 		M.insert(M.begin()+(++last_index), q_mid); // Inefficient operation, but this is only for post-processing and validation
 
 	int prev_size = M.size();
-	if (!reconstructRBS(q1, q_mid, M, iteration, last_index, 1))
+	if (!reconstructRBS(q1, q_mid, M, iteration, last_index, 1, non_decrease_count))
 		return false;
 	last_index += M.size()-prev_size;
-	if (!reconstructRBS(q_mid, q2, M, iteration, last_index, 2))
+	if (!reconstructRBS(q_mid, q2, M, iteration, last_index, 2, non_decrease_count))
 		return false;
 
 	return true;

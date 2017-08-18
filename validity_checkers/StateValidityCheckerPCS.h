@@ -110,7 +110,7 @@ public:
 	}
 	
 	// Include constraints?
-	const bool include_constraints = false; // Enable/Disable constraints
+	const bool include_constraints = true; // Enable/Disable constraints
 	bool check_angles(Vector, double = 1);
 	bool self_collision(Vector, double = 1);
 	bool obstacle_collision(Vector, double = 0.3);

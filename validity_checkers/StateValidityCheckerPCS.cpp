@@ -474,7 +474,7 @@ bool StateValidityChecker::checkMotionRBS(Vector q1, Vector q2, int active_chain
 	if (d < RBS_tol)
 		return true;
 
-	if (recursion_depth > RBS_max_depth || non_decrease_count > 15)
+	if (recursion_depth > RBS_max_depth || non_decrease_count > 100)
 		return false;
 
 	Vector q_mid(n); //= midpoint(q1, q2);
@@ -520,7 +520,7 @@ bool StateValidityChecker::reconstructRBS(Vector q1, Vector q2, int active_chain
 	if (d < RBS_tol)
 		return true;
 
-	if (iteration > RBS_max_depth || non_decrease_count > 15)
+	if (iteration > RBS_max_depth || non_decrease_count > 100)
 		return false;
 
 	Vector q_mid(n);

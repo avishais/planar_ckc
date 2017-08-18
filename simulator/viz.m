@@ -16,7 +16,7 @@ end
 
 vid = 0;
 
-withObs = false;
+withObs = true;
 %%
 D = dlmread('/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/paths/path.txt',' ',1,0);
 % D = D(:,1:end-1);
@@ -81,7 +81,7 @@ for j = 1:5:size(D,1)
         
         %plot([xp x],[yp y],'k');
         %plot(x, y, 'ok','MarkerFaceColor','k');
-        plotLink([xp yp],[x y],'r',0.015);
+        plotLink([xp yp],[x y],'r',0.1);
         xp = x;
         yp = y;
     end
