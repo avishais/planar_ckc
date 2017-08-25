@@ -37,8 +37,8 @@ public:
 	};
 
 	/** Project a configuration in the ambient space to the constraint surface */
-	bool IKproject(const ob::State *);
-	bool IKproject(State &);
+	bool IKproject(const ob::State *, bool = true);
+	bool IKproject(State &, bool = true);
 
 	/** Validity check using standard OMPL */
 	bool isValid(const ob::State *);

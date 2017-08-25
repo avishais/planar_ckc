@@ -41,7 +41,30 @@ bool isStateValid(const ob::State *state)
 	return true;
 }
 
-bool plan_C::plan(State c_start, State c_goal, double runtime, double custom) {
+ob::PlannerPtr plan_C::allocatePlanner(ob::SpaceInformationPtr si, int n, plannerType p_type)
+{
+	switch (p_type)
+	{
+	case PLANNER_BIRRT:
+	{
+		return std::make_shared<og::RRTConnect>(si, n, maxStep);
+		break;
+	}
+	case PLANNER_SBL:
+	{
+		return std::make_shared<og::SBL>(si, n, maxStep);
+		break;
+	}
+	default:
+	{
+		OMPL_ERROR("Planner-type enum is not implemented in allocation function.");
+		return ob::PlannerPtr(); // Address compiler warning re: no return value.
+		break;
+	}
+	}
+}
+
+bool plan_C::plan(State c_start, State c_goal, double runtime, plannerType ptype, double custom) {
 
 	int n = c_start.size();
 
@@ -90,10 +113,10 @@ bool plan_C::plan(State c_start, State c_goal, double runtime, double custom) {
 	pdef->setStartAndGoalStates(start, goal);
 	pdef->print();
 
+	maxStep = custom;
 	// create a planner for the defined space
 	// To add a planner, the #include library must be added above
-	ob::PlannerPtr planner(new og::RRTConnect(si, n, custom));
-	//ob::PlannerPtr planner(new og::RRT(si));
+	ob::PlannerPtr planner = allocatePlanner(si, n, ptype);
 
 	// set the problem we are trying to solve for the planner
 	planner->setProblemDefinition(pdef);
@@ -145,18 +168,36 @@ bool plan_C::plan(State c_start, State c_goal, double runtime, double custom) {
 int main(int argn, char ** args) {
 	std::cout << "OMPL version: " << OMPL_VERSION << std::endl;
 	double runtime;
+	plannerType ptype;
 
-	if (argn == 1)
+	if (argn == 1) {
 		runtime = 1; // sec
+		ptype = PLANNER_BIRRT;
+	}
+	else if (argn == 2) {
+		runtime = atof(args[1]);
+		ptype = PLANNER_BIRRT;
+	}
 	else {
 		runtime = atof(args[1]);
+		switch (atoi(args[2])) {
+		case 1 :
+			ptype = PLANNER_BIRRT;
+			break;
+		case 2 :
+			ptype = PLANNER_SBL;
+			break;
+		default :
+			cout << "Error: Requested planner not defined.";
+			exit(1);
+		}
 	}
 
 	plan_C Plan;
 
 	srand( time(NULL) );
 
-	int mode = 4;
+	int mode = 3;
 	switch (mode) {
 	case 1: {//Manual check
 		int n = 5; // Dimensionality of CKC
@@ -174,7 +215,7 @@ int main(int argn, char ** args) {
 		State c_start = {1.6581, 0.17453, 0.17453, 0.17453, -0.034907, -0.17453, -0.17453, -0.5236, -0.69813, -0.5236, -0.87266, -0.17453, 0.087266, 0.34907, 0.17453, 0.17453, 0.17453, 0.18147, -0.80904, 2.4791};
 		State c_goal = {-2.1293, 0.34907, 0.5236, 0.5236, 0.69813, 0.61087, 0.61087, -0.17453, -0.7854, -0.5236, -0.34907, 0.5236, 0.7854, 0.7854, 0.2618, 0.43633, -0.17453, -1.2474, 1.2172, 5.0836}; // 4 obs
 
-		Plan.plan(c_start, c_goal, runtime);
+		Plan.plan(c_start, c_goal, runtime, ptype, 0.8);
 
 		verification_class vfc(c_start.size());
 		vfc.verify_path();
@@ -214,7 +255,44 @@ int main(int argn, char ** args) {
 		mf.close();
 		break;
 	}
-	case 5: { // Dimensionality analysis
+	case 5: {// Benchmark the same scenario with varying step size
+		int N = 1000; // Number of points to take for each k<=m
+		string line;
+
+		State c_start = {1.6581, 0.17453, 0.17453, 0.17453, -0.034907, -0.17453, -0.17453, -0.5236, -0.69813, -0.5236, -0.87266, -0.17453, 0.087266, 0.34907, 0.17453, 0.17453, 0.17453, 0.18147, -0.80904, 2.4791};
+		State c_goal = {-2.1293, 0.34907, 0.5236, 0.5236, 0.69813, 0.61087, 0.61087, -0.17453, -0.7854, -0.5236, -0.34907, 0.5236, 0.7854, 0.7854, 0.2618, 0.43633, -0.17453, -1.2474, 1.2172, 5.0836}; // 4 obs
+
+		int n = c_start.size();
+		verification_class vfc(c_start.size());
+
+		std::ofstream mf;
+		std::ifstream pf;
+		mf.open("/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/matlab/benchmark_SBL_GD_obs_rangeB.txt", ios::app);
+
+		for (int i = 0; i < N; i++) { // N points for this number of passive chains
+			for (int j = 0; j < 15; j++) {
+				double maxStep = 0.05 + 0.25*j;
+
+				Plan.plan(c_start, c_goal, runtime, ptype, maxStep);
+
+				bool verf = vfc.verify_path();
+				if (!verf) {
+					cout << "Verification error. press to continue...\n";
+					//cin.ignore();
+				}
+
+				mf << maxStep << " " << verf << " ";
+
+				pf.open("./paths/perf_log.txt");
+				getline(pf, line);
+				mf << line << endl;
+				pf.close();
+			}
+		}
+		mf.close();
+		break;
+	}
+	case 6: { // Dimensionality analysis
 		int N = 200; // Number of points to take for each d
 		string line;
 
@@ -256,7 +334,7 @@ int main(int argn, char ** args) {
 
 		break;
 	}
-	case 6 : { // Links/base ratio analysis
+	case 7 : { // Links/base ratio analysis
 		string line;
 
 		std::ofstream mf;
@@ -283,7 +361,7 @@ int main(int argn, char ** args) {
 					c_goal = svc.sample_q();
 				} while (c_goal[0] < -900);
 
-				Plan.plan(c_start, c_goal, runtime, r);
+				Plan.plan(c_start, c_goal, runtime, ptype, r);
 
 				mf << r << " ";
 				pf.open("perf_log_GD.txt");
@@ -297,7 +375,7 @@ int main(int argn, char ** args) {
 		mf.close();
 		break;
 	}
-	case 7 : { // Annulus analysis
+	case 8 : { // Annulus analysis
 		string line;
 
 		std::ofstream mf;
@@ -325,7 +403,7 @@ int main(int argn, char ** args) {
 				} while (c_goal[0] < -900);
 
 				int m = n-2;
-				Plan.plan(c_start, c_goal, runtime, r);
+				Plan.plan(c_start, c_goal, runtime, ptype, r);
 
 				mf << r << " ";
 				pf.open("perf_log_GD.txt");

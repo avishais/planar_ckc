@@ -50,19 +50,19 @@ void StateValidityChecker::printStateVector(const ob::State *state) {
 	cout << "q: "; printVector(q);
 }
 
-bool StateValidityChecker::IKproject(const ob::State *state) {
+bool StateValidityChecker::IKproject(const ob::State *state, bool includeObs) {
 
 	State q(n);
 	retrieveStateVector(state, q);
 
-	if (!IKproject(q))
+	if (!IKproject(q, includeObs))
 		return false;
 
 	updateStateVector(state, q);
 	return true;
 }
 
-bool StateValidityChecker::IKproject(State &q) {
+bool StateValidityChecker::IKproject(State &q, bool includeObs) {
 
 	if (!GD(q))
 		return false;
@@ -70,7 +70,11 @@ bool StateValidityChecker::IKproject(State &q) {
 	q = get_GD_result();
 
 	// Check Constraints
-	if (include_constraints && ( !check_angles(q) || !self_collision(q) || !obstacle_collision(q) ))
+	if (include_constraints && !check_angles(q))
+		return false;
+
+	// Check Constraints
+	if (includeObs && include_constraints && ( !self_collision(q) || !obstacle_collision(q) ))
 		return false;
 
 	return true;

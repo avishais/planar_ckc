@@ -16,6 +16,7 @@
 
 // Modified and custom planners
 #include "CBiRRT_gd.h"
+#include "SBL_gd.h"
 
 //#include "../validity_checkers/StateValidityCheckerGD.h"
 #include "../validity_checkers/verification_class.h"
@@ -28,6 +29,13 @@ namespace ob = ompl::base;
 namespace og = ompl::geometric;
 using namespace std;
 
+// An enum of available planners
+enum plannerType
+{
+	PLANNER_BIRRT,
+	PLANNER_SBL
+};
+
 bool isStateValid(const ob::State *state);
 
 // Prototypes
@@ -35,10 +43,15 @@ class plan_C
 {
 public:
 
-	bool plan(State c_start, State c_goal, double runtime, double = 0.3);
+	bool plan(State c_start, State c_goal, double runtime, plannerType = PLANNER_BIRRT, double = 2);
+
+	// Construct the planner specified by our command line argument.
+	// This helper function is simply a switch statement.
+	ob::PlannerPtr allocatePlanner(ob::SpaceInformationPtr, int, plannerType);
 
 	bool solved_bool;
 	double total_runtime;
+	double maxStep;
 };
 
 #endif /* PLAN_C_SPACE_H_ */
