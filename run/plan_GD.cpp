@@ -197,7 +197,7 @@ int main(int argn, char ** args) {
 
 	srand( time(NULL) );
 
-	int mode = 3;
+	int mode = 5;
 	switch (mode) {
 	case 1: {//Manual check
 		int n = 5; // Dimensionality of CKC
@@ -267,11 +267,11 @@ int main(int argn, char ** args) {
 
 		std::ofstream mf;
 		std::ifstream pf;
-		mf.open("/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/matlab/benchmark_SBL_GD_obs_rangeB.txt", ios::app);
+		mf.open("/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/matlab/benchmark_SBL_GD_obs_rangeB_IKobsCheck.txt", ios::app);
 
 		for (int i = 0; i < N; i++) { // N points for this number of passive chains
-			for (int j = 0; j < 15; j++) {
-				double maxStep = 0.05 + 0.25*j;
+			for (int j = 0; j < 11; j++) {
+				double maxStep = 0.2 + 0.21*j;
 
 				Plan.plan(c_start, c_goal, runtime, ptype, maxStep);
 
