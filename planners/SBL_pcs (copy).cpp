@@ -52,8 +52,6 @@ ompl::geometric::SBL::SBL(const base::SpaceInformationPtr &si, int joints_num, i
 
 	defaultSettings();
 
-	n = joints_num;
-	m = passive_chains_num;
 	Range = custom_num;
 }
 
@@ -64,11 +62,13 @@ ompl::geometric::SBL::~SBL()
 
 void ompl::geometric::SBL::setup()
 {
+
 	Planner::setup();
 	tools::SelfConfig sc(si_, getName());
+	cout << "====================3==============\n";
 	sc.configureProjectionEvaluator(projectionEvaluator_);
+	cout << "======================4============\n";
 	sc.configurePlannerRange(maxDistance_);
-
 	tStart_.grid.setDimension(projectionEvaluator_->getDimension());
 	tGoal_.grid.setDimension(projectionEvaluator_->getDimension());
 }
@@ -96,6 +96,7 @@ ompl::base::PlannerStatus ompl::geometric::SBL::solve(const base::PlannerTermina
 
 	checkValidity();
 	startTime = clock();
+
 	base::GoalSampleableRegion *goal = dynamic_cast<base::GoalSampleableRegion*>(pdef_->getGoal().get());
 
 	if (!goal)
@@ -155,6 +156,9 @@ ompl::base::PlannerStatus ompl::geometric::SBL::solve(const base::PlannerTermina
 			const base::State *st = tGoal_.size == 0 ? pis_.nextGoal(ptc) : pis_.nextGoal();
 			if (st)
 			{
+				ik = identify_state_ik(st);
+				updateStateVectorIK(st, ik);
+
 				Motion *motion = new Motion(si_);
 				si_->copyState(motion->state, st);
 				motion->root = motion->state;
@@ -186,6 +190,9 @@ ompl::base::PlannerStatus ompl::geometric::SBL::solve(const base::PlannerTermina
 			continue;
 		}
 		project_success++;
+
+		ik = identify_state_ik(xstate);
+		updateStateVectorIK(xstate, ik);
 
 		/* create a motion */
 		Motion *motion = new Motion(si_);
@@ -262,7 +269,6 @@ bool ompl::geometric::SBL::checkSolution(bool start, TreeData &tree, TreeData &o
 			si_->copyState(connect->state, connectOther->state);
 			connect->parent = motion;
 			connect->root = motion->root;
-			connect->ik_vect = ikOther;
 			motion->children.push_back(connect);
 			addMotion(tree, connect);
 

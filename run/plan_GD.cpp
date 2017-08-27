@@ -197,7 +197,7 @@ int main(int argn, char ** args) {
 
 	srand( time(NULL) );
 
-	int mode = 5;
+	int mode = 3;
 	switch (mode) {
 	case 1: {//Manual check
 		int n = 5; // Dimensionality of CKC

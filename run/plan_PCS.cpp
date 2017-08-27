@@ -36,14 +36,35 @@
 
 #include "plan_PCS.h"
 
-bool IKturn = true; // Define whether we sample q1 and solve IK for q2 (true) or vice versa.
-
 bool isStateValid(const ob::State *state)
 {
 	return true;
 }
 
-bool plan_C::plan(Vector c_start, Vector c_goal, int n, int m, double runtime, double custom) {
+ob::PlannerPtr plan_C::allocatePlanner(ob::SpaceInformationPtr si, int n, int m, plannerType p_type)
+{
+	switch (p_type)
+	{
+	case PLANNER_BIRRT:
+	{
+		return std::make_shared<og::RRTConnect>(si, n, m, maxStep);
+		break;
+	}
+	case PLANNER_SBL:
+	{
+		return std::make_shared<og::SBL>(si, n, m, maxStep);
+		break;
+	}
+	default:
+	{
+		OMPL_ERROR("Planner-type enum is not implemented in allocation function.");
+		return ob::PlannerPtr(); // Address compiler warning re: no return value.
+		break;
+	}
+	}
+}
+
+bool plan_C::plan(Vector c_start, Vector c_goal, int n, int m, double runtime, plannerType ptype, double custom) {
 
 	//int n = c_start.size();
 	//int m = n - 2;
@@ -110,9 +131,10 @@ bool plan_C::plan(Vector c_start, Vector c_goal, int n, int m, double runtime, d
 	pdef->setStartAndGoalStates(start, goal);
 	pdef->print();
 
+	maxStep = custom;
 	// create a planner for the defined space
 	// To add a planner, the #include library must be added above
-	ob::PlannerPtr planner(new og::RRTConnect(si, n, m, custom));
+	ob::PlannerPtr planner = allocatePlanner(si, n, m, ptype);
 
 	// set the problem we are trying to solve for the planner
 	planner->setProblemDefinition(pdef);
@@ -163,18 +185,36 @@ bool plan_C::plan(Vector c_start, Vector c_goal, int n, int m, double runtime, d
 int main(int argn, char ** args) {
 	std::cout << "OMPL version: " << OMPL_VERSION << std::endl;
 	double runtime;
+	plannerType ptype;
 
-	if (argn == 1)
+	if (argn == 1) {
 		runtime = 1; // sec
+		ptype = PLANNER_BIRRT;
+	}
+	else if (argn == 2) {
+		runtime = atof(args[1]);
+		ptype = PLANNER_BIRRT;
+	}
 	else {
 		runtime = atof(args[1]);
+		switch (atoi(args[2])) {
+		case 1 :
+			ptype = PLANNER_BIRRT;
+			break;
+		case 2 :
+			ptype = PLANNER_SBL;
+			break;
+		default :
+			cout << "Error: Requested planner not defined.";
+			exit(1);
+		}
 	}
 
 	plan_C Plan;
 
 	srand( time(NULL) );
 
-	int mode = 5;
+	int mode = 3;
 	switch (mode) {
 	case 1: {//Manual check
 		//c_start = {-0.166233, 0.33943, 0.953414, -1.24087, -0.806106, 2.22124};
@@ -188,7 +228,7 @@ int main(int argn, char ** args) {
 
 		int m = n;
 
-		Plan.plan(c_start, c_goal, n, m, runtime, 0.3);
+		Plan.plan(c_start, c_goal, n, m, runtime);
 		break;
 	}
 	case 3: { // Obstacle experiment
@@ -199,7 +239,7 @@ int main(int argn, char ** args) {
 		int n = c_start.size();
 		int m = n;//n-2;//n-3;
 
-		Plan.plan(c_start, c_goal, n, m, runtime);
+		Plan.plan(c_start, c_goal, n, m, runtime, ptype);
 
 		verification_class vfc(n);
 		vfc.verify_path();
@@ -226,7 +266,7 @@ int main(int argn, char ** args) {
 			for (int m = 1; m <= n; m++) { // All possible passive chains
 				//int m = n;
 
-				Plan.plan(c_start, c_goal, n, m, runtime, 0);
+				Plan.plan(c_start, c_goal, n, m, runtime);
 
 				bool verf = vfc.verify_path();
 				if (!verf) {
@@ -263,7 +303,7 @@ int main(int argn, char ** args) {
 			for (int j = 0; j < 11; j++) {
 				double maxStep = 0.2 + 0.21*j;
 
-				Plan.plan(c_start, c_goal, n, n, runtime, maxStep);
+				Plan.plan(c_start, c_goal, n, n, runtime);
 
 				bool verf = vfc.verify_path();
 				if (!verf) {
@@ -305,7 +345,7 @@ int main(int argn, char ** args) {
 				c_goal = svc.sample_q();
 
 				int m = n;
-				bool sol = Plan.plan(c_start, c_goal, n, m, runtime, 0);
+				bool sol = Plan.plan(c_start, c_goal, n, m, runtime);
 
 				bool verf;
 				if (sol)
@@ -355,7 +395,7 @@ int main(int argn, char ** args) {
 				} while (c_goal[0] < -900);
 
 				int m = n-2;
-				Plan.plan(c_start, c_goal, n, m, runtime, r);
+				Plan.plan(c_start, c_goal, n, m, runtime, ptype, r);
 
 				mf << r << " ";
 				pf.open("perf_log.txt");
@@ -396,7 +436,7 @@ int main(int argn, char ** args) {
 				} while (c_goal[0] < -900);
 
 				int m = n-2;
-				Plan.plan(c_start, c_goal, n, m, runtime, r);
+				Plan.plan(c_start, c_goal, n, m, runtime, ptype, r);
 
 				mf << r << " ";
 				pf.open("perf_log.txt");
