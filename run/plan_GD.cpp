@@ -267,7 +267,7 @@ int main(int argn, char ** args) {
 
 		std::ofstream mf;
 		std::ifstream pf;
-		mf.open("/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/matlab/benchmark_SBL_GD_obs_rangeB_IKobsCheck.txt", ios::app);
+		mf.open("/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/matlab/benchmark_BiRRT_GD_obs_rangeB.txt", ios::app);
 
 		for (int i = 0; i < N; i++) { // N points for this number of passive chains
 			for (int j = 0; j < 11; j++) {

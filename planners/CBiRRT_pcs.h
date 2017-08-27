@@ -68,7 +68,7 @@ namespace ompl
         public:
 
             /** \brief Constructor */
-            RRTConnect(const base::SpaceInformationPtr &si, int, int, double);
+            RRTConnect(const base::SpaceInformationPtr &si, int, int, double = 2);
 
             virtual ~RRTConnect();
 

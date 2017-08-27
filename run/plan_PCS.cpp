@@ -174,7 +174,7 @@ int main(int argn, char ** args) {
 
 	srand( time(NULL) );
 
-	int mode = 4;
+	int mode = 5;
 	switch (mode) {
 	case 1: {//Manual check
 		//c_start = {-0.166233, 0.33943, 0.953414, -1.24087, -0.806106, 2.22124};
@@ -236,6 +236,43 @@ int main(int argn, char ** args) {
 
 				mf << m << " ";
 				mf << verf << " ";
+				pf.open("./paths/perf_log.txt");
+				getline(pf, line);
+				mf << line << endl;
+				pf.close();
+			}
+		}
+		mf.close();
+		break;
+	}
+	case 5: {// Benchmark the same scenario with varying step size
+		int N = 1000; // Number of points to take for each k<=m
+		string line;
+
+		State c_start = {1.6581, 0.17453, 0.17453, 0.17453, -0.034907, -0.17453, -0.17453, -0.5236, -0.69813, -0.5236, -0.87266, -0.17453, 0.087266, 0.34907, 0.17453, 0.17453, 0.17453, 0.18147, -0.80904, 2.4791};
+		State c_goal = {-2.1293, 0.34907, 0.5236, 0.5236, 0.69813, 0.61087, 0.61087, -0.17453, -0.7854, -0.5236, -0.34907, 0.5236, 0.7854, 0.7854, 0.2618, 0.43633, -0.17453, -1.2474, 1.2172, 5.0836}; // 4 obs
+
+		int n = c_start.size();
+		verification_class vfc(c_start.size());
+
+		std::ofstream mf;
+		std::ifstream pf;
+		mf.open("/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/matlab/benchmark_BiRRT_PCS_obs_rangeB.txt", ios::app);
+
+		for (int i = 0; i < N; i++) { // N points for this number of passive chains
+			for (int j = 0; j < 11; j++) {
+				double maxStep = 0.2 + 0.21*j;
+
+				Plan.plan(c_start, c_goal, n, n, runtime, maxStep);
+
+				bool verf = vfc.verify_path();
+				if (!verf) {
+					cout << "Verification error. press to continue...\n";
+					//cin.ignore();
+				}
+
+				mf << maxStep << " " << verf << " ";
+
 				pf.open("./paths/perf_log.txt");
 				getline(pf, line);
 				mf << line << endl;

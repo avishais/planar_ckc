@@ -1,18 +1,16 @@
-% In this experiment I test the GD with SBL while varying the step size
+% In this experiment I test the PCS with BiRRT while varying the step size
 % are:
 % Vector c_start = {1.6581, 0.17453, 0.17453, 0.17453, -0.034907, -0.17453, -0.17453, -0.5236, -0.69813, -0.5236, -0.87266, -0.17453, 0.087266, 0.34907, 0.17453, 0.17453, 0.17453, 0.18147, -0.80904, 2.4791};
 % Vector c_goal = {-2.1293, 0.34907, 0.5236, 0.5236, 0.69813, 0.61087, 0.61087, -0.17453, -0.7854, -0.5236, -0.34907, 0.5236, 0.7854, 0.7854, 0.2618, 0.43633, -0.17453, -1.2474, 1.2172, 5.0836}; // 4 obs
-% Last updated: 08/25/17
+% Last updated: 08/26/17
 
 clear all
 clc
 
-% File = 'benchmark_SBL_GD_obs_rangeB.txt'; % Not checking collision for the milestones
-File = 'benchmark_SBL_GD_obs_rangeB_IKobsCheck.txt'; % With checking collision for the milestones.
+File = 'benchmark_BiRRT_PCS_obs_rangeB.txt'; % Not checking collision for the milestones
 
 %%
 D1 = load(File); 
-% D1(D1(:,1)==0.05 | D1(:,1)>=2.55,:) = [];
 
 verf = D1(:,2)==1;
 suc = D1(:,3)==1;
@@ -42,7 +40,7 @@ end
 %%
 disp(' ');
 [tgmin, ig] = min(tg);
-disp(['Minimum avg. runtime for GD is ' num2str(tgmin) 'msec with d = ' num2str(rg(ig)) ]);
+disp(['Minimum avg. runtime for PCS is ' num2str(tgmin) 'msec with d = ' num2str(rg(ig)) ]);
 
 %%
 h = figure(1);
@@ -59,7 +57,7 @@ D1 = F(F(:,1)==rg(ig), 2:end);
 verf = D1(:,1)==1;
 suc = D1(:,2)==1;
 
-disp('GD - with optimized step size:');
+disp('PCS - with optimized step size:');
 disp(['Results of ' num2str(size(D1,1)) ' queries.']);
 disp(['Percent of successful queries verified: ' num2str(sum(verf & suc)/sum(suc)*100) '%']);
 disp(['Plan distance: ' num2str(D1(1,3)) ]);

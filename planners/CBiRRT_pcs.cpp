@@ -46,7 +46,7 @@ void o(T a) {
 	cout << a << endl;
 }
 
-ompl::geometric::RRTConnect::RRTConnect(const base::SpaceInformationPtr &si, int joints_num, int passive_chains_num, double custom_num) : base::Planner(si, "RRTConnect"), StateValidityChecker(si, joints_num, passive_chains_num, custom_num)
+ompl::geometric::RRTConnect::RRTConnect(const base::SpaceInformationPtr &si, int joints_num, int passive_chains_num, double custom_num) : base::Planner(si, "RRTConnect"), StateValidityChecker(si, joints_num, passive_chains_num, 0.3)
 {
 	specs_.recognizedGoal = base::GOAL_SAMPLEABLE_REGION;
 	specs_.directed = true;
@@ -59,7 +59,7 @@ ompl::geometric::RRTConnect::RRTConnect(const base::SpaceInformationPtr &si, int
 
 	n = joints_num;
 	m = passive_chains_num;
-	Range = 2;
+	Range = custom_num;
 }
 
 ompl::geometric::RRTConnect::~RRTConnect()
