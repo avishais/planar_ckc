@@ -107,7 +107,6 @@ ompl::base::PlannerStatus ompl::geometric::SBL::solve(const base::PlannerTermina
 	while (const base::State *st = pis_.nextStart())
 	{
 		ik = identify_state_ik(st);
-		updateStateVectorIK(st, ik);
 		Motion *motion = new Motion(si_);
 		si_->copyState(motion->state, st);
 		motion->valid = true;
@@ -155,6 +154,7 @@ ompl::base::PlannerStatus ompl::geometric::SBL::solve(const base::PlannerTermina
 			const base::State *st = tGoal_.size == 0 ? pis_.nextGoal(ptc) : pis_.nextGoal();
 			if (st)
 			{
+				ik = identify_state_ik(st);
 				Motion *motion = new Motion(si_);
 				si_->copyState(motion->state, st);
 				motion->root = motion->state;
@@ -188,6 +188,7 @@ ompl::base::PlannerStatus ompl::geometric::SBL::solve(const base::PlannerTermina
 		project_success++;
 
 		/* create a motion */
+		ik = identify_state_ik(xstate);
 		Motion *motion = new Motion(si_);
 		si_->copyState(motion->state, xstate);
 		motion->ik_vect.resize(m);
@@ -244,7 +245,7 @@ bool ompl::geometric::SBL::checkSolution(bool start, TreeData &tree, TreeData &o
 		Motion *connectOther = cell->data[rng_.uniformInt(0, cell->data.size() - 1)];
 
 		// Check if connection is possible
-		Vector ikOther = identify_state_ik(connectOther->state);
+		Vector ikOther = connectOther->ik_vect;
 		Vector ik = motion->ik_vect;
 		bool common_ik = false;
 		for (int i = 0; i < ik.size(); i++)
@@ -329,13 +330,12 @@ bool ompl::geometric::SBL::isPathValid(TreeData &tree, Motion *motion)
 		if (!mpath[i]->valid)
 		{
 			bool validMotion = false;
-			for (int i = 0; i < mpath[i]->ik_vect.size(); i++) {
-				if (mpath[i]->parent->ik_vect[i] == mpath[i]->ik_vect[i])
-					validMotion = checkMotionRBS(mpath[i]->parent->state, mpath[i]->state, i, mpath[i]->ik_vect[i]);
+			for (int j = 0; j < mpath[i]->ik_vect.size(); j++) {
+				if (mpath[i]->parent->ik_vect[j] == mpath[i]->ik_vect[j])
+					validMotion = checkMotionRBS(mpath[i]->parent->state, mpath[i]->state, j, mpath[i]->ik_vect[j]);
 				if (validMotion)
 					break;
 			}
-
 			if (validMotion) {
 				RBS_success++;
 				mpath[i]->valid = true;

@@ -20,76 +20,34 @@ void StateValidityChecker::defaultSettings()
 		OMPL_ERROR("No state space for motion validator");
 }
 
-void StateValidityChecker::retrieveStateVector(const ob::State *state, Vector &q) {
+void StateValidityChecker::retrieveStateVector(const ob::State *state, State &q) {
 	// cast the abstract state type to the type we expect
-	const ob::CompoundStateSpace::StateType *C_state = state->as<ob::CompoundStateSpace::StateType>();
-	const ob::RealVectorStateSpace::StateType *Q = C_state->as<ob::RealVectorStateSpace::StateType>(0);
+	const ob::RealVectorStateSpace::StateType *Q = state->as<ob::RealVectorStateSpace::StateType>();
 
-	for (unsigned i = 0; i < n; i++)
-		q[i] = Q->values[i];
-}
-
-void StateValidityChecker::retrieveStateVector(const ob::State *state, Vector &q, Vector &ik) {
-	// cast the abstract state type to the type we expect
-	const ob::CompoundStateSpace::StateType *C_state = state->as<ob::CompoundStateSpace::StateType>();
-	const ob::RealVectorStateSpace::StateType *Q = C_state->as<ob::RealVectorStateSpace::StateType>(0);
-	const ob::RealVectorStateSpace::StateType *IK = C_state->as<ob::RealVectorStateSpace::StateType>(1);
-
-	for (unsigned i = 0; i < n; i++)
-		q[i] = Q->values[i];
-
-	for (unsigned i = 0; i < m; i++)
-		ik[i] = IK->values[i];
+	for (unsigned i = 0; i < n; i++) {
+		q[i] = Q->values[i]; // Set state of robot1
+	}
 }
 
 void StateValidityChecker::updateStateVector(const ob::State *state, State q) {
 	// cast the abstract state type to the type we expect
-	const ob::CompoundStateSpace::StateType *C_state = state->as<ob::CompoundStateSpace::StateType>();
-	const ob::RealVectorStateSpace::StateType *Q = C_state->as<ob::RealVectorStateSpace::StateType>(0);
+	const ob::RealVectorStateSpace::StateType *Q = state->as<ob::RealVectorStateSpace::StateType>();
 
 	for (unsigned i = 0; i < n; i++) {
 		Q->values[i] = q[i];
 	}
 }
 
-void StateValidityChecker::updateStateVector(const ob::State *state, State q, State ik) {
-	// cast the abstract state type to the type we expect
-	const ob::CompoundStateSpace::StateType *C_state = state->as<ob::CompoundStateSpace::StateType>();
-	const ob::RealVectorStateSpace::StateType *Q = C_state->as<ob::RealVectorStateSpace::StateType>(0);
-	const ob::RealVectorStateSpace::StateType *IK = C_state->as<ob::RealVectorStateSpace::StateType>(1);
-
-	for (unsigned i = 0; i < n; i++)
-		Q->values[i] = q[i];
-
-	for (unsigned i = 0; i < m; i++)
-		IK->values[i] = ik[i];
-}
-
-void StateValidityChecker::updateStateVectorIK(const ob::State *state, State ik) {
-	// cast the abstract state type to the type we expect
-	const ob::CompoundStateSpace::StateType *C_state = state->as<ob::CompoundStateSpace::StateType>();
-	const ob::RealVectorStateSpace::StateType *IK = C_state->as<ob::RealVectorStateSpace::StateType>(1);
-
-	for (unsigned i = 0; i < m; i++)
-		IK->values[i] = ik[i];
-}
-
 void StateValidityChecker::printStateVector(const ob::State *state) {
 	// cast the abstract state type to the type we expect
-	const ob::CompoundStateSpace::StateType *C_state = state->as<ob::CompoundStateSpace::StateType>();
-	const ob::RealVectorStateSpace::StateType *Q = C_state->as<ob::RealVectorStateSpace::StateType>(0);
-	const ob::RealVectorStateSpace::StateType *IK = C_state->as<ob::RealVectorStateSpace::StateType>(1);
+	const ob::RealVectorStateSpace::StateType *Q = state->as<ob::RealVectorStateSpace::StateType>();
 
-	Vector q(n), ik(m);
+	State q(n);
 
-	for (unsigned i = 0; i < n; i++)
-		q[i] = Q->values[i];
-
-	for (unsigned i = 0; i < m; i++)
-		ik[i] = IK->values[i];
-
+	for (unsigned i = 0; i < n; i++) {
+		q[i] = Q->values[i]; // Set state of robot1
+	}
 	cout << "q: "; printVector(q);
-	cout << "IK: "; printVector(ik);
 }
 
 Vector StateValidityChecker::sample_q() {
@@ -120,7 +78,7 @@ bool StateValidityChecker::IKproject(ob::State *state, int nc, int IK_sol) {
 	// nc - passive chain number
 	Vector q(n), ik(m);
 
-	retrieveStateVector(state, q, ik);
+	retrieveStateVector(state, q);
 
 	if (!IKproject(q, nc, IK_sol))
 		return false;
@@ -129,9 +87,7 @@ bool StateValidityChecker::IKproject(ob::State *state, int nc, int IK_sol) {
 	if (include_constraints && (!check_angles(q) || !obstacle_collision(q) || !self_collision(q)))
 		return false;
 
-	ik[nc] = IK_sol;
-
-	updateStateVector(state, q, ik);
+	updateStateVector(state, q);
 
 	return true;	
 }

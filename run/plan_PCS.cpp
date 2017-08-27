@@ -70,11 +70,7 @@ bool plan_C::plan(Vector c_start, Vector c_goal, int n, int m, double runtime, p
 	//int m = n - 2;
 
 	// construct the state space we are planning inz
-	ob::CompoundStateSpace *cs = new ob::CompoundStateSpace(); // Compound R^12 configuration space
 	ob::StateSpacePtr Q(new ob::RealVectorStateSpace(n)); // Angles of Robot 1 & 2 - R^12
-	ob::StateSpacePtr IK(new ob::RealVectorStateSpace(m)); // Additional IK information
-	cs->addSubspace(Q, 1.0);
-	cs->addSubspace(IK, 0.0);
 
 	// set the bounds for the Q=R^n part of 'Cspace'
 	ob::RealVectorBounds Qbounds(n);
@@ -85,20 +81,11 @@ bool plan_C::plan(Vector c_start, Vector c_goal, int n, int m, double runtime, p
 	Qbounds.setLow(n-1, 0);
 	Qbounds.setHigh(n-1, 2*PI);
 
-
-	// set the bounds for the A=R^6
-	ob::RealVectorBounds IKbounds(m);
-	for (int i = 0; i < m; i++) {
-		IKbounds.setLow(i, 0);
-		IKbounds.setHigh(i, 1);
-	}
-
 	// set the bound for the compound space
-	cs->as<ob::RealVectorStateSpace>(0)->setBounds(Qbounds);
-	cs->as<ob::RealVectorStateSpace>(1)->setBounds(IKbounds);
+	Q->as<ob::RealVectorStateSpace>()->setBounds(Qbounds);
 
 	// construct a compound state space using the overloaded operator+
-	ob::StateSpacePtr Cspace(cs);
+	ob::StateSpacePtr Cspace(Q);
 
 	// construct an instance of  space information from this state space
 	ob::SpaceInformationPtr si(new ob::SpaceInformation(Cspace));
@@ -109,20 +96,14 @@ bool plan_C::plan(Vector c_start, Vector c_goal, int n, int m, double runtime, p
 	si->setStateValidityCheckingResolution(0.02); // 2% ???
 
 	// create start state
-	ob::ScopedState<ob::CompoundStateSpace> start(Cspace);
-	for (int i = 0; i < n; i++) {
-		start->as<ob::RealVectorStateSpace::StateType>(0)->values[i] = c_start[i]; // Access the first component of the start a-state
-	}
-	for (int i = 0; i < m; i++)
-		start->as<ob::RealVectorStateSpace::StateType>(1)->values[i] = .5;
+	ob::ScopedState<ob::RealVectorStateSpace> start(Cspace);
+	for (int i = 0; i < n; i++)
+		start->as<ob::RealVectorStateSpace::StateType>()->values[i] = c_start[i]; // Access the first component of the start a-state
 
 	// create goal state
-	ob::ScopedState<ob::CompoundStateSpace> goal(Cspace);
-	for (int i = 0; i < n; i++) {
-		goal->as<ob::RealVectorStateSpace::StateType>(0)->values[i] = c_goal[i]; // Access the first component of the goal a-state
-	}
-	for (int i = 0; i < m; i++)
-		goal->as<ob::RealVectorStateSpace::StateType>(1)->values[i] = .5;
+	ob::ScopedState<ob::RealVectorStateSpace> goal(Cspace);
+	for (int i = 0; i < n; i++)
+		goal->as<ob::RealVectorStateSpace::StateType>()->values[i] = c_goal[i]; // Access the first component of the goal a-state
 
 	// create a problem instance
 	ob::ProblemDefinitionPtr pdef(new ob::ProblemDefinition(si));

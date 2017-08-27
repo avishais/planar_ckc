@@ -176,6 +176,7 @@ ompl::geometric::RRTConnect::Motion* ompl::geometric::RRTConnect::growTree(TreeD
 
 		// find state to add
 		base::State *dstate = tmotion->state;
+		Vector dik = tmotion->ik_vect;
 		double d = activeDistance(nmotion, tmotion);
 
 		if (d > maxDistance_)
@@ -221,7 +222,7 @@ ompl::geometric::RRTConnect::Motion* ompl::geometric::RRTConnect::growTree(TreeD
 			ik = identify_state_ik(dstate);
 		}
 		else  { // Added but not tested
-			retrieveStateVector(dstate, q, ik);
+			ik = dik;
 			active_chain = -1;
 			for (int i = 0; i < m; i++) {
 				if (nmotion->ik_vect[i] == ik[i])
@@ -252,7 +253,6 @@ ompl::geometric::RRTConnect::Motion* ompl::geometric::RRTConnect::growTree(TreeD
 			Motion *motion = new Motion(si_);
 			motion->ik_vect.resize(m);
 			motion->ik_vect = ik;
-			updateStateVectorIK(dstate, ik);
 			si_->copyState(motion->state, dstate);
 			motion->parent = nmotion;
 			motion->root = nmotion->root;
@@ -297,8 +297,6 @@ ompl::base::PlannerStatus ompl::geometric::RRTConnect::solve(const base::Planner
 	while (const base::State *st = pis_.nextStart())
 	{
 		ik = identify_state_ik(st);
-		updateStateVectorIK(st, ik);
-		retrieveStateVector(st, q, ik);
 
 		Motion *motion = new Motion(si_);
 		si_->copyState(motion->state, st);
@@ -350,8 +348,6 @@ ompl::base::PlannerStatus ompl::geometric::RRTConnect::solve(const base::Planner
 			if (st)
 			{
 				ik = identify_state_ik(st);
-				updateStateVectorIK(st, ik);
-				retrieveStateVector(st, q, ik);
 
 				Motion *motion = new Motion(si_);
 				si_->copyState(motion->state, st);
@@ -534,7 +530,6 @@ void ompl::geometric::RRTConnect::save2file(vector<Motion*> mpath1, vector<Motio
 	Vector q(n);
 	Matrix path;
 	int active_chain;
-
 
 	// Log env. info
 	std::ofstream mf;

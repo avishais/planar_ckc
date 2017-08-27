@@ -70,12 +70,9 @@ public:
 
 	/** Retrieve state from ob::State to vector<double> */
 	void retrieveStateVector(const ob::State *state, Vector &q);
-	void retrieveStateVector(const ob::State *state, Vector &q, Vector &ik);
 
 	/** Update state to ob::State from vector<double> */
 	void updateStateVector(const ob::State *state, Vector q);
-	void updateStateVectorIK(const ob::State *state, Vector ik);
-	void updateStateVector(const ob::State *state, Vector q, Vector ik);
 
 	/** Print ob::State to console */
 	void printStateVector(const ob::State *state);
