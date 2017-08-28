@@ -74,7 +74,7 @@ Vector StateValidityChecker::sample_q() {
 	return q;
 }
 
-bool StateValidityChecker::IKproject(ob::State *state, int nc, int IK_sol) {
+bool StateValidityChecker::IKproject(ob::State *state, int nc, int IK_sol, bool includeObs) {
 	// nc - passive chain number
 	Vector q(n), ik(m);
 
@@ -83,8 +83,11 @@ bool StateValidityChecker::IKproject(ob::State *state, int nc, int IK_sol) {
 	if (!IKproject(q, nc, IK_sol))
 		return false;
 
+	if (include_constraints && !check_angles(q))
+		return false;
+
 	// Check Constraints
-	if (include_constraints && (!check_angles(q) || !obstacle_collision(q) || !self_collision(q)))
+	if (includeObs && include_constraints && (!obstacle_collision(q) || !self_collision(q)))
 		return false;
 
 	updateStateVector(state, q);

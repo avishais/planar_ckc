@@ -41,7 +41,7 @@ public:
 	};
 
 	/** Project a configuration in the ambient space to the constraint surface */
-	bool IKproject(ob::State *, int, int);
+	bool IKproject(ob::State *, int, int, bool = true);
 	bool IKproject(Vector &, int, int);
 
 	/** Identify the IK solutions of a configuration using all passive chains defined */
