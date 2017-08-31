@@ -16,6 +16,7 @@
 
 // Modified and custom planners
 #include "CBiRRT_gd.h"
+#include "RRT_gd.h"
 #include "SBL_gd.h"
 
 //#include "../validity_checkers/StateValidityCheckerGD.h"
@@ -33,6 +34,7 @@ using namespace std;
 enum plannerType
 {
 	PLANNER_BIRRT,
+	PLANNER_RRT,
 	PLANNER_SBL
 };
 

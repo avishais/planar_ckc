@@ -16,6 +16,7 @@
 
 // Modified and custom planners
 #include "CBiRRT_pcs.h"
+#include "RRT_pcs.h"
 #include "SBL_pcs.h"
 
 //#include "../validity_checkers/StateValidityCheckerPCS.h"
@@ -35,6 +36,7 @@ using namespace std;
 enum plannerType
 {
 	PLANNER_BIRRT,
+	PLANNER_RRT,
 	PLANNER_SBL
 };
 

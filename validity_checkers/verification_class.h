@@ -5,8 +5,12 @@
  *      Author: avishai
  */
 
+#ifdef PCS
 #include "StateValidityCheckerPCS.h"
-//#include "StateValidityCheckerGD.h"
+#endif
+#ifdef PGD
+#include "StateValidityCheckerGD.h"
+#endif
 
 //#include <stdio.h>
 #include <iostream>

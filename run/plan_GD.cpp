@@ -50,6 +50,11 @@ ob::PlannerPtr plan_C::allocatePlanner(ob::SpaceInformationPtr si, int n, planne
 		return std::make_shared<og::RRTConnect>(si, n, maxStep);
 		break;
 	}
+	case PLANNER_RRT:
+	{
+		return std::make_shared<og::RRT>(si, n, maxStep);
+		break;
+	}
 	case PLANNER_SBL:
 	{
 		return std::make_shared<og::SBL>(si, n, maxStep);
@@ -185,6 +190,9 @@ int main(int argn, char ** args) {
 			ptype = PLANNER_BIRRT;
 			break;
 		case 2 :
+			ptype = PLANNER_RRT;
+			break;
+		case 3 :
 			ptype = PLANNER_SBL;
 			break;
 		default :
@@ -197,7 +205,7 @@ int main(int argn, char ** args) {
 
 	srand( time(NULL) );
 
-	int mode = 3;
+	int mode = 5;
 	switch (mode) {
 	case 1: {//Manual check
 		int n = 5; // Dimensionality of CKC
@@ -215,7 +223,7 @@ int main(int argn, char ** args) {
 		State c_start = {1.6581, 0.17453, 0.17453, 0.17453, -0.034907, -0.17453, -0.17453, -0.5236, -0.69813, -0.5236, -0.87266, -0.17453, 0.087266, 0.34907, 0.17453, 0.17453, 0.17453, 0.18147, -0.80904, 2.4791};
 		State c_goal = {-2.1293, 0.34907, 0.5236, 0.5236, 0.69813, 0.61087, 0.61087, -0.17453, -0.7854, -0.5236, -0.34907, 0.5236, 0.7854, 0.7854, 0.2618, 0.43633, -0.17453, -1.2474, 1.2172, 5.0836}; // 4 obs
 
-		Plan.plan(c_start, c_goal, runtime, ptype, 0.8);
+		Plan.plan(c_start, c_goal, runtime, ptype, 0.3);
 
 		verification_class vfc(c_start.size());
 		vfc.verify_path();
@@ -267,11 +275,11 @@ int main(int argn, char ** args) {
 
 		std::ofstream mf;
 		std::ifstream pf;
-		mf.open("/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/matlab/benchmark_BiRRT_GD_obs_rangeB.txt", ios::app);
+		mf.open("/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/matlab/benchmark_RRT_GD_obs_rangeB.txt", ios::app);
 
 		for (int i = 0; i < N; i++) { // N points for this number of passive chains
-			for (int j = 0; j < 11; j++) {
-				double maxStep = 0.2 + 0.21*j;
+			for (int j = 0; j < 16; j++) {
+				double maxStep = 0.2 + 0.2*j;
 
 				Plan.plan(c_start, c_goal, runtime, ptype, maxStep);
 

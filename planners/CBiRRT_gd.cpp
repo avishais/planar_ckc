@@ -177,7 +177,7 @@ ompl::geometric::RRTConnect::Motion* ompl::geometric::RRTConnect::growTree(TreeD
 
 		if (mode==1 || !reach) { // equivalent to (!(mode==2 && reach))
 			// Project dstate (which currently is not on the manifold)
-			retrieveStateVector(nmotion->state, q);
+			//retrieveStateVector(nmotion->state, q);
 
 			if (!IKproject(dstate)) { // Collision check is done inside the projection
 				project_fail++;
@@ -492,7 +492,7 @@ void ompl::geometric::RRTConnect::save2file(vector<Motion*> mpath1, vector<Motio
 
 		for (int i = mpath1.size() - 1 ; i >= 0 ; --i) {
 			retrieveStateVector(mpath1[i]->state, q);
-			for (int j = 0; j<n; j++) {
+			for (int j = 0; j < n; j++) {
 				myfile << q[j] << " ";
 			}
 			myfile << endl;
@@ -501,7 +501,7 @@ void ompl::geometric::RRTConnect::save2file(vector<Motion*> mpath1, vector<Motio
 		}
 		for (unsigned int i = 0 ; i < mpath2.size() ; ++i) {
 			retrieveStateVector(mpath2[i]->state, q);
-			for (int j = 0; j<n; j++) {
+			for (int j = 0; j < n; j++) {
 				myfile << q[j] << " ";
 			}
 			myfile << endl;

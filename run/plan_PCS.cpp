@@ -50,6 +50,11 @@ ob::PlannerPtr plan_C::allocatePlanner(ob::SpaceInformationPtr si, int n, int m,
 		return std::make_shared<og::RRTConnect>(si, n, m, maxStep);
 		break;
 	}
+	case PLANNER_RRT:
+	{
+		return std::make_shared<og::RRT>(si, n, m, maxStep);
+		break;
+	}
 	case PLANNER_SBL:
 	{
 		return std::make_shared<og::SBL>(si, n, m, maxStep);
@@ -183,6 +188,9 @@ int main(int argn, char ** args) {
 			ptype = PLANNER_BIRRT;
 			break;
 		case 2 :
+			ptype = PLANNER_RRT;
+			break;
+		case 3 :
 			ptype = PLANNER_SBL;
 			break;
 		default :
@@ -195,7 +203,7 @@ int main(int argn, char ** args) {
 
 	srand( time(NULL) );
 
-	int mode = 5;
+	int mode = 3;
 	switch (mode) {
 	case 1: {//Manual check
 		//c_start = {-0.166233, 0.33943, 0.953414, -1.24087, -0.806106, 2.22124};
@@ -220,7 +228,7 @@ int main(int argn, char ** args) {
 		int n = c_start.size();
 		int m = n;//n-2;//n-3;
 
-		Plan.plan(c_start, c_goal, n, m, runtime, ptype);
+		Plan.plan(c_start, c_goal, n, m, runtime, ptype, 1);
 
 		verification_class vfc(n);
 		vfc.verify_path();

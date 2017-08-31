@@ -62,7 +62,7 @@ bool verification_class::verify_path(Matrix M) {
 
 	// Validate continuity
 	for (int i = 1; i < m; i++) {
-		//cout << normDistance(M[i],M[i-1]) << endl;
+		// cout << normDistance(M[i],M[i-1]) << endl;
 		if (normDistance(M[i],M[i-1]) > continuity_tol) {
 			cout << "***************************************" << endl;
 			cout << "@ Discontinuity failure!" << endl;

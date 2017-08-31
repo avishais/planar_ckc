@@ -550,7 +550,7 @@ void ompl::geometric::RRTConnect::save2file(vector<Motion*> mpath1, vector<Motio
 		Vector temp;
 		for (int i = mpath1.size() - 1 ; i >= 0 ; --i) {
 			retrieveStateVector(mpath1[i]->state, q);
-			for (int j = 0; j<n; j++) {
+			for (int j = 0; j < n; j++) {
 				myfile << q[j] << " ";
 			}
 			myfile << endl;
