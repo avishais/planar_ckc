@@ -84,7 +84,7 @@ namespace geometric
 
 /** \brief Single-Query Bi-Directional Probabilistic Roadmap
            Planner with Lazy Collision Checking */
-class SBL : public base::Planner, public StateValidityChecker
+class SBL : public base::Planner, public StateValidityCheckerPCS
 {
 public:
 

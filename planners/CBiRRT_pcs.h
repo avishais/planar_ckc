@@ -63,7 +63,7 @@ namespace ompl
         */
 
         /** \brief RRT-Connect (RRTConnect) */
-        class RRTConnect : public base::Planner, public StateValidityChecker  // Avishai
+        class RRTConnect : public base::Planner, public StateValidityCheckerPCS  // Avishai
         {
         public:
 

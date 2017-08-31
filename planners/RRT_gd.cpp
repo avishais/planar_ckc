@@ -41,7 +41,7 @@
 
 #include "RRT_gd.h"
 
-ompl::geometric::RRT::RRT(const base::SpaceInformationPtr &si, int joint_num, double maxStep) : base::Planner(si, "RRT"), StateValidityChecker(si, joint_num, 0.3)
+ompl::geometric::RRT::RRT(const base::SpaceInformationPtr &si, int joint_num, double maxStep) : base::Planner(si, "RRT"), StateValidityCheckerGD(si, joint_num, 0.3)
 {
     specs_.approximateSolutions = true;
     specs_.directed = true;

@@ -16,6 +16,7 @@
 #include <ompl/config.h>
 
 #include "kdl_class.h"
+#include "apc_class.h"
 
 #include <iostream>
 
@@ -23,22 +24,29 @@
 namespace ob = ompl::base;
 using namespace std;
 
-class StateValidityCheckerGD : public kdl
+class StateValidityChecker : public kdl
 {
 public:
-	StateValidityCheckerGD(const ob::SpaceInformationPtr &si, int joint_num, double custom_num) : mysi_(si.get()), kdl(joint_num, custom_num) {
+	StateValidityChecker(const ob::SpaceInformationPtr &si, int joint_num, int passive_chains_num, double custom_num) : mysi_(si.get()), kdl(joint_num, custom_num), ckc(joints_num, custom_num) {
 
 		n = joint_num;
+		m = passive_chains_num;
 		q_prev.resize(n);
 
 	};
-	StateValidityCheckerGD(int joint_num, double custom_num=-1) : kdl(joint_num, custom_num) { //Constructor
+	StateValidityChecker(int joint_num, double custom_num=-1) : kdl(joint_num, custom_num), ckc(joints_num, custom_num) { //Constructor
 		n = joint_num;
+		m = passive_chains_num;
 	};
 
 	/** Project a configuration in the ambient space to the constraint surface */
 	bool IKproject(const ob::State *, bool = true);
 	bool IKproject(State &, bool = true);
+	bool IKprojectAPC(State &, int, int);
+
+	/** Identify the IK solutions of a configuration using all passive chains defined */
+	State identify_state_ik(const ob::State *);
+	State identify_state_ik(State);
 
 	/** Validity check using standard OMPL */
 	bool isValid(const ob::State *);
@@ -93,7 +101,7 @@ public:
 		return isValid_counter;
 	}
 
-	int n;
+	int n, m;
 
 	// Include constraints?
 	const bool include_constraints = true; // Enable/Disable constraints
@@ -115,7 +123,6 @@ private:
 	int RBS_max_depth = 100; // Maximum RBS recursion depth
 
 	ompl::RNG rng_;
-
 };
 
 

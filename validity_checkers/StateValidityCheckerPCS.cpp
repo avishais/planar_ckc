@@ -13,14 +13,14 @@ myStateValidityCheckerClass::myStateValidityCheckerClass(const ob::SpaceInformat
 #include "StateValidityCheckerPCS.h"
 #include <queue>
 
-void StateValidityChecker::defaultSettings()
+void StateValidityCheckerPCS::defaultSettings()
 {
 	stateSpace_ = mysi_->getStateSpace().get();
 	if (!stateSpace_)
 		OMPL_ERROR("No state space for motion validator");
 }
 
-void StateValidityChecker::retrieveStateVector(const ob::State *state, State &q) {
+void StateValidityCheckerPCS::retrieveStateVector(const ob::State *state, State &q) {
 	// cast the abstract state type to the type we expect
 	const ob::RealVectorStateSpace::StateType *Q = state->as<ob::RealVectorStateSpace::StateType>();
 
@@ -29,7 +29,7 @@ void StateValidityChecker::retrieveStateVector(const ob::State *state, State &q)
 	}
 }
 
-void StateValidityChecker::updateStateVector(const ob::State *state, State q) {
+void StateValidityCheckerPCS::updateStateVector(const ob::State *state, State q) {
 	// cast the abstract state type to the type we expect
 	const ob::RealVectorStateSpace::StateType *Q = state->as<ob::RealVectorStateSpace::StateType>();
 
@@ -38,7 +38,7 @@ void StateValidityChecker::updateStateVector(const ob::State *state, State q) {
 	}
 }
 
-void StateValidityChecker::printStateVector(const ob::State *state) {
+void StateValidityCheckerPCS::printStateVector(const ob::State *state) {
 	// cast the abstract state type to the type we expect
 	const ob::RealVectorStateSpace::StateType *Q = state->as<ob::RealVectorStateSpace::StateType>();
 
@@ -50,7 +50,7 @@ void StateValidityChecker::printStateVector(const ob::State *state) {
 	cout << "q: "; printVector(q);
 }
 
-Vector StateValidityChecker::sample_q() {
+Vector StateValidityCheckerPCS::sample_q() {
 	Vector q(n);
 
 	while (1) {
@@ -74,7 +74,7 @@ Vector StateValidityChecker::sample_q() {
 	return q;
 }
 
-bool StateValidityChecker::IKproject(ob::State *state, int nc, int IK_sol, bool includeObs) {
+bool StateValidityCheckerPCS::IKproject(ob::State *state, int nc, int IK_sol, bool includeObs) {
 	// nc - passive chain number
 	Vector q(n), ik(m);
 
@@ -95,7 +95,7 @@ bool StateValidityChecker::IKproject(ob::State *state, int nc, int IK_sol, bool 
 	return true;	
 }
 
-bool StateValidityChecker::IKproject(Vector &q, int nc, int IK_sol) {
+bool StateValidityCheckerPCS::IKproject(Vector &q, int nc, int IK_sol) {
 	// nc - passive chain number
 
 	Vector q_IK(3);
@@ -267,14 +267,14 @@ bool StateValidityChecker::IKproject(Vector &q, int nc, int IK_sol) {
 	return true;
 }
 
-Vector StateValidityChecker::identify_state_ik(const ob::State *state) {
+Vector StateValidityCheckerPCS::identify_state_ik(const ob::State *state) {
 	State q(n);
 	retrieveStateVector(state, q);
 
 	return identify_state_ik(q);
 }
 
-Vector StateValidityChecker::identify_state_ik(Vector q) {
+Vector StateValidityCheckerPCS::identify_state_ik(Vector q) {
 	State q_temp(n), ik(m, -1);
 
 	double tol = 0.05;
@@ -309,7 +309,7 @@ Vector StateValidityChecker::identify_state_ik(Vector q) {
 // ------------------- Validity check
 
 // Validates a state by computing the passive chain based on a specific IK solution (input) and checking collision
-bool StateValidityChecker::isValid(const ob::State *state, int active_chain, int IK_sol , bool project) {
+bool StateValidityCheckerPCS::isValid(const ob::State *state, int active_chain, int IK_sol , bool project) {
 
 	isValid_counter++;
 
@@ -331,7 +331,7 @@ bool StateValidityChecker::isValid(const ob::State *state, int active_chain, int
 	return true;	
 }
 
-bool StateValidityChecker::checkMotion(const ob::State *s1, const ob::State *s2, int active_chain, int ik_sol)
+bool StateValidityCheckerPCS::checkMotion(const ob::State *s1, const ob::State *s2, int active_chain, int ik_sol)
 {
 	// We assume motion starts and ends in a valid configuration - due to projection
 	bool result = true;
@@ -396,7 +396,7 @@ bool StateValidityChecker::checkMotion(const ob::State *s1, const ob::State *s2,
 // ------------------------------------ RBS -------------------------------------------
 
 // Validates a state by computing the passive chain based on a specific IK solution (input) and checking collision
-bool StateValidityChecker::isValidRBS(Vector& q, int active_chain, int IK_sol) {
+bool StateValidityCheckerPCS::isValidRBS(Vector& q, int active_chain, int IK_sol) {
 
 	isValid_counter++;
 
@@ -411,7 +411,7 @@ bool StateValidityChecker::isValidRBS(Vector& q, int active_chain, int IK_sol) {
 }
 
 // Calls the Recursive Bi-Section algorithm (Hauser)
-bool StateValidityChecker::checkMotionRBS(const ob::State *s1, const ob::State *s2, int active_chain, int ik_sol)
+bool StateValidityCheckerPCS::checkMotionRBS(const ob::State *s1, const ob::State *s2, int active_chain, int ik_sol)
 {
 	// We assume motion starts and ends in a valid configuration - due to projection
 	bool result = true;
@@ -426,7 +426,7 @@ bool StateValidityChecker::checkMotionRBS(const ob::State *s1, const ob::State *
 }
 
 // Implements local-connection using Recursive Bi-Section Technique (Hauser)
-bool StateValidityChecker::checkMotionRBS(Vector q1, Vector q2, int active_chain, int ik_sol, int recursion_depth, int non_decrease_count) {
+bool StateValidityCheckerPCS::checkMotionRBS(Vector q1, Vector q2, int active_chain, int ik_sol, int recursion_depth, int non_decrease_count) {
 
 	// Check if reached the required resolution
 	double d = normDistance(q1,q2); //normVector(angle_distance(q1, q2));
@@ -456,7 +456,7 @@ bool StateValidityChecker::checkMotionRBS(Vector q1, Vector q2, int active_chain
 // *************** Reconstruct the RBS - for post-processing and validation
 
 // Reconstruct local connection with the Recursive Bi-Section algorithm (Hauser)
-bool StateValidityChecker::reconstructRBS(const ob::State *s1, const ob::State *s2, Matrix &Confs, int active_chain, int ik_sol)
+bool StateValidityCheckerPCS::reconstructRBS(const ob::State *s1, const ob::State *s2, Matrix &Confs, int active_chain, int ik_sol)
 {
 	Vector q1(n), q2(n);
 	retrieveStateVector(s1, q1);
@@ -468,7 +468,7 @@ bool StateValidityChecker::reconstructRBS(const ob::State *s1, const ob::State *
 	return reconstructRBS(q1, q2, active_chain, ik_sol, Confs, 0, 1, 1, 0);
 }
 
-bool StateValidityChecker::reconstructRBS(Vector q1, Vector q2, int active_chain, int ik_sol, Matrix &M, int iteration, int last_index, int firstORsecond, int non_decrease_count) {
+bool StateValidityCheckerPCS::reconstructRBS(Vector q1, Vector q2, int active_chain, int ik_sol, Matrix &M, int iteration, int last_index, int firstORsecond, int non_decrease_count) {
 	// firstORsecond - tells if the iteration is from the first or second call for the recursion (in the last iteration).
 	// last_index - the last index that was added to M.
 
@@ -508,7 +508,7 @@ bool StateValidityChecker::reconstructRBS(Vector q1, Vector q2, int active_chain
 	return true;
 }
 
-Vector StateValidityChecker::midpoint(Vector q1, Vector q2) {
+Vector StateValidityCheckerPCS::midpoint(Vector q1, Vector q2) {
 
 	Vector q_mid(n);
 
@@ -533,7 +533,7 @@ Vector StateValidityChecker::midpoint(Vector q1, Vector q2) {
 	return q_mid;
 }
 
-Vector StateValidityChecker::angle_distance(Vector q1, Vector q2) {
+Vector StateValidityCheckerPCS::angle_distance(Vector q1, Vector q2) {
 
 	Vector dq(n);
 
@@ -544,7 +544,7 @@ Vector StateValidityChecker::angle_distance(Vector q1, Vector q2) {
 
 }
 
-double StateValidityChecker::normDistance(Vector a1, Vector a2) {
+double StateValidityCheckerPCS::normDistance(Vector a1, Vector a2) {
 	double sum = 0;
 	for (int i=0; i < a1.size(); i++)
 		sum += pow(a1[i]-a2[i], 2);
@@ -552,7 +552,7 @@ double StateValidityChecker::normDistance(Vector a1, Vector a2) {
 }
 
 
-double StateValidityChecker::normVector(Vector q) {
+double StateValidityCheckerPCS::normVector(Vector q) {
 
 	double sum;
 	for (int i = 0; i < n; i++)
@@ -563,7 +563,7 @@ double StateValidityChecker::normVector(Vector q) {
 
 // ------------------------------- Constraints functions ---------------------------
 
-bool StateValidityChecker::check_angles(Vector q, double f) {
+bool StateValidityCheckerPCS::check_angles(Vector q, double f) {
 
 	for (int i = 0; i < n-1; i++)
 		if (q[i] > f*get_qminmax() || q[i] < -f*get_qminmax())
@@ -574,7 +574,7 @@ bool StateValidityChecker::check_angles(Vector q, double f) {
 	return true;
 }
 
-bool StateValidityChecker::self_collision(Vector q, double f) {
+bool StateValidityCheckerPCS::self_collision(Vector q, double f) {
 	double Ax, Ay, Bx, By, Cx, Cy, Dx, Dy, l = getL();
 	Ax = Ay = 0;
 
@@ -619,7 +619,7 @@ bool StateValidityChecker::self_collision(Vector q, double f) {
 
 // Returns false if the lines AB and CD intersect, otherwise true.
 // Currently only checks when lines are not parallel
-bool StateValidityChecker::LinesIntersect(Vector A, Vector B, Vector C, Vector D, double f) {
+bool StateValidityCheckerPCS::LinesIntersect(Vector A, Vector B, Vector C, Vector D, double f) {
 	double s1_x, s1_y, s2_x, s2_y;
 	s1_x = B[0] - A[0];
 	s1_y = B[1] - A[1];
@@ -637,7 +637,7 @@ bool StateValidityChecker::LinesIntersect(Vector A, Vector B, Vector C, Vector D
 	return true; // No collision
 }
 
-bool StateValidityChecker::obstacle_collision(Vector q, double f) {
+bool StateValidityCheckerPCS::obstacle_collision(Vector q, double f) {
 	double x, y, l = getL();
 	x = y = 0;
 

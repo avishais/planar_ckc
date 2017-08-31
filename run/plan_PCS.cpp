@@ -203,7 +203,7 @@ int main(int argn, char ** args) {
 
 	srand( time(NULL) );
 
-	int mode = 5;
+	int mode = 3;
 	switch (mode) {
 	case 1: {//Manual check
 		//c_start = {-0.166233, 0.33943, 0.953414, -1.24087, -0.806106, 2.22124};
@@ -211,7 +211,7 @@ int main(int argn, char ** args) {
 
 		int n = 5; // Dimensionality of CKC
 		Vector c_start(n), c_goal(n);
-		StateValidityChecker svc(n); // The checker class
+		StateValidityCheckerPCS svc(n); // The checker class
 		c_start = svc.sample_q();
 		c_goal = svc.sample_q();
 
@@ -322,7 +322,7 @@ int main(int argn, char ** args) {
 		for (int j = 0; j < 11; j++)
 		{
 			int n = 5 + j * 5;
-			StateValidityChecker svc(n); // The checker class
+			StateValidityCheckerPCS svc(n); // The checker class
 			Vector c_start(n), c_goal(n);
 			verification_class vfc(n);
 
@@ -371,7 +371,7 @@ int main(int argn, char ** args) {
 		for (int ir = 8; ir < 9; ir++) {
 			double r = (ir + 1) * 0.05;
 
-			StateValidityChecker svc(n, r); // The checker class
+			StateValidityCheckerPCS svc(n, r); // The checker class
 			Vector c_start(n), c_goal(n);
 
 			for (int i = 0; i < N; i++) { // N points for this number of passive chains
@@ -412,7 +412,7 @@ int main(int argn, char ** args) {
 		for (int ir = 0; ir < 8; ir++) {
 			double r = ir * 0.15 + 1.25;
 
-			StateValidityChecker svc(n, r); // The checker class
+			StateValidityCheckerPCS svc(n, r); // The checker class
 			Vector c_start(n), c_goal(n);
 
 			for (int i = 0; i < N; i++) { // N points for this number of passive chains

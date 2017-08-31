@@ -42,7 +42,7 @@
 
 #include "SBL_gd.h"
 
-ompl::geometric::SBL::SBL(const base::SpaceInformationPtr &si, int joints_num, double custom_num) : base::Planner(si, "SBL"), StateValidityChecker(si, joints_num, 0.3)
+ompl::geometric::SBL::SBL(const base::SpaceInformationPtr &si, int joints_num, double custom_num) : base::Planner(si, "SBL"), StateValidityCheckerGD(si, joints_num, 0.3)
 {
 	specs_.recognizedGoal = base::GOAL_SAMPLEABLE_REGION;
 	maxDistance_ = 0.0;

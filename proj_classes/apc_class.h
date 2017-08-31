@@ -9,7 +9,6 @@
 
 #define PI 3.1416
 
-
 using namespace std;
 
 typedef vector<double> State;

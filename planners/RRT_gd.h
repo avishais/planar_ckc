@@ -64,7 +64,7 @@ namespace geometric
  */
 
 /** \brief Rapidly-exploring Random Trees */
-class RRT : public base::Planner, StateValidityChecker
+class RRT : public base::Planner, StateValidityCheckerGD
 {
 public:
 

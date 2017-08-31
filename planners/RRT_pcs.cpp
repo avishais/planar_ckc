@@ -41,7 +41,7 @@
 
 #include "RRT_pcs.h"
 
-ompl::geometric::RRT::RRT(const base::SpaceInformationPtr &si, int joints_num, int passive_chains_num, double maxStep) : base::Planner(si, "RRT"), StateValidityChecker(si, joints_num, passive_chains_num, 0.3)
+ompl::geometric::RRT::RRT(const base::SpaceInformationPtr &si, int joints_num, int passive_chains_num, double maxStep) : base::Planner(si, "RRT"), StateValidityCheckerPCS(si, joints_num, passive_chains_num, 0.3)
 {
 	specs_.approximateSolutions = true;
 	specs_.directed = true;

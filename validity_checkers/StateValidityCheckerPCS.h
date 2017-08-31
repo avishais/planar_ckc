@@ -23,17 +23,17 @@
 namespace ob = ompl::base;
 using namespace std;
 
-class StateValidityChecker : public ckc
+class StateValidityCheckerPCS : public ckc
 {
 public:
 	/** Constructors */
-	StateValidityChecker(const ob::SpaceInformationPtr &si, int joints_num, int passive_chains_num, double custom_num) : mysi_(si.get()), ckc(joints_num, custom_num) { //Constructor
+	StateValidityCheckerPCS(const ob::SpaceInformationPtr &si, int joints_num, int passive_chains_num, double custom_num) : mysi_(si.get()), ckc(joints_num, custom_num) { //Constructor
 		n = joints_num;
 		m = passive_chains_num;
 		q_temp.resize(6);
 		L = getL();
 	};
-	StateValidityChecker(int joints_num, double custom_num=-1) : ckc(joints_num, custom_num) { //Constructor
+	StateValidityCheckerPCS(int joints_num, double custom_num=-1) : ckc(joints_num, custom_num) { //Constructor
 		n = joints_num;
 		m = n;
 		q_temp.resize(6);
@@ -115,8 +115,6 @@ public:
 
 	//Matrix obs = {{-4, 4, 1},{3.4, 7.5, 1}, {4.2, -2.9, 1.5}, {8, 2, 0.8}};
 	Matrix obs = {{-3.2, 4, 1},{2.6, 6.8, 1}, {4.2, -2.9, 1.5}, {8, 2, 0.8}};
-
-	double t3, t4, t5, t6, t7, t8;
 
 private:
 	ob::StateSpace *stateSpace_;

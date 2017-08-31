@@ -20,10 +20,21 @@
 typedef vector<double> State;
 typedef vector<vector< double >> Matrix;
 
-class verification_class : public StateValidityChecker
+class verification_class :
+	#ifdef PCS
+		public StateValidityCheckerPCS
+	#else
+		public StateValidityCheckerGD
+	#endif
 {
 public:
-	verification_class(int joints_num, double custom_num = 0.3) : StateValidityChecker(joints_num, custom_num) {
+	verification_class(int joints_num, double custom_num = 0.3) :
+	#ifdef PCS
+		StateValidityCheckerPCS(joints_num, custom_num)
+	#else
+	StateValidityCheckerGD(joints_num, custom_num)
+	#endif
+	{
 		cout << "Initiated verification module." << endl;
 		continuity_tol = get_RBS_tol() * 1.1;
 

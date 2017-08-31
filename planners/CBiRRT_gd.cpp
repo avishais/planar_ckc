@@ -46,7 +46,7 @@ void o(T a) {
 	cout << a << endl;
 }
 
-ompl::geometric::RRTConnect::RRTConnect(const base::SpaceInformationPtr &si, int joint_num, double custom_num) : base::Planner(si, "RRTConnect"), StateValidityChecker(si, joint_num, 0.3)
+ompl::geometric::RRTConnect::RRTConnect(const base::SpaceInformationPtr &si, int joint_num, double custom_num) : base::Planner(si, "RRTConnect"), StateValidityCheckerGD(si, joint_num, 0.3)
 {
 	specs_.recognizedGoal = base::GOAL_SAMPLEABLE_REGION;
 	specs_.directed = true;
