@@ -211,7 +211,7 @@ int main(int argn, char ** args) {
 
 		int n = 5; // Dimensionality of CKC
 		State c_start(n), c_goal(n);
-		StateValidityCheckerPCS svc(n); // The checker class
+		StateValidityChecker svc(n); // The checker class
 		c_start = svc.sample_q();
 		c_goal = svc.sample_q();
 
@@ -322,7 +322,7 @@ int main(int argn, char ** args) {
 		for (int j = 0; j < 11; j++)
 		{
 			int n = 5 + j * 5;
-			StateValidityCheckerPCS svc(n); // The checker class
+			StateValidityChecker svc(n); // The checker class
 			State c_start(n), c_goal(n);
 			verification_class vfc(n);
 
@@ -371,7 +371,7 @@ int main(int argn, char ** args) {
 		for (int ir = 8; ir < 9; ir++) {
 			double r = (ir + 1) * 0.05;
 
-			StateValidityCheckerPCS svc(n, r); // The checker class
+			StateValidityChecker svc(n, r); // The checker class
 			State c_start(n), c_goal(n);
 
 			for (int i = 0; i < N; i++) { // N points for this number of passive chains
@@ -412,7 +412,7 @@ int main(int argn, char ** args) {
 		for (int ir = 0; ir < 8; ir++) {
 			double r = ir * 0.15 + 1.25;
 
-			StateValidityCheckerPCS svc(n, r); // The checker class
+			StateValidityChecker svc(n, r); // The checker class
 			State c_start(n), c_goal(n);
 
 			for (int i = 0; i < N; i++) { // N points for this number of passive chains

@@ -34,32 +34,32 @@
 
 /* Author: Avishai Sintov, Ioan Sucan */
 
-#include "plan_GD.h"
+#include "plan_PCS.h"
 
 bool isStateValid(const ob::State *state)
 {
 	return true;
 }
 
-ob::PlannerPtr plan_C::allocatePlanner(ob::SpaceInformationPtr si, int n, plannerType p_type)
+ob::PlannerPtr plan_C::allocatePlanner(ob::SpaceInformationPtr si, int n, int m, plannerType p_type)
 {
 	switch (p_type)
 	{
 	case PLANNER_BIRRT:
 	{
-		return std::make_shared<og::RRTConnect>(si, n, maxStep);
+		return std::make_shared<og::RRTConnect>(si, n, m, maxStep);
 		break;
 	}
-	case PLANNER_RRT:
+	/*case PLANNER_RRT:
 	{
-		return std::make_shared<og::RRT>(si, n, maxStep);
+		return std::make_shared<og::RRT>(si, n, m, maxStep);
 		break;
 	}
 	case PLANNER_SBL:
 	{
-		return std::make_shared<og::SBL>(si, n, maxStep);
+		return std::make_shared<og::SBL>(si, n, m, maxStep);
 		break;
-	}
+	}*/
 	default:
 	{
 		OMPL_ERROR("Planner-type enum is not implemented in allocation function.");
@@ -69,12 +69,13 @@ ob::PlannerPtr plan_C::allocatePlanner(ob::SpaceInformationPtr si, int n, planne
 	}
 }
 
-bool plan_C::plan(State c_start, State c_goal, double runtime, plannerType ptype, double custom) {
+bool plan_C::plan(State c_start, State c_goal, int n, int m, double runtime, plannerType ptype, double custom) {
 
-	int n = c_start.size();
+	//int n = c_start.size();
+	//int m = n - 2;
 
 	// construct the state space we are planning inz
-	ob::StateSpacePtr Q(new ob::RealVectorStateSpace(n)); // Angles of CKC - R^n
+	ob::StateSpacePtr Q(new ob::RealVectorStateSpace(n)); // Angles of Robot 1 & 2 - R^12
 
 	// set the bounds for the Q=R^n part of 'Cspace'
 	ob::RealVectorBounds Qbounds(n);
@@ -97,19 +98,17 @@ bool plan_C::plan(State c_start, State c_goal, double runtime, plannerType ptype
 	// set state validity checking for this space
 	//si->setStateValidityChecker(ob::StateValidityCheckerPtr(new myStateValidityCheckerClass(si)));
 	si->setStateValidityChecker(std::bind(&isStateValid, std::placeholders::_1));
-	si->setStateValidityCheckingResolution(0.02); // 3% ???
+	si->setStateValidityCheckingResolution(0.02); // 2% ???
 
 	// create start state
 	ob::ScopedState<ob::RealVectorStateSpace> start(Cspace);
-	for (int i = 0; i < n; i++) {
+	for (int i = 0; i < n; i++)
 		start->as<ob::RealVectorStateSpace::StateType>()->values[i] = c_start[i]; // Access the first component of the start a-state
-	}
 
 	// create goal state
 	ob::ScopedState<ob::RealVectorStateSpace> goal(Cspace);
-	for (int i = 0; i < n; i++) {
+	for (int i = 0; i < n; i++)
 		goal->as<ob::RealVectorStateSpace::StateType>()->values[i] = c_goal[i]; // Access the first component of the goal a-state
-	}
 
 	// create a problem instance
 	ob::ProblemDefinitionPtr pdef(new ob::ProblemDefinition(si));
@@ -121,7 +120,7 @@ bool plan_C::plan(State c_start, State c_goal, double runtime, plannerType ptype
 	maxStep = custom;
 	// create a planner for the defined space
 	// To add a planner, the #include library must be added above
-	ob::PlannerPtr planner = allocatePlanner(si, n, ptype);
+	ob::PlannerPtr planner = allocatePlanner(si, n, m, ptype);
 
 	// set the problem we are trying to solve for the planner
 	planner->setProblemDefinition(pdef);
@@ -138,7 +137,6 @@ bool plan_C::plan(State c_start, State c_goal, double runtime, plannerType ptype
 
 	// print the problem settings
 	//pdef->print(std::cout); // Prints problem definition such as start and goal states and optimization objective
-
 	// attempt to solve the problem within one second of planning time
 	clock_t begin = clock();
 	ob::PlannerStatus solved = planner->solve(runtime);
@@ -156,7 +154,7 @@ bool plan_C::plan(State c_start, State c_goal, double runtime, plannerType ptype
 
 		// Save path to file
 		//std::ofstream myfile;
-		//myfile.open("pathGD.txt");
+		//myfile.open("pathRRTC.txt");
 		//og::PathGeometric& pog = static_cast<og::PathGeometric&>(*path); // Transform into geometric path class
 		//pog.printAsMatrix(myfile); // Print as matrix to file
 		//myfile.close();
@@ -208,28 +206,75 @@ int main(int argn, char ** args) {
 	int mode = 3;
 	switch (mode) {
 	case 1: {//Manual check
+		//c_start = {-0.166233, 0.33943, 0.953414, -1.24087, -0.806106, 2.22124};
+		//c_goal = {-0.955006, 1.40412, 0.213556 ,-1.30293, 1.01319, -2.76867+2*3.1416 };
+
 		int n = 5; // Dimensionality of CKC
 		State c_start(n), c_goal(n);
-		StateValidityChecker svc(n); // The checker class
+		StateValidityCheckerPCS svc(n); // The checker class
 		c_start = svc.sample_q();
 		c_goal = svc.sample_q();
 
 		int m = n;
 
-		Plan.plan(c_start, c_goal, runtime);
+		Plan.plan(c_start, c_goal, n, m, runtime);
 		break;
 	}
 	case 3: { // Obstacle experiment
 		State c_start = {1.6581, 0.17453, 0.17453, 0.17453, -0.034907, -0.17453, -0.17453, -0.5236, -0.69813, -0.5236, -0.87266, -0.17453, 0.087266, 0.34907, 0.17453, 0.17453, 0.17453, 0.18147, -0.80904, 2.4791};
+		//c_goal = {-2.1293, 0.34907, 0.5236, 0.5236, 0.69813, 0.5236, 0.34907, 0.34907, -0.34907, -0.40143, -0.61087, -0.5236, 0.61087, 0.69813, 0.69813, 0.5236, 0.34907, -0.44059, 0.52295, 5.4056}; // 3 obs
 		State c_goal = {-2.1293, 0.34907, 0.5236, 0.5236, 0.69813, 0.61087, 0.61087, -0.17453, -0.7854, -0.5236, -0.34907, 0.5236, 0.7854, 0.7854, 0.2618, 0.43633, -0.17453, -1.2474, 1.2172, 5.0836}; // 4 obs
 
-		Plan.plan(c_start, c_goal, runtime, ptype, 0.3);
+		int n = c_start.size();
+		int m = n;//n-2;//n-3;
 
-		verification_class vfc(c_start.size());
+		Plan.plan(c_start, c_goal, n, m, runtime, ptype, 1);
+
+		verification_class vfc(n);
 		vfc.verify_path();
+
 		break;
 	}
 	case 4: {// Benchmark the same scenario
+		int N = 1000; // Number of points to take for each k<=m
+		string line;
+
+		State c_start = {1.6581, 0.17453, 0.17453, 0.17453, -0.034907, -0.17453, -0.17453, -0.5236, -0.69813, -0.5236, -0.87266, -0.17453, 0.087266, 0.34907, 0.17453, 0.17453, 0.17453, 0.18147, -0.80904, 2.4791};
+		//State c_goal = {-2.1293, 0.34907, 0.5236, 0.5236, 0.69813, 0.5236, 0.34907, 0.34907, -0.34907, -0.40143, -0.61087, -0.5236, 0.61087, 0.69813, 0.69813, 0.5236, 0.34907, -0.44059, 0.52295, 5.4056}; // 3 obs
+		State c_goal = {-2.1293, 0.34907, 0.5236, 0.5236, 0.69813, 0.61087, 0.61087, -0.17453, -0.7854, -0.5236, -0.34907, 0.5236, 0.7854, 0.7854, 0.2618, 0.43633, -0.17453, -1.2474, 1.2172, 5.0836}; // 4 obs
+
+		int n = c_start.size();
+
+		std::ofstream mf;
+		std::ifstream pf;
+		mf.open("/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/matlab/benchmark_PCS_obs_range2.txt", ios::app);
+
+		verification_class vfc(n);
+
+		for (int i = 0; i < N; i++) { // N points for this number of passive chains
+			for (int m = 1; m <= n; m++) { // All possible passive chains
+				//int m = n;
+
+				Plan.plan(c_start, c_goal, n, m, runtime);
+
+				bool verf = vfc.verify_path();
+				if (!verf) {
+					cout << "Verification error. press to continue...\n";
+					//cin.ignore();
+				}
+
+				mf << m << " ";
+				mf << verf << " ";
+				pf.open("./paths/perf_log.txt");
+				getline(pf, line);
+				mf << line << endl;
+				pf.close();
+			}
+		}
+		mf.close();
+		break;
+	}
+	case 5: {// Benchmark the same scenario with varying step size
 		int N = 1000; // Number of points to take for each k<=m
 		string line;
 
@@ -241,47 +286,13 @@ int main(int argn, char ** args) {
 
 		std::ofstream mf;
 		std::ifstream pf;
-		mf.open("/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/matlab/benchmark_GD_obs_range2_test.txt", ios::app);
-
-		for (int i = 0; i < N; i++) { // N points for this number of passive chains
-
-			Plan.plan(c_start, c_goal, runtime);
-
-			bool verf = vfc.verify_path();
-			if (!verf) {
-				cout << "Verification error. press to continue...\n";
-				//cin.ignore();
-			}
-
-			mf << verf << " ";
-
-			pf.open("./paths/perf_log.txt");
-			getline(pf, line);
-			mf << line << endl;
-			pf.close();
-		}
-		mf.close();
-		break;
-	}
-	case 5: {// Benchmark the same scenario with varying step size
-		int N = 10; // Number of points to take for each k<=m
-		string line;
-
-		State c_start = {1.6581, 0.17453, 0.17453, 0.17453, -0.034907, -0.17453, -0.17453, -0.5236, -0.69813, -0.5236, -0.87266, -0.17453, 0.087266, 0.34907, 0.17453, 0.17453, 0.17453, 0.18147, -0.80904, 2.4791};
-		State c_goal = {-2.1293, 0.34907, 0.5236, 0.5236, 0.69813, 0.61087, 0.61087, -0.17453, -0.7854, -0.5236, -0.34907, 0.5236, 0.7854, 0.7854, 0.2618, 0.43633, -0.17453, -1.2474, 1.2172, 5.0836}; // 4 obs
-
-		int n = c_start.size();
-		verification_class vfc(c_start.size());
-
-		std::ofstream mf;
-		std::ifstream pf;
-		mf.open("/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/matlab/benchmark_RRT_GD_obs_rangeB.txt", ios::app);
+		mf.open("/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/matlab/benchmark_BiRRT_PCS_obs_rangeB1.txt", ios::app);
 
 		for (int i = 0; i < N; i++) { // N points for this number of passive chains
 			for (int j = 0; j < 16; j++) {
 				double maxStep = 0.2 + 0.2*j;
 
-				Plan.plan(c_start, c_goal, runtime, ptype, maxStep);
+				Plan.plan(c_start, c_goal, n, n, runtime, ptype, maxStep);
 
 				bool verf = vfc.verify_path();
 				if (!verf) {
@@ -301,26 +312,29 @@ int main(int argn, char ** args) {
 		break;
 	}
 	case 6: { // Dimensionality analysis
-		int N = 200; // Number of points to take for each d
+
 		string line;
 
 		std::ofstream mf;
 		std::ifstream pf;
-		mf.open("/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/matlab/benchmark_D_GD.txt", ios::app);
+		mf.open("/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/matlab/benchmark_D_PCS.txt", ios::app);
 
 		for (int j = 0; j < 11; j++)
 		{
 			int n = 5 + j * 5;
-			StateValidityChecker svc(n); // The checker class
+			StateValidityCheckerPCS svc(n); // The checker class
 			State c_start(n), c_goal(n);
 			verification_class vfc(n);
+
+			int N = 200;//300; // Number of points to take for each d
 
 			for (int i = 0; i < N; i++) { // N points for this number of passive chains
 
 				c_start = svc.sample_q();
 				c_goal = svc.sample_q();
 
-				bool sol = Plan.plan(c_start, c_goal, runtime);
+				int m = n;
+				bool sol = Plan.plan(c_start, c_goal, n, m, runtime);
 
 				bool verf;
 				if (sol)
@@ -347,58 +361,17 @@ int main(int argn, char ** args) {
 
 		std::ofstream mf;
 		std::ifstream pf;
-		mf.open("/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/matlab/JulyAnalysis/benchmarkGD_baseRatio_" + std::to_string((int)runtime) + "_V2.txt", ios::app);
+		mf.open("/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/matlab/JulyAnalysis/benchmarkPCS_baseRatio_" + std::to_string((int)runtime) + "_V2.txt", ios::app);
 
 		int n = 9;
 
 		int N = 1500; // Number of trials
 
 		//for (double r = 0.05; r < 1; r=+0.05) {
-		for (int ir = 18; ir < 19; ir++) {
+		for (int ir = 8; ir < 9; ir++) {
 			double r = (ir + 1) * 0.05;
 
-			StateValidityChecker svc(n, r); // The checker class
-			State c_start(n), c_goal(n);
-
-			for (int i = 0; i < N; i++) { // N points for this number of passive chains
-
-				do {
-					c_start = svc.sample_q();
-				} while (c_start[0] < -900);
-				do {
-					c_goal = svc.sample_q();
-				} while (c_goal[0] < -900);
-
-				Plan.plan(c_start, c_goal, runtime, ptype, r);
-
-				mf << r << " ";
-				pf.open("perf_log_GD.txt");
-				getline(pf, line);
-				mf << line << endl;
-				pf.close();
-			}
-			mf << endl;
-		}
-
-		mf.close();
-		break;
-	}
-	case 8 : { // Annulus analysis
-		string line;
-
-		std::ofstream mf;
-		std::ifstream pf;
-		mf.open("/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/matlab/JulyAnalysis/benchmarkGD_annulus_5D_" + std::to_string((int)runtime) + ".txt", ios::app);
-
-		int n = 5;
-
-		int N = 500; // Number of trials
-
-		//for (double r = 0.05; r < 1; r=+0.05) {
-		for (int ir = 0; ir < 8; ir++) {
-			double r = ir * 0.15 + 1.25;
-
-			StateValidityChecker svc(n, r); // The checker class
+			StateValidityCheckerPCS svc(n, r); // The checker class
 			State c_start(n), c_goal(n);
 
 			for (int i = 0; i < N; i++) { // N points for this number of passive chains
@@ -411,10 +384,10 @@ int main(int argn, char ** args) {
 				} while (c_goal[0] < -900);
 
 				int m = n-2;
-				Plan.plan(c_start, c_goal, runtime, ptype, r);
+				Plan.plan(c_start, c_goal, n, m, runtime, ptype, r);
 
 				mf << r << " ";
-				pf.open("perf_log_GD.txt");
+				pf.open("perf_log.txt");
 				getline(pf, line);
 				mf << line << endl;
 				pf.close();
@@ -423,7 +396,47 @@ int main(int argn, char ** args) {
 		}
 
 		mf.close();
-		break;
+	}
+	case 8 : { // Annulus analysis
+		string line;
+
+		std::ofstream mf;
+		std::ifstream pf;
+		mf.open("/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/matlab/JulyAnalysis/benchmarkPCS_annulus_5D_" + std::to_string((int)runtime) + ".txt", ios::app);
+
+		int n = 5;
+
+		int N = 500; // Number of trials
+
+		//for (double r = 0.05; r < 1; r=+0.05) {
+		for (int ir = 0; ir < 8; ir++) {
+			double r = ir * 0.15 + 1.25;
+
+			StateValidityCheckerPCS svc(n, r); // The checker class
+			State c_start(n), c_goal(n);
+
+			for (int i = 0; i < N; i++) { // N points for this number of passive chains
+
+				do {
+					c_start = svc.sample_q();
+				} while (c_start[0] < -900);
+				do {
+					c_goal = svc.sample_q();
+				} while (c_goal[0] < -900);
+
+				int m = n-2;
+				Plan.plan(c_start, c_goal, n, m, runtime, ptype, r);
+
+				mf << r << " ";
+				pf.open("perf_log.txt");
+				getline(pf, line);
+				mf << line << endl;
+				pf.close();
+			}
+			mf << endl;
+		}
+
+		mf.close();
 	}
 	}
 

@@ -43,9 +43,8 @@
 #include <iostream>
 #include <fstream>
 
+#include "../validity_checkers/StateValidityCheckerPCS.h"
 #include "../validity_checkers/StateValidityCheckerGD.h"
-
-using namespace gd;
 
 namespace ompl
 {
@@ -65,12 +64,12 @@ namespace ompl
         */
 
         /** \brief RRT-Connect (RRTConnect) */
-        class RRTConnect : public base::Planner, public StateValidityChecker  // Avishai
+        class RRTConnect : public base::Planner, public StateValidityCheckerGD, public StateValidityCheckerPCS  // Avishai
         {
         public:
 
             /** \brief Constructor */
-            RRTConnect(const base::SpaceInformationPtr &si, int, double = 2);
+            RRTConnect(const base::SpaceInformationPtr &si, int, int, double = 2);
 
             virtual ~RRTConnect();
 
@@ -107,7 +106,6 @@ namespace ompl
             virtual void setup();
 
             // ******************** My additions *********************
-
             // Performance parameters and handle
             double total_runtime; // Total planning time
             clock_t startTime; // Start clock
@@ -116,15 +114,16 @@ namespace ompl
             int nodes_in_trees; // Log nodes in both trees
             double PlanDistance; // Norm distance from start to goal configurations
             bool final_solved; // Planning query solved?
-            int project_success;
-            int project_fail;
+            int project_success, project_fail;
             int RBS_success, RBS_fail;
-
+            
             /** Reset log paprameters */
             void initiate_log_parameters() {
-            	IK_counter = 0;
-            	IK_time = 0;
-            	isValid_counter = 0;
+            	StateValidityCheckerPCS::IK_counter = 0;
+            	StateValidityCheckerPCS::IK_time = 0;
+            	//collisionCheck_counter = 0;
+            	//collisionCheck_time = 0;
+            	StateValidityCheckerPCS::isValid_counter = 0;
             	nodes_in_path = 0;
             	nodes_in_trees = 0;
             	project_success = 0;
@@ -132,13 +131,18 @@ namespace ompl
             	RBS_success = 0;
             	RBS_fail = 0;
             }
-
+            
             // Maximum local-connection distance
             double Range;
 
             // Flag of successful reach to point in the growTree function
             bool growTree_reached;
 
+            int n; // Dimensionality of the CKC
+            int m; // Number of passive chains
+
+            int active_chain;
+            int a_chain_connection;
 
         protected:
 
@@ -164,6 +168,8 @@ namespace ompl
                 const base::State *root;
                 base::State       *state;
                 Motion            *parent;
+                State 			  ik_vect;
+                int 			  a_chain;
             };
 
             /** \brief A nearest-neighbor datastructure representing a tree of motions */
@@ -217,6 +223,9 @@ namespace ompl
 
             // ***************** My additional functions ************************
 
+            /** \brief Measured the distance between to states only over the active chain */
+            double activeDistance(const Motion *a, const Motion *b);
+
             /** \brief Grow a tree towards a random state */
             Motion* growTree(TreeData &tree, TreeGrowingInfo &tgi, Motion *nmotion, Motion *tmotion, int, int);
 
@@ -229,7 +238,7 @@ namespace ompl
             /** \brief Log performance data of the planning to perf_log.txt */
             void LogPerf2file();
 
-            State random_q();
+            void log_q(State q);
 
         };
 

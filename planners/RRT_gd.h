@@ -42,6 +42,8 @@
 
 #include "../validity_checkers/StateValidityCheckerGD.h"
 
+using namespace gd;
+
 namespace ompl
 {
 
@@ -64,7 +66,7 @@ namespace geometric
  */
 
 /** \brief Rapidly-exploring Random Trees */
-class RRT : public base::Planner, StateValidityCheckerGD
+class RRT : public base::Planner, StateValidityChecker
 {
 public:
 

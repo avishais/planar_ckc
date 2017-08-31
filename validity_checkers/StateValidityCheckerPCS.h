@@ -23,17 +23,19 @@
 namespace ob = ompl::base;
 using namespace std;
 
-class StateValidityCheckerPCS : public ckc
+namespace pcs {
+
+class StateValidityChecker : public ckc
 {
 public:
 	/** Constructors */
-	StateValidityCheckerPCS(const ob::SpaceInformationPtr &si, int joints_num, int passive_chains_num, double custom_num) : mysi_(si.get()), ckc(joints_num, custom_num) { //Constructor
+	StateValidityChecker(const ob::SpaceInformationPtr &si, int joints_num, int passive_chains_num, double custom_num) : mysi_(si.get()), ckc(joints_num, custom_num) { //Constructor
 		n = joints_num;
 		m = passive_chains_num;
 		q_temp.resize(6);
 		L = getL();
 	};
-	StateValidityCheckerPCS(int joints_num, double custom_num=-1) : ckc(joints_num, custom_num) { //Constructor
+	StateValidityChecker(int joints_num, double custom_num=-1) : ckc(joints_num, custom_num) { //Constructor
 		n = joints_num;
 		m = n;
 		q_temp.resize(6);
@@ -132,7 +134,7 @@ private:
 	ompl::RNG rng_;
 };
 
-
+}
 
 
 

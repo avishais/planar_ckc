@@ -15,21 +15,21 @@
 #include <ompl/config.h>
 
 // Modified and custom planners
-#include "CBiRRT_gd.h"
-#include "RRT_gd.h"
-#include "SBL_gd.h"
+#include "CBiRRT_hb.h"
+//#include "RRT_pcs.h"
+//#include "SBL_pcs.h"
 
-//#include "../validity_checkers/StateValidityCheckerGD.h"
 #include "../validity_checkers/verification_class.h"
 
 // Standard libraries
 #include <iostream>
 #include <fstream>
+#include <sstream>
+#include <stdlib.h>
 
 namespace ob = ompl::base;
 namespace og = ompl::geometric;
 using namespace std;
-using namespace gd;
 
 // An enum of available planners
 enum plannerType
@@ -42,15 +42,15 @@ enum plannerType
 bool isStateValid(const ob::State *state);
 
 // Prototypes
-class plan_C
+class plan_C //: public StateValidityChecker
 {
 public:
 
-	bool plan(State c_start, State c_goal, double runtime, plannerType = PLANNER_BIRRT, double = 2);
+	bool plan(State c_start, State c_goal, int n, int m, double runtime, plannerType = PLANNER_BIRRT, double = 2);
 
 	// Construct the planner specified by our command line argument.
 	// This helper function is simply a switch statement.
-	ob::PlannerPtr allocatePlanner(ob::SpaceInformationPtr, int, plannerType);
+	ob::PlannerPtr allocatePlanner(ob::SpaceInformationPtr, int, int, plannerType);
 
 	bool solved_bool;
 	double total_runtime;

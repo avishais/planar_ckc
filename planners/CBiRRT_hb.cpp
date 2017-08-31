@@ -38,7 +38,7 @@
 #include "ompl/base/goals/GoalSampleableRegion.h"
 #include "ompl/tools/config/SelfConfig.h"
 
-#include "CBiRRT_pcs.h" 
+#include "CBiRRT_hb.h"
 
 // Debugging tool
 template <class T>
@@ -46,7 +46,10 @@ void o(T a) {
 	cout << a << endl;
 }
 
-ompl::geometric::RRTConnect::RRTConnect(const base::SpaceInformationPtr &si, int joints_num, int passive_chains_num, double custom_num) : base::Planner(si, "RRTConnect"), StateValidityChecker(si, joints_num, passive_chains_num, 0.3)
+ompl::geometric::RRTConnect::RRTConnect(const base::SpaceInformationPtr &si, int joints_num, int passive_chains_num, double custom_num) :
+		base::Planner(si, "RRTConnect"),
+		StateValidityCheckerPCS(si, joints_num, passive_chains_num, 0.3),
+		StateValidityCheckerGD(si, joints_num, 0.3)
 {
 	specs_.recognizedGoal = base::GOAL_SAMPLEABLE_REGION;
 	specs_.directed = true;
@@ -55,7 +58,8 @@ ompl::geometric::RRTConnect::RRTConnect(const base::SpaceInformationPtr &si, int
 
 	Planner::declareParam<double>("range", this, &RRTConnect::setRange, &RRTConnect::getRange, "0.:1.:10000.");
 	connectionPoint_ = std::make_pair<base::State*, base::State*>(nullptr, nullptr);
-	defaultSettings(); // Avishai
+
+	StateValidityCheckerPCS::defaultSettings(); // Avishai
 
 	n = joints_num;
 	m = passive_chains_num;
@@ -177,7 +181,6 @@ ompl::geometric::RRTConnect::Motion* ompl::geometric::RRTConnect::growTree(TreeD
 		// find state to add
 		base::State *dstate = tmotion->state;
 		State dik = tmotion->ik_vect;
-		//double d = activeDistance(nmotion, tmotion);
 		double d = distanceFunction(nmotion, tmotion);
 
 		if (d > maxDistance_)
@@ -192,32 +195,15 @@ ompl::geometric::RRTConnect::Motion* ompl::geometric::RRTConnect::growTree(TreeD
 		if (mode==1 || !reach) { // equivalent to (!(mode==2 && reach))
 
 			// Try projecting one time
-			if (!IKproject(dstate, active_chain, nmotion->ik_vect[active_chain])) {
+			if (!StateValidityCheckerGD::IKproject(dstate)) {
 				project_fail++;
 				return nmotion;
 			}
 			else
 				project_success++;
 
-			// Try projecting a few times
-			/*int max_proj_trials = 3;
-			active_chain = 0;
-			for (int i = 0; i <= max_proj_trials; i++) {
-				active_chain = rand() % m;
-
-				if (IKproject(dstate, active_chain, nmotion->ik_vect[active_chain])) {
-					project_success++;
-					break;
-				}
-
-				if (i==max_proj_trials) {
-					project_fail++;
-					return nmotion;
-				}
-			}*/
-
-			retrieveStateVector(dstate, q);
-			updateStateVector(tgi.xstate, q);
+			StateValidityCheckerGD::retrieveStateVector(dstate, q);
+			StateValidityCheckerGD::updateStateVector(tgi.xstate, q);
 			dstate = tgi.xstate;
 
 			ik = identify_state_ik(dstate);
@@ -240,7 +226,7 @@ ompl::geometric::RRTConnect::Motion* ompl::geometric::RRTConnect::growTree(TreeD
 		bool validMotion = false;
 		for (int i = 0; i < ik.size(); i++) {
 			if (nmotion->ik_vect[i] == ik[i])
-				validMotion = checkMotionRBS(nmotion->state, dstate, i, nmotion->ik_vect[i]);
+				validMotion = StateValidityCheckerPCS::checkMotionRBS(nmotion->state, dstate, i, nmotion->ik_vect[i]);
 			if (validMotion) {
 				active_chain = i;
 				break;
@@ -307,7 +293,7 @@ ompl::base::PlannerStatus ompl::geometric::RRTConnect::solve(const base::Planner
 		motion->a_chain = 0;
 		tStart_->add(motion);
 
-		cout << "Start: "; printStateVector(st);
+		cout << "Start: "; StateValidityCheckerGD::printStateVector(st);
 		si_->copyState(start_node,st);
 	}
 
@@ -359,7 +345,7 @@ ompl::base::PlannerStatus ompl::geometric::RRTConnect::solve(const base::Planner
 				tGoal_->add(motion);
 				PlanDistance = si_->distance(start_node, st);
 
-				cout << "Goal: "; printStateVector(st);
+				cout << "Goal: "; StateValidityCheckerGD::printStateVector(st);
 			}
 
 			if (tGoal_->size() == 0)
@@ -535,11 +521,11 @@ void ompl::geometric::RRTConnect::save2file(vector<Motion*> mpath1, vector<Motio
 	// Log env. info
 	std::ofstream mf;
 	mf.open("./paths/path_info.txt");
-	mf << n << endl << 0 << endl << getL() << endl << get_bx() << endl << get_by() << endl << get_qminmax() << endl;
-	if (include_constraints)
-		for (int i = 0; i < obs.size(); i++)
+	mf << n << endl << 0 << endl << StateValidityCheckerGD::getL() << endl << StateValidityCheckerGD::get_bx() << endl << StateValidityCheckerGD::get_by() << endl << StateValidityCheckerGD::get_qminmax() << endl;
+	if (StateValidityCheckerGD::include_constraints)
+		for (int i = 0; i < StateValidityCheckerGD::obs.size(); i++)
 			for (int j = 0; j < 3; j++)
-				mf << obs[i][j] << endl;
+				mf << StateValidityCheckerGD::obs[i][j] << endl;
 	mf.close();
 
 	// Only milestones
@@ -550,7 +536,7 @@ void ompl::geometric::RRTConnect::save2file(vector<Motion*> mpath1, vector<Motio
 
 		State temp;
 		for (int i = mpath1.size() - 1 ; i >= 0 ; --i) {
-			retrieveStateVector(mpath1[i]->state, q);
+			StateValidityCheckerPCS::retrieveStateVector(mpath1[i]->state, q);
 			for (int j = 0; j < n; j++) {
 				myfile << q[j] << " ";
 			}
@@ -559,7 +545,7 @@ void ompl::geometric::RRTConnect::save2file(vector<Motion*> mpath1, vector<Motio
 			path.push_back(q);
 		}
 		for (unsigned int i = 0 ; i < mpath2.size() ; ++i) {
-			retrieveStateVector(mpath2[i]->state, q);
+			StateValidityCheckerPCS::retrieveStateVector(mpath2[i]->state, q);
 			for (int j = 0; j<n; j++) {
 				myfile << q[j] << " ";
 			}
@@ -584,7 +570,7 @@ void ompl::geometric::RRTConnect::save2file(vector<Motion*> mpath1, vector<Motio
 		for (unsigned int i = 0 ; i < mpath2.size() ; ++i)
 			path.push_back(mpath2[i]);
 
-		retrieveStateVector(path[0]->state, q);
+		StateValidityCheckerPCS::retrieveStateVector(path[0]->state, q);
 		for (int j = 0; j < q.size(); j++) {
 			myfile << q[j] << " ";
 		}
@@ -598,7 +584,7 @@ void ompl::geometric::RRTConnect::save2file(vector<Motion*> mpath1, vector<Motio
 			for (int j = 0; j < m; j++) {
 				M.clear();
 				if (path[i]->ik_vect[j] == path[i-1]->ik_vect[j]) {
-					valid =  reconstructRBS(path[i-1]->state, path[i]->state, M, j, path[i-1]->ik_vect[j]);
+					valid =  StateValidityCheckerPCS::reconstructRBS(path[i-1]->state, path[i]->state, M, j, path[i-1]->ik_vect[j]);
 				}
 					
 				if (valid)
@@ -643,11 +629,11 @@ void ompl::geometric::RRTConnect::LogPerf2file() {
 	myfile << final_solved << " ";
 	myfile << PlanDistance << " "; // Distance between nodes 1
 	myfile << total_runtime << " "; // Overall planning runtime 2
-	myfile << get_IK_counter() << " "; // How many IK checks? 5
-	myfile << get_IK_time() << " "; // IK computation time 6
+	myfile << StateValidityCheckerPCS::get_IK_counter() << " "; // How many IK checks? 5
+	myfile << StateValidityCheckerPCS::get_IK_time() << " "; // IK computation time 6
 	//myfile << get_collisionCheck_counter() << endl; // How many collision checks? 7
 	//myfile << get_collisionCheck_time() << endl; // Collision check computation time 8
-	myfile << get_isValid_counter() << " "; // How many nodes checked 9
+	myfile << StateValidityCheckerPCS::get_isValid_counter() << " "; // How many nodes checked 9
 	myfile << nodes_in_path << " "; // Nodes in path 10
 	myfile << nodes_in_trees << " "; // 11
 	myfile << RBS_success << " " << RBS_fail << " ";

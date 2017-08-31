@@ -45,6 +45,8 @@
 
 #include "../validity_checkers/StateValidityCheckerGD.h"
 
+using namespace gd;
+
 namespace ompl
 {
 
@@ -84,7 +86,7 @@ namespace geometric
 
 /** \brief Single-Query Bi-Directional Probabilistic Roadmap
            Planner with Lazy Collision Checking */
-class SBL : public base::Planner, public StateValidityCheckerGD
+class SBL : public base::Planner, public StateValidityChecker
 {
 public:
 

@@ -23,16 +23,18 @@
 namespace ob = ompl::base;
 using namespace std;
 
-class StateValidityCheckerGD : public kdl
+namespace gd {
+
+class StateValidityChecker : public kdl
 {
 public:
-	StateValidityCheckerGD(const ob::SpaceInformationPtr &si, int joint_num, double custom_num) : mysi_(si.get()), kdl(joint_num, custom_num) {
+	StateValidityChecker(const ob::SpaceInformationPtr &si, int joint_num, double custom_num) : mysi_(si.get()), kdl(joint_num, custom_num) {
 
 		n = joint_num;
 		q_prev.resize(n);
 
 	};
-	StateValidityCheckerGD(int joint_num, double custom_num=-1) : kdl(joint_num, custom_num) { //Constructor
+	StateValidityChecker(int joint_num, double custom_num=-1) : kdl(joint_num, custom_num) { //Constructor
 		n = joint_num;
 	};
 
@@ -118,7 +120,7 @@ private:
 
 };
 
-
+}
 
 
 

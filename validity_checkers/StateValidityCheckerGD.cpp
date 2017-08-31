@@ -13,14 +13,14 @@ myStateValidityCheckerClass::myStateValidityCheckerClass(const ob::SpaceInformat
 #include "StateValidityCheckerGD.h"
 #include <queue>
 
-void StateValidityCheckerGD::defaultSettings()
+void gd::StateValidityChecker::defaultSettings()
 {
 	stateSpace_ = mysi_->getStateSpace().get();
 	if (!stateSpace_)
 		OMPL_ERROR("No state space for motion validator");
 }
 
-void StateValidityCheckerGD::retrieveStateVector(const ob::State *state, State &q) {
+void gd::StateValidityChecker::retrieveStateVector(const ob::State *state, State &q) {
 	// cast the abstract state type to the type we expect
 	const ob::RealVectorStateSpace::StateType *Q = state->as<ob::RealVectorStateSpace::StateType>();
 
@@ -29,7 +29,7 @@ void StateValidityCheckerGD::retrieveStateVector(const ob::State *state, State &
 	}
 }
 
-void StateValidityCheckerGD::updateStateVector(const ob::State *state, State q) {
+void gd::StateValidityChecker::updateStateVector(const ob::State *state, State q) {
 	// cast the abstract state type to the type we expect
 	const ob::RealVectorStateSpace::StateType *Q = state->as<ob::RealVectorStateSpace::StateType>();
 
@@ -38,7 +38,7 @@ void StateValidityCheckerGD::updateStateVector(const ob::State *state, State q) 
 	}
 }
 
-void StateValidityCheckerGD::printStateVector(const ob::State *state) {
+void gd::StateValidityChecker::printStateVector(const ob::State *state) {
 	// cast the abstract state type to the type we expect
 	const ob::RealVectorStateSpace::StateType *Q = state->as<ob::RealVectorStateSpace::StateType>();
 
@@ -50,7 +50,7 @@ void StateValidityCheckerGD::printStateVector(const ob::State *state) {
 	cout << "q: "; printVector(q);
 }
 
-bool StateValidityCheckerGD::IKproject(const ob::State *state, bool includeObs) {
+bool gd::StateValidityChecker::IKproject(const ob::State *state, bool includeObs) {
 
 	State q(n);
 	retrieveStateVector(state, q);
@@ -62,7 +62,7 @@ bool StateValidityCheckerGD::IKproject(const ob::State *state, bool includeObs) 
 	return true;
 }
 
-bool StateValidityCheckerGD::IKproject(State &q, bool includeObs) {
+bool gd::StateValidityChecker::IKproject(State &q, bool includeObs) {
 
 	if (!GD(q))
 		return false;
@@ -80,7 +80,7 @@ bool StateValidityCheckerGD::IKproject(State &q, bool includeObs) {
 	return true;
 }
 
-State StateValidityCheckerGD::sample_q() {
+State gd::StateValidityChecker::sample_q() {
 	// c is a 12 dimensional vector composed of [q1 q2]
 
 	State q(n);
@@ -110,7 +110,7 @@ State StateValidityCheckerGD::sample_q() {
 // ------------------- Validity check
 
 // Validates a state by switching between the two possible active chains and computing the specific IK solution (input) and checking collision
-bool StateValidityCheckerGD::isValid(const ob::State *state) {
+bool gd::StateValidityChecker::isValid(const ob::State *state) {
 
 	isValid_counter++;
 
@@ -134,7 +134,7 @@ bool StateValidityCheckerGD::isValid(const ob::State *state) {
 	return true;
 }
 
-bool StateValidityCheckerGD::checkMotion(const ob::State *s1, const ob::State *s2)
+bool gd::StateValidityChecker::checkMotion(const ob::State *s1, const ob::State *s2)
 {
 	State q(n);
 	// We assume motion starts and ends in a valid configuration - due to projection
@@ -175,14 +175,14 @@ bool StateValidityCheckerGD::checkMotion(const ob::State *s1, const ob::State *s
 
 	return result;
 }
-double StateValidityCheckerGD::normDistance(State a1, State a2) {
+double gd::StateValidityChecker::normDistance(State a1, State a2) {
 	double sum = 0;
 	for (int i=0; i < a1.size(); i++)
 		sum += pow(a1[i]-a2[i], 2);
 	return sqrt(sum);
 }
 
-double StateValidityCheckerGD::normVector(State q) {
+double gd::StateValidityChecker::normVector(State q) {
 
 	double sum;
 	for (int i = 0; i < n; i++)
@@ -191,7 +191,7 @@ double StateValidityCheckerGD::normVector(State q) {
 	return sqrt(sum);
 }
 
-double StateValidityCheckerGD::MaxAngleDistance(State a1, State a2) {
+double gd::StateValidityChecker::MaxAngleDistance(State a1, State a2) {
 	double Max = 0;
 	for (int i=0; i < a1.size()-1; i++)
 		if (fabs(a1[i]-a2[i]) > Max)
@@ -201,7 +201,7 @@ double StateValidityCheckerGD::MaxAngleDistance(State a1, State a2) {
 
 // ------------------------------- Constraints functions ---------------------------
 
-bool StateValidityCheckerGD::check_angles(State q, double factor) {
+bool gd::StateValidityChecker::check_angles(State q, double factor) {
 
 	for (int i = 0; i < n-1; i++)
 		if (q[i] > factor*get_qminmax() || q[i] < -factor*get_qminmax())
@@ -212,7 +212,7 @@ bool StateValidityCheckerGD::check_angles(State q, double factor) {
 	return true;
 }
 
-bool StateValidityCheckerGD::self_collision(State q, double factor) {
+bool gd::StateValidityChecker::self_collision(State q, double factor) {
 	double Ax, Ay, Bx, By, Cx, Cy, Dx, Dy;
 	State L = getL();
 	Ax = Ay = 0;
@@ -258,7 +258,7 @@ bool StateValidityCheckerGD::self_collision(State q, double factor) {
 
 // Returns false if the lines AB and CD intersect, otherwise true.
 // Currently only checks when lines are not parallel
-bool StateValidityCheckerGD::LinesIntersect(State A, State B, State C, State D) {
+bool gd::StateValidityChecker::LinesIntersect(State A, State B, State C, State D) {
 	double s1_x, s1_y, s2_x, s2_y;
 	s1_x = B[0] - A[0];
 	s1_y = B[1] - A[1];
@@ -276,7 +276,7 @@ bool StateValidityCheckerGD::LinesIntersect(State A, State B, State C, State D) 
 	return true; // No collision
 }
 
-bool StateValidityCheckerGD::obstacle_collision(State q, double factor) {
+bool gd::StateValidityChecker::obstacle_collision(State q, double factor) {
 	double x, y;
 	State L = getL();
 	x = y = 0;
@@ -299,7 +299,7 @@ bool StateValidityCheckerGD::obstacle_collision(State q, double factor) {
 // ------------------------------------ RBS -------------------------------------------
 
 // Validates a state by switching between the two possible active chains and computing the specific IK solution (input) and checking collision
-bool StateValidityCheckerGD::isValidRBS(State& q) {
+bool gd::StateValidityChecker::isValidRBS(State& q) {
 
 	isValid_counter++;
 
@@ -316,7 +316,7 @@ bool StateValidityCheckerGD::isValidRBS(State& q) {
 }
 
 // Calls the Recursive Bi-Section algorithm (Hauser)
-bool StateValidityCheckerGD::checkMotionRBS(const ob::State *s1, const ob::State *s2, int inter_inx)
+bool gd::StateValidityChecker::checkMotionRBS(const ob::State *s1, const ob::State *s2, int inter_inx)
 {
 	// We assume motion starts and ends in a valid configuration - due to projection
 	bool result = true;
@@ -331,7 +331,7 @@ bool StateValidityCheckerGD::checkMotionRBS(const ob::State *s1, const ob::State
 }
 
 // Implements local-connection using Recursive Bi-Section Technique (Hauser)
-bool StateValidityCheckerGD::checkMotionRBS(State q1, State q2, int recursion_depth, int non_decrease_count, int inter_inx) {
+bool gd::StateValidityChecker::checkMotionRBS(State q1, State q2, int recursion_depth, int non_decrease_count, int inter_inx) {
 
 	// Check if reached the required resolution
 	double d = normDistance(q1,q2); // for joint limit distance heuristic
@@ -358,7 +358,7 @@ bool StateValidityCheckerGD::checkMotionRBS(State q1, State q2, int recursion_de
 		return false;
 }
 
-State StateValidityCheckerGD::midpoint(State q1, State q2, int inter_inx) {
+State gd::StateValidityChecker::midpoint(State q1, State q2, int inter_inx) {
 
 	State q_mid(n);
 
@@ -374,7 +374,7 @@ State StateValidityCheckerGD::midpoint(State q1, State q2, int inter_inx) {
 // *************** Reconstruct the RBS - for post-processing and validation
 
 // Reconstruct local connection with the Recursive Bi-Section algorithm (Hauser)
-bool StateValidityCheckerGD::reconstructRBS(const ob::State *s1, const ob::State *s2, Matrix &Confs)
+bool gd::StateValidityChecker::reconstructRBS(const ob::State *s1, const ob::State *s2, Matrix &Confs)
 {
 	State q1(n), q2(n);
 	retrieveStateVector(s1, q1);
@@ -386,7 +386,7 @@ bool StateValidityCheckerGD::reconstructRBS(const ob::State *s1, const ob::State
 	return reconstructRBS(q1, q2, Confs, 0, 1, 1, 0);
 }
 
-bool StateValidityCheckerGD::reconstructRBS(State q1, State q2, Matrix &M, int iteration, int last_index, int firstORsecond, int non_decrease_count) {
+bool gd::StateValidityChecker::reconstructRBS(State q1, State q2, Matrix &M, int iteration, int last_index, int firstORsecond, int non_decrease_count) {
 	// firstORsecond - tells if the iteration is from the first or second call for the recursion (in the last iteration).
 	// last_index - the last index that was added to M.
 
@@ -426,7 +426,7 @@ bool StateValidityCheckerGD::reconstructRBS(State q1, State q2, Matrix &M, int i
 
 // ----------------------------------------------------------------------------
 
-double StateValidityCheckerGD::midangle(double q1, double q2, int shortORlong) {
+double gd::StateValidityChecker::midangle(double q1, double q2, int shortORlong) {
 	// Returns the shortest (shortORlong=0)/ longest (shortORlong=1) angle distance.
 
 	double q_mid;
@@ -455,7 +455,7 @@ double StateValidityCheckerGD::midangle(double q1, double q2, int shortORlong) {
 	return q1 + sigma * dq/2;
 }
 
-State StateValidityCheckerGD::angle_distance(State q1, State q2) {
+State gd::StateValidityChecker::angle_distance(State q1, State q2) {
 
 	State dq(n);
 
@@ -480,7 +480,7 @@ State StateValidityCheckerGD::angle_distance(State q1, State q2) {
 
 }
 
-State StateValidityCheckerGD::dec2bin(int num, int k) {
+State gd::StateValidityChecker::dec2bin(int num, int k) {
 	// k is the required size of the returned vector - pad with zeros on the left side.
 
 	State b;

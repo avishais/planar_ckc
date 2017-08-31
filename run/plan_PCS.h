@@ -31,6 +31,7 @@
 namespace ob = ompl::base;
 namespace og = ompl::geometric;
 using namespace std;
+using namespace pcs;
 
 // An enum of available planners
 enum plannerType

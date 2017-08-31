@@ -45,6 +45,8 @@
 
 #include "../validity_checkers/StateValidityCheckerPCS.h"
 
+using namespace pcs;
+
 namespace ompl
 {
 
@@ -63,7 +65,7 @@ namespace ompl
         */
 
         /** \brief RRT-Connect (RRTConnect) */
-        class RRTConnect : public base::Planner, public StateValidityCheckerPCS  // Avishai
+        class RRTConnect : public base::Planner, public StateValidityChecker  // Avishai
         {
         public:
 

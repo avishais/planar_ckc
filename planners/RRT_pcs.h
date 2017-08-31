@@ -42,6 +42,8 @@
 
 #include "../validity_checkers/StateValidityCheckerPCS.h"
 
+using namespace pcs;
+
 namespace ompl
 {
 
@@ -64,7 +66,7 @@ namespace geometric
  */
 
 /** \brief Rapidly-exploring Random Trees */
-class RRT : public base::Planner, StateValidityCheckerPCS
+class RRT : public base::Planner, StateValidityChecker
 {
 public:
 
