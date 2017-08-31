@@ -167,7 +167,7 @@ namespace ompl
                 const base::State *root;
                 base::State       *state;
                 Motion            *parent;
-                Vector 			  ik_vect;
+                State 			  ik_vect;
                 int 			  a_chain;
             };
 
@@ -237,7 +237,7 @@ namespace ompl
             /** \brief Log performance data of the planning to perf_log.txt */
             void LogPerf2file();
 
-            void log_q(Vector q);
+            void log_q(State q);
 
         };
 

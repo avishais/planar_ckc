@@ -24,7 +24,7 @@ CPP_P_GD = ${INC_RUN}plan_GD.cpp ${INC_PLANNERS}CBiRRT_gd.cpp ${INC_PLANNERS}SBL
 
 all:
 	$(CXX) ${CPP_P_PCS} ${CPPAPC} ${CPPVRF} -o ppcs $(CXXFLAGS) $(LDFLAGS) -DPCS -std=c++11
-	$(CXX) ${CPP_P_GD} ${CPPGD} ${CPPVRF} -o pgd $(CXXFLAGS) $(LDFLAGS) -DPGD -std=c++11
+	#$(CXX) ${CPP_P_GD} ${CPPGD} ${CPPVRF} -o pgd $(CXXFLAGS) $(LDFLAGS) -DPGD -std=c++11
 
 
 

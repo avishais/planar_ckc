@@ -122,8 +122,8 @@ void ompl::geometric::RRTConnect::clear()
 
 double ompl::geometric::RRTConnect::activeDistance(const Motion *a, const Motion *b) {
 
-	Vector qa(n);
-	Vector qb(n);
+	State qa(n);
+	State qb(n);
 
 	retrieveStateVector(a->state, qa);
 	retrieveStateVector(b->state, qb);
@@ -160,7 +160,7 @@ ompl::geometric::RRTConnect::Motion* ompl::geometric::RRTConnect::growTree(TreeD
 // nmotion - nearest
 // mode = 1 -> extend, mode = 2 -> connect.
 {
-	Vector q(n), ik(m);
+	State q(n), ik(m);
 
 	// Choose active chain
 	active_chain = rand() % m; 
@@ -176,7 +176,7 @@ ompl::geometric::RRTConnect::Motion* ompl::geometric::RRTConnect::growTree(TreeD
 
 		// find state to add
 		base::State *dstate = tmotion->state;
-		Vector dik = tmotion->ik_vect;
+		State dik = tmotion->ik_vect;
 		//double d = activeDistance(nmotion, tmotion);
 		double d = distanceFunction(nmotion, tmotion);
 
@@ -283,7 +283,7 @@ ompl::base::PlannerStatus ompl::geometric::RRTConnect::solve(const base::Planner
 	base::State *start_node = si_->allocState();
 	setRange(Range);
 
-	Vector q(n), ik(m);
+	State q(n), ik(m);
 
 	checkValidity();
 	startTime = clock();
@@ -512,7 +512,7 @@ void ompl::geometric::RRTConnect::getPlannerData(base::PlannerData &data) const
 	data.addEdge(data.vertexIndex(connectionPoint_.first), data.vertexIndex(connectionPoint_.second));
 }
 
-void ompl::geometric::RRTConnect::log_q(Vector q) {
+void ompl::geometric::RRTConnect::log_q(State q) {
 	// Open a_path file
 	std::ofstream myfile;
 	myfile.open("path.txt");
@@ -528,7 +528,7 @@ void ompl::geometric::RRTConnect::save2file(vector<Motion*> mpath1, vector<Motio
 
 	cout << "Logging path to files..." << endl;
 
-	Vector q(n);
+	State q(n);
 	Matrix path;
 	int active_chain;
 
@@ -548,7 +548,7 @@ void ompl::geometric::RRTConnect::save2file(vector<Motion*> mpath1, vector<Motio
 		std::ofstream myfile, ikfile;
 		myfile.open("./paths/path_milestones.txt");
 
-		Vector temp;
+		State temp;
 		for (int i = mpath1.size() - 1 ; i >= 0 ; --i) {
 			retrieveStateVector(mpath1[i]->state, q);
 			for (int j = 0; j < n; j++) {
