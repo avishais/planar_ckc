@@ -64,7 +64,7 @@ namespace ompl
         */
 
         /** \brief RRT-Connect (RRTConnect) */
-        class RRTConnect : public base::Planner, public StateValidityCheckerGD, public StateValidityCheckerPCS  // Avishai
+        class RRTConnect : public base::Planner, public pcs::StateValidityChecker, public gd::StateValidityChecker  // Avishai
         {
         public:
 
@@ -119,11 +119,11 @@ namespace ompl
             
             /** Reset log paprameters */
             void initiate_log_parameters() {
-            	StateValidityCheckerPCS::IK_counter = 0;
-            	StateValidityCheckerPCS::IK_time = 0;
+            	pcs::StateValidityChecker::IK_counter = 0;
+            	pcs::StateValidityChecker::IK_time = 0;
             	//collisionCheck_counter = 0;
             	//collisionCheck_time = 0;
-            	StateValidityCheckerPCS::isValid_counter = 0;
+            	pcs::StateValidityChecker::isValid_counter = 0;
             	nodes_in_path = 0;
             	nodes_in_trees = 0;
             	project_success = 0;

@@ -5,8 +5,8 @@
  *      Author: avishai
  */
 
-#ifndef CHECKER_H_
-#define CHECKER_H_
+#ifndef CHECKER_H_PCS
+#define CHECKER_H_PCS
 
 #include <ompl/base/SpaceInformation.h>
 #include <ompl/base/spaces/SE3StateSpace.h>
@@ -138,4 +138,4 @@ private:
 
 
 
-#endif /* CHECKER_H_ */
+#endif /* CHECKER_H_PCS */

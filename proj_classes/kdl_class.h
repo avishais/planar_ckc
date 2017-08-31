@@ -20,7 +20,7 @@
 #include <vector>
 #include <math.h>
 
-#define PI 3.1416
+#define PI_ 3.1416
 
 using namespace std;
 using namespace KDL;

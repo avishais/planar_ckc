@@ -33,7 +33,7 @@ kdl::kdl(int joints_num, double custom_num) {
 	n = joints_num;
 
 	// Joint limits
-	qminmax = 179.9/180*PI;
+	qminmax = 179.9/180*PI_;
 
 	initMatrix(T_pose, 4, 4);
 	T_pose = {{1, 0, 0, bx}, {0, 1, 0, by}, {0, 0, 1, 0}, {0, 0, 0, 1}};
@@ -88,7 +88,7 @@ bool kdl::GD(State q_init) {
 	}
 
 	// This is a fix since the last joint in KDL terms is the extension of the arm and is relative to the last link
-	qInit(n-1) = PI - qInit(n-1);
+	qInit(n-1) = PI_ - qInit(n-1);
 
 	//Set destination frame
 	KDL::Frame F_dest = cartposIK;//Frame(Vector(1.0, 1.0, 0.0));
@@ -98,7 +98,7 @@ bool kdl::GD(State q_init) {
 	if (ret >= 0) {
 
 		// Revert fix from above
-		qKDL(n-1) = PI - qKDL(n-1);
+		qKDL(n-1) = PI_ - qKDL(n-1);
 
 		for (int i = 0; i < n; i++)
 			if (fabs(qKDL(i)) < 1e-4)
@@ -107,17 +107,17 @@ bool kdl::GD(State q_init) {
 				q[i] = qKDL(i);
 
 		for (int i = 0; i < q.size()-1; i++) {
-			q[i] = fmod(q[i], 2*PI);
-			if (q[i]>PI)
-				q[i] -= 2*PI;
-			if (q[i]<-PI)
-				q[i] += 2*PI;
+			q[i] = fmod(q[i], 2*PI_);
+			if (q[i]>PI_)
+				q[i] -= 2*PI_;
+			if (q[i]<-PI_)
+				q[i] += 2*PI_;
 		}
-		q[n-1] = fmod (q[n-1],  2*PI);
-		if (q[n-1] > 2*PI)
-			q[n-1] -= 2*PI;
+		q[n-1] = fmod (q[n-1],  2*PI_);
+		if (q[n-1] > 2*PI_)
+			q[n-1] -= 2*PI_;
 		if (q[n-1] < 0)
-			q[n-1] += 2*PI;
+			q[n-1] += 2*PI_;
 
 		for (int i = 0; i < n; i++)
 			q_solution[i] = q[i];
@@ -178,7 +178,7 @@ Matrix kdl::get_FK_solution() {
 State kdl::constraint(State q) {
 
 	// KDL fix
-	q[n-1] = PI - q[n-1];
+	q[n-1] = PI_ - q[n-1];
 
 	FK(q);
 	Matrix T = get_FK_solution();
@@ -205,7 +205,7 @@ void kdl::initVector(State &V, int n) {
 }
 
 double kdl::deg2rad(double deg) {
-	return deg * PI / 180.0;
+	return deg * PI_ / 180.0;
 }
 
 void kdl::printMatrix(Matrix M) {

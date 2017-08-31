@@ -80,11 +80,11 @@ bool plan_C::plan(State c_start, State c_goal, int n, int m, double runtime, pla
 	// set the bounds for the Q=R^n part of 'Cspace'
 	ob::RealVectorBounds Qbounds(n);
 	for (int i = 0; i < n-1; i++) {
-		Qbounds.setLow(i, -PI);
-		Qbounds.setHigh(i, PI);
+		Qbounds.setLow(i, -PI_);
+		Qbounds.setHigh(i, PI_);
 	}
 	Qbounds.setLow(n-1, 0);
-	Qbounds.setHigh(n-1, 2*PI);
+	Qbounds.setHigh(n-1, 2*PI_);
 
 	// set the bound for the compound space
 	Q->as<ob::RealVectorStateSpace>()->setBounds(Qbounds);

@@ -5,8 +5,8 @@
  *      Author: avishai
  */
 
-#ifndef CHECKER_H_
-#define CHECKER_H_
+#ifndef CHECKER_H_GD
+#define CHECKER_H_GD
 
 #include <ompl/base/SpaceInformation.h>
 #include <ompl/base/spaces/SE3StateSpace.h>
@@ -18,7 +18,6 @@
 #include "kdl_class.h"
 
 #include <iostream>
-
 
 namespace ob = ompl::base;
 using namespace std;
@@ -124,4 +123,4 @@ private:
 
 
 
-#endif /* CHECKER_H_ */
+#endif /* CHECKER_H_GD */

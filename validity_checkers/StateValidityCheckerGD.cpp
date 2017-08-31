@@ -88,8 +88,8 @@ State gd::StateValidityChecker::sample_q() {
 	while (1) {
 		// Randomly generate a chain
 		for (int i = 0; i < n-1; i++)
-			q[i] = fRand(-PI, PI);
-		q[n-1] = fRand(0, 2*PI);
+			q[i] = fRand(-PI_, PI_);
+		q[n-1] = fRand(0, 2*PI_);
 
 		bool valid = GD(q);
 		if (valid)
@@ -431,8 +431,8 @@ double gd::StateValidityChecker::midangle(double q1, double q2, int shortORlong)
 
 	double q_mid;
 
-	q1 < 0 ? q1 += 2*PI : q1+=0;
-	q2 < 0 ? q2 += 2*PI : q2+=0;
+	q1 < 0 ? q1 += 2*PI_ : q1+=0;
+	q2 < 0 ? q2 += 2*PI_ : q2+=0;
 
 	double dq = fabs(q1-q2);
 
@@ -440,14 +440,14 @@ double gd::StateValidityChecker::midangle(double q1, double q2, int shortORlong)
 	q2 > q1 ? sigma = 1 : sigma = -1;
 
 	if (!shortORlong) {
-		if (dq > PI) {
-			dq = 2*PI - dq;
+		if (dq > PI_) {
+			dq = 2*PI_ - dq;
 			sigma = -sigma;
 		}
 	}
 	else {
-		if (dq < PI) {
-			dq = 2*PI - dq;
+		if (dq < PI_) {
+			dq = 2*PI_ - dq;
 			sigma = -sigma;
 		}
 	}
@@ -461,20 +461,20 @@ State gd::StateValidityChecker::angle_distance(State q1, State q2) {
 
 	double q;
 	for (int i = 0; i < n; i++) {
-		q = q1[i] - q2[i] + PI;
-		while (q > 2*PI)
-			q -= 2*PI;
+		q = q1[i] - q2[i] + PI_;
+		while (q > 2*PI_)
+			q -= 2*PI_;
 		while (q < 0)
-			q += 2*PI;
-		dq[i] = q - PI;
+			q += 2*PI_;
+		dq[i] = q - PI_;
 	}
 
 	/*for (int i = 0; i < n; i++) {
 			dq[i] = fabs(q1[i]-q2[i]);
-			if (dq[i] > PI)
-				dq[i] = 2*PI - dq[i];
+			if (dq[i] > PI_)
+				dq[i] = 2*PI_ - dq[i];
 		}*/
-	//dq[i] = fmod((q1[i]-q2[i]) + PI, 2*PI) - PI;
+	//dq[i] = fmod((q1[i]-q2[i]) + PI_, 2*PI_) - PI_;
 
 	return dq;
 

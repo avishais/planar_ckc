@@ -32,7 +32,7 @@ ckc::ckc(int joints_num, double custom_num) {
 	cout << "Base-links ratio: " << custom_num << ", L: " << L << ", b: " << bx << endl;
 
 	// Joint limits
-	qminmax = 179.9/180*PI;
+	qminmax = 179.9/180*PI_;
 
 	q_IK.resize(n);
 	p_FK_l.resize(3);
@@ -59,18 +59,18 @@ bool ckc::project(State &q, int nc, int IK_sol) {
 
 		FK_right(q, n-3-nc);
 		p_right = get_FK_sol_right();
-		p_right[2] -= PI;
-		p_right[2] = fmod (p_right[2],  2*PI);
-		if (p_right[2] > PI)
-			p_right[2] -= 2*PI;
-		if (p_right[2] < -PI)
-			p_right[2] += 2*PI;
+		p_right[2] -= PI_;
+		p_right[2] = fmod (p_right[2],  2*PI_);
+		if (p_right[2] > PI_)
+			p_right[2] -= 2*PI_;
+		if (p_right[2] < -PI_)
+			p_right[2] += 2*PI_;
 
 		pose = {p_right[0]*cos(p_left[2]) - p_left[0]*cos(p_left[2]) - p_left[1]*sin(p_left[2]) + p_right[1]*sin(p_left[2]), p_right[1]*cos(p_left[2]) - p_left[1]*cos(p_left[2]) + p_left[0]*sin(p_left[2]) - p_right[0]*sin(p_left[2]), (p_right[2]-p_left[2])};
-		if (pose[2] > PI)
-			pose[2] -= 2*PI;
-		if (pose[2] < -PI)
-			pose[2] += 2*PI;
+		if (pose[2] > PI_)
+			pose[2] -= 2*PI_;
+		if (pose[2] < -PI_)
+			pose[2] += 2*PI_;
 
 		if (IKp(pose, IK_sol, L))
 			q_IK = get_IK_sol_q();
@@ -86,18 +86,18 @@ bool ckc::project(State &q, int nc, int IK_sol) {
 
 		FK_left_half(q, n-3);
 		p_left = get_FK_sol_left();
-		p_left[2] += PI;
-		p_left[2] = fmod (p_left[2],  2*PI);
-		if (p_left[2] > PI)
-			p_left[2] -= 2*PI;
-		if (p_left[2] < -PI)
-			p_left[2] += 2*PI;
+		p_left[2] += PI_;
+		p_left[2] = fmod (p_left[2],  2*PI_);
+		if (p_left[2] > PI_)
+			p_left[2] -= 2*PI_;
+		if (p_left[2] < -PI_)
+			p_left[2] += 2*PI_;
 
 		pose = {p_left[0] - get_bx(), p_left[1] - get_by(), p_left[2]};
-		if (pose[2] > PI)
-			pose[2] -= 2*PI;
-		if (pose[2] < -PI)
-			pose[2] += 2*PI;
+		if (pose[2] > PI_)
+			pose[2] -= 2*PI_;
+		if (pose[2] < -PI_)
+			pose[2] += 2*PI_;
 
 		if (IKp(pose, IK_sol, L))
 			q_IK = get_IK_sol_q();
@@ -105,14 +105,14 @@ bool ckc::project(State &q, int nc, int IK_sol) {
 			return false;
 
 		/*if (q_IK[0] < 0)
-			q_IK[0] += 2*PI;*/
+			q_IK[0] += 2*PI_;*/
 
 		q[n-1] = q_IK[0];
 		q[n-2] = -q_IK[1];
 		q[n-3] = -q_IK[2];
 
-		if (q[n-1] < 0)	q[n-1] += 2*PI;
-		if (q[n-1] > 2*PI) q[n-1] -= 2*PI;
+		if (q[n-1] < 0)	q[n-1] += 2*PI_;
+		if (q[n-1] > 2*PI_) q[n-1] -= 2*PI_;
 	}
 	if (nc == n-2) { // Passive chain including the base and the right base joint
 
@@ -133,18 +133,18 @@ bool ckc::project(State &q, int nc, int IK_sol) {
 			y += Lp*sin(theta);
 		}
 
-		p_right = {x, y, theta - PI};
-		p_right[2] = fmod (p_right[2],  2*PI);
-		if (p_right[2] > PI)
-			p_right[2] -= 2*PI;
-		if (p_right[2] < -PI)
-			p_right[2] += 2*PI;
+		p_right = {x, y, theta - PI_};
+		p_right[2] = fmod (p_right[2],  2*PI_);
+		if (p_right[2] > PI_)
+			p_right[2] -= 2*PI_;
+		if (p_right[2] < -PI_)
+			p_right[2] += 2*PI_;
 
 		pose = {p_right[0]*cos(p_left[2]) - p_left[0]*cos(p_left[2]) - p_left[1]*sin(p_left[2]) + p_right[1]*sin(p_left[2]), p_right[1]*cos(p_left[2]) - p_left[1]*cos(p_left[2]) + p_left[0]*sin(p_left[2]) - p_right[0]*sin(p_left[2]), (p_right[2]-p_left[2])};
-		if (pose[2] > PI)
-			pose[2] -= 2*PI;
-		if (pose[2] < -PI)
-			pose[2] += 2*PI;
+		if (pose[2] > PI_)
+			pose[2] -= 2*PI_;
+		if (pose[2] < -PI_)
+			pose[2] += 2*PI_;
 
 		if (IKp(pose, IK_sol, b))
 			q_IK = get_IK_sol_q();
@@ -153,23 +153,23 @@ bool ckc::project(State &q, int nc, int IK_sol) {
 
 		double al = atan(by/bx);
 
-		q[n-1] = PI - q_IK[0] + al;
-		q[0] = PI + q_IK[1] + al;
+		q[n-1] = PI_ - q_IK[0] + al;
+		q[0] = PI_ + q_IK[1] + al;
 		q[1] = q_IK[2];
 
-		if (q[0] < -PI)	q[0] += 2*PI;
-		if (q[0] > PI) q[0] -= 2*PI;
-		if (q[1] < -PI)	q[1] += 2*PI;
-		if (q[1] > PI) q[1] -= 2*PI;
-		if (q[n-1] < 0)	q[n-1] += 2*PI;
-		if (q[n-1] > 2*PI) q[n-1] -= 2*PI;
+		if (q[0] < -PI_)	q[0] += 2*PI_;
+		if (q[0] > PI_) q[0] -= 2*PI_;
+		if (q[1] < -PI_)	q[1] += 2*PI_;
+		if (q[1] > PI_) q[1] -= 2*PI_;
+		if (q[n-1] < 0)	q[n-1] += 2*PI_;
+		if (q[n-1] > 2*PI_) q[n-1] -= 2*PI_;
 	}
 	if (nc == n-1) { // Passive chain including the base and the left base joint
 
 		State ql(n-3);
 		for (int i = 1; i < n-2; i++)
 			ql[i-1] = q[i];
-		ql[0] = PI + ql[0];
+		ql[0] = PI_ + ql[0];
 
 		double x = 0, y = 0, theta = 0, Lp;
 		for (int i = 0; i < ql.size(); i++) {
@@ -182,18 +182,18 @@ bool ckc::project(State &q, int nc, int IK_sol) {
 			y += Lp*sin(theta);
 		}
 
-		p_left = {x, y, theta + PI};
-		p_left[2] = fmod (p_left[2],  2*PI);
-		if (p_left[2] > PI)
-			p_left[2] -= 2*PI;
-		if (p_left[2] < -PI)
-			p_left[2] += 2*PI;
+		p_left = {x, y, theta + PI_};
+		p_left[2] = fmod (p_left[2],  2*PI_);
+		if (p_left[2] > PI_)
+			p_left[2] -= 2*PI_;
+		if (p_left[2] < -PI_)
+			p_left[2] += 2*PI_;
 
 		pose = {p_left[0] - L, p_left[1], p_left[2]};
-		if (pose[2] > PI)
-			pose[2] -= 2*PI;
-		if (pose[2] < -PI)
-			pose[2] += 2*PI;
+		if (pose[2] > PI_)
+			pose[2] -= 2*PI_;
+		if (pose[2] < -PI_)
+			pose[2] += 2*PI_;
 
 		if (IKp(pose, IK_sol, b))
 			q_IK = get_IK_sol_q();
@@ -202,16 +202,16 @@ bool ckc::project(State &q, int nc, int IK_sol) {
 
 		double al = atan(by/bx);
 
-		q[0] = PI - q_IK[0] + al;
+		q[0] = PI_ - q_IK[0] + al;
 		q[n-1] = q_IK[1] + al;
 		q[n-2] = -q_IK[2];
 
-		if (q[0] < -PI)	q[0] += 2*PI;
-		if (q[0] > PI) q[0] -= 2*PI;
-		if (q[n-2] < -PI)	q[n-2] += 2*PI;
-		if (q[n-2] > PI) q[n-2] -= 2*PI;
-		if (q[n-1] < 0)	q[n-1] += 2*PI;
-		if (q[n-1] > 2*PI) q[n-1] -= 2*PI;
+		if (q[0] < -PI_)	q[0] += 2*PI_;
+		if (q[0] > PI_) q[0] -= 2*PI_;
+		if (q[n-2] < -PI_)	q[n-2] += 2*PI_;
+		if (q[n-2] > PI_) q[n-2] -= 2*PI_;
+		if (q[n-1] < 0)	q[n-1] += 2*PI_;
+		if (q[n-1] > 2*PI_) q[n-1] -= 2*PI_;
 	}
 
 	return true;
@@ -235,11 +235,11 @@ void ckc::FK_left(State q, int nd) {
 		theta = theta + q[i];
 	}
 
-	theta = fmod (theta,  2*PI);
-	if (theta > PI)
-		theta -= 2*PI;
-	if (theta < -PI)
-		theta += 2*PI;
+	theta = fmod (theta,  2*PI_);
+	if (theta > PI_)
+		theta -= 2*PI_;
+	if (theta < -PI_)
+		theta += 2*PI_;
 
 	p_FK_l = {x, y, theta};
 }
@@ -262,11 +262,11 @@ void ckc::FK_left_half(State q, int nd) {
 		theta = theta + q[i];
 	}
 
-	theta = fmod (theta,  2*PI);
-	if (theta > PI)
-		theta -= 2*PI;
-	if (theta < -PI)
-		theta += 2*PI;
+	theta = fmod (theta,  2*PI_);
+	if (theta > PI_)
+		theta -= 2*PI_;
+	if (theta < -PI_)
+		theta += 2*PI_;
 
 	p_FK_l = {x, y, theta};
 }
@@ -292,11 +292,11 @@ void ckc::FK_right(State q, int nd) {
 		theta = theta + ang;
 	}
 
-	theta = fmod (theta,  2*PI);
-	if (theta > PI)
-		theta -= 2*PI;
-	if (theta < -PI)
-		theta += 2*PI;
+	theta = fmod (theta,  2*PI_);
+	if (theta > PI_)
+		theta -= 2*PI_;
+	if (theta < -PI_)
+		theta += 2*PI_;
 
 	p_FK_r = {x, y, theta};
 }
@@ -340,23 +340,23 @@ bool ckc::IKp(State pose, int ik_sol, double L1) {
 	}
 
 	double Phi = atan2(sign*sqrt(Ss), S);
-	q[1] = PI+Phi;
-	if (q[1] < -PI)
-		q[1] += 2*PI;
-	if (q[1] > PI)
-		q[1] -= 2*PI;
+	q[1] = PI_+Phi;
+	if (q[1] < -PI_)
+		q[1] += 2*PI_;
+	if (q[1] > PI_)
+		q[1] -= 2*PI_;
 
 	q[0] = atan2(L*sin(Phi), L1-L*cos(Phi)) + atan2(y2, x2);
-	if (q[0] < -PI)
-		q[0] += 2*PI;
-	if (q[0] > PI)
-		q[0] -= 2*PI;
+	if (q[0] < -PI_)
+		q[0] += 2*PI_;
+	if (q[0] > PI_)
+		q[0] -= 2*PI_;
 
 	q[2] = theta - (q[0]+q[1]);
-	if (q[2] < -PI)
-		q[2] += 2*PI;
-	if (q[2] > PI)
-		q[2] -= 2*PI;
+	if (q[2] < -PI_)
+		q[2] += 2*PI_;
+	if (q[2] > PI_)
+		q[2] -= 2*PI_;
 
 	q_IK = q;
 
@@ -378,7 +378,7 @@ State ckc::constraint(State q) {
 
 	C[0] -= bx;
 	C[1] -= by;
-	C[2] = C[2] - q[q.size()-1] + PI;
+	C[2] = C[2] - q[q.size()-1] + PI_;
 
 	return C;
 }

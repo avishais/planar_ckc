@@ -56,8 +56,8 @@ State pcs::StateValidityChecker::sample_q() {
 	while (1) {
 		// Randomly generate a chain
 		for (int i = 0; i < n-1; i++) 
-			q[i] = fRand(-PI, PI);
-		q[n-1] = fRand(0, 2*PI);
+			q[i] = fRand(-PI_, PI_);
+		q[n-1] = fRand(0, 2*PI_);
 
 		int ik_sol = rand() % 2 + 1;
 		if (IKproject(q, 0, ik_sol)) {
@@ -111,18 +111,18 @@ bool pcs::StateValidityChecker::IKproject(State &q, int nc, int IK_sol) {
 
 		FK_right(q, n-3-nc);
 		p_right = get_FK_sol_right();
-		p_right[2] -= PI;
-		p_right[2] = fmod (p_right[2],  2*PI);
-		if (p_right[2] > PI)
-			p_right[2] -= 2*PI;
-		if (p_right[2] < -PI)
-			p_right[2] += 2*PI;
+		p_right[2] -= PI_;
+		p_right[2] = fmod (p_right[2],  2*PI_);
+		if (p_right[2] > PI_)
+			p_right[2] -= 2*PI_;
+		if (p_right[2] < -PI_)
+			p_right[2] += 2*PI_;
 
 		pose = {p_right[0]*cos(p_left[2]) - p_left[0]*cos(p_left[2]) - p_left[1]*sin(p_left[2]) + p_right[1]*sin(p_left[2]), p_right[1]*cos(p_left[2]) - p_left[1]*cos(p_left[2]) + p_left[0]*sin(p_left[2]) - p_right[0]*sin(p_left[2]), (p_right[2]-p_left[2])};
-		if (pose[2] > PI)
-			pose[2] -= 2*PI;
-		if (pose[2] < -PI)
-			pose[2] += 2*PI;
+		if (pose[2] > PI_)
+			pose[2] -= 2*PI_;
+		if (pose[2] < -PI_)
+			pose[2] += 2*PI_;
 
 		if (IKp(pose, IK_sol, L))
 			q_IK = get_IK_sol_q();
@@ -137,18 +137,18 @@ bool pcs::StateValidityChecker::IKproject(State &q, int nc, int IK_sol) {
 	if (nc == n-3)  { // The last passive chain (not including base) - special treatment
 		FK_left_half(q, n-3);
 		p_left = get_FK_sol_left();
-		p_left[2] += PI;
-		p_left[2] = fmod (p_left[2],  2*PI);
-		if (p_left[2] > PI)
-			p_left[2] -= 2*PI;
-		if (p_left[2] < -PI)
-			p_left[2] += 2*PI;
+		p_left[2] += PI_;
+		p_left[2] = fmod (p_left[2],  2*PI_);
+		if (p_left[2] > PI_)
+			p_left[2] -= 2*PI_;
+		if (p_left[2] < -PI_)
+			p_left[2] += 2*PI_;
 
 		pose = {p_left[0] - get_bx(), p_left[1] - get_by(), p_left[2]};
-		if (pose[2] > PI)
-			pose[2] -= 2*PI;
-		if (pose[2] < -PI)
-			pose[2] += 2*PI;
+		if (pose[2] > PI_)
+			pose[2] -= 2*PI_;
+		if (pose[2] < -PI_)
+			pose[2] += 2*PI_;
 
 		if (IKp(pose, IK_sol, L))
 			q_IK = get_IK_sol_q();
@@ -156,14 +156,14 @@ bool pcs::StateValidityChecker::IKproject(State &q, int nc, int IK_sol) {
 			return false;
 
 		/*if (q_IK[0] < 0)
-			q_IK[0] += 2*PI;*/
+			q_IK[0] += 2*PI_;*/
 
 		q[n-1] = q_IK[0];
 		q[n-2] = -q_IK[1];
 		q[n-3] = -q_IK[2];
 
-		if (q[n-1] < 0)	q[n-1] += 2*PI;
-		if (q[n-1] > 2*PI) q[n-1] -= 2*PI;
+		if (q[n-1] < 0)	q[n-1] += 2*PI_;
+		if (q[n-1] > 2*PI_) q[n-1] -= 2*PI_;
 	}
 	if (nc == n-2) { // Passive chain including the base and the right base joint
 		p_left = {0,0,0};
@@ -183,18 +183,18 @@ bool pcs::StateValidityChecker::IKproject(State &q, int nc, int IK_sol) {
 			y += Lp*sin(theta);
 		}
 
-		p_right = {x, y, theta - PI};
-		p_right[2] = fmod (p_right[2],  2*PI);
-		if (p_right[2] > PI)
-			p_right[2] -= 2*PI;
-		if (p_right[2] < -PI)
-			p_right[2] += 2*PI;
+		p_right = {x, y, theta - PI_};
+		p_right[2] = fmod (p_right[2],  2*PI_);
+		if (p_right[2] > PI_)
+			p_right[2] -= 2*PI_;
+		if (p_right[2] < -PI_)
+			p_right[2] += 2*PI_;
 
 		pose = {p_right[0]*cos(p_left[2]) - p_left[0]*cos(p_left[2]) - p_left[1]*sin(p_left[2]) + p_right[1]*sin(p_left[2]), p_right[1]*cos(p_left[2]) - p_left[1]*cos(p_left[2]) + p_left[0]*sin(p_left[2]) - p_right[0]*sin(p_left[2]), (p_right[2]-p_left[2])};
-		if (pose[2] > PI)
-			pose[2] -= 2*PI;
-		if (pose[2] < -PI)
-			pose[2] += 2*PI;
+		if (pose[2] > PI_)
+			pose[2] -= 2*PI_;
+		if (pose[2] < -PI_)
+			pose[2] += 2*PI_;
 
 		if (IKp(pose, IK_sol, get_b()))
 			q_IK = get_IK_sol_q();
@@ -203,23 +203,23 @@ bool pcs::StateValidityChecker::IKproject(State &q, int nc, int IK_sol) {
 
 		double al = atan(get_by()/get_bx());
 
-		q[n-1] = PI - q_IK[0] + al;
-		q[0] = PI + q_IK[1] + al;
+		q[n-1] = PI_ - q_IK[0] + al;
+		q[0] = PI_ + q_IK[1] + al;
 		q[1] = q_IK[2];
 
-		if (q[0] < -PI)	q[0] += 2*PI;
-		if (q[0] > PI) q[0] -= 2*PI;
-		if (q[1] < -PI)	q[1] += 2*PI;
-		if (q[1] > PI) q[1] -= 2*PI;
-		if (q[n-1] < 0)	q[n-1] += 2*PI;
-		if (q[n-1] > 2*PI) q[n-1] -= 2*PI;
+		if (q[0] < -PI_)	q[0] += 2*PI_;
+		if (q[0] > PI_) q[0] -= 2*PI_;
+		if (q[1] < -PI_)	q[1] += 2*PI_;
+		if (q[1] > PI_) q[1] -= 2*PI_;
+		if (q[n-1] < 0)	q[n-1] += 2*PI_;
+		if (q[n-1] > 2*PI_) q[n-1] -= 2*PI_;
 	}
 	if (nc == n-1) { // Passive chain including the base and the left base joint
 
 		State ql(n-3);
 		for (int i = 1; i < n-2; i++)
 			ql[i-1] = q[i];
-		ql[0] = PI + ql[0];
+		ql[0] = PI_ + ql[0];
 
 		double x = 0, y = 0, theta = 0, Lp;
 		for (int i = 0; i < ql.size(); i++) {
@@ -232,18 +232,18 @@ bool pcs::StateValidityChecker::IKproject(State &q, int nc, int IK_sol) {
 			y += Lp*sin(theta);
 		}
 
-		p_left = {x, y, theta + PI};
-		p_left[2] = fmod (p_left[2],  2*PI);
-		if (p_left[2] > PI)
-			p_left[2] -= 2*PI;
-		if (p_left[2] < -PI)
-			p_left[2] += 2*PI;
+		p_left = {x, y, theta + PI_};
+		p_left[2] = fmod (p_left[2],  2*PI_);
+		if (p_left[2] > PI_)
+			p_left[2] -= 2*PI_;
+		if (p_left[2] < -PI_)
+			p_left[2] += 2*PI_;
 
 		pose = {p_left[0] - L, p_left[1], p_left[2]};
-		if (pose[2] > PI)
-			pose[2] -= 2*PI;
-		if (pose[2] < -PI)
-			pose[2] += 2*PI;
+		if (pose[2] > PI_)
+			pose[2] -= 2*PI_;
+		if (pose[2] < -PI_)
+			pose[2] += 2*PI_;
 
 		if (IKp(pose, IK_sol, get_b()))
 			q_IK = get_IK_sol_q();
@@ -252,16 +252,16 @@ bool pcs::StateValidityChecker::IKproject(State &q, int nc, int IK_sol) {
 
 		double al = atan(get_by()/get_bx());
 
-		q[0] = PI - q_IK[0] + al;
+		q[0] = PI_ - q_IK[0] + al;
 		q[n-1] = q_IK[1] + al;
 		q[n-2] = -q_IK[2];
 
-		if (q[0] < -PI)	q[0] += 2*PI;
-		if (q[0] > PI) q[0] -= 2*PI;
-		if (q[n-2] < -PI)	q[n-2] += 2*PI;
-		if (q[n-2] > PI) q[n-2] -= 2*PI;
-		if (q[n-1] < 0)	q[n-1] += 2*PI;
-		if (q[n-1] > 2*PI) q[n-1] -= 2*PI;
+		if (q[0] < -PI_)	q[0] += 2*PI_;
+		if (q[0] > PI_) q[0] -= 2*PI_;
+		if (q[n-2] < -PI_)	q[n-2] += 2*PI_;
+		if (q[n-2] > PI_) q[n-2] -= 2*PI_;
+		if (q[n-1] < 0)	q[n-1] += 2*PI_;
+		if (q[n-1] > 2*PI_) q[n-1] -= 2*PI_;
 	}
 
 	return true;
@@ -522,13 +522,13 @@ State pcs::StateValidityChecker::midpoint(State q1, State q2) {
 	}
 
 	for (int i = 0; i < n; i++) {
-		if (q_mid[i] > PI)
-			q_mid[i] -= 2*PI;
-		if (q_mid[i] < -PI)
-			q_mid[i] += 2*PI;
+		if (q_mid[i] > PI_)
+			q_mid[i] -= 2*PI_;
+		if (q_mid[i] < -PI_)
+			q_mid[i] += 2*PI_;
 	}
 	if (q_mid[n-1] < 0)
-		q_mid[n-1] += 2*PI;
+		q_mid[n-1] += 2*PI_;
 
 	return q_mid;
 }
@@ -538,7 +538,7 @@ State pcs::StateValidityChecker::angle_distance(State q1, State q2) {
 	State dq(n);
 
 	for (int i = 0; i < n; i++)
-		dq[i] = fmod((q1[i]-q2[i]) + PI, 2*PI) - PI;
+		dq[i] = fmod((q1[i]-q2[i]) + PI_, 2*PI_) - PI_;
 
 	return dq;
 
