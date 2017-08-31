@@ -19,12 +19,12 @@ CPPGDKDL = ${INC_CLASSES}kdl_class.cpp
 CPPAPC = ${INC_CLASSES}apc_class.cpp ${INC_VALIDITY}StateValidityCheckerPCS.cpp
 CPPGD = ${INC_CLASSES}kdl_class.cpp ${INC_VALIDITY}StateValidityCheckerGD.cpp
 
-CPP_P_PCS = ${INC_RUN}plan_PCS.cpp ${INC_PLANNERS}CBiRRT_pcs.cpp ${INC_PLANNERS}SBL_pcs.cpp
+CPP_P_PCS = ${INC_RUN}plan_PCS.cpp ${INC_PLANNERS}CBiRRT_pcs.cpp ${INC_PLANNERS}SBL_pcs.cpp ${INC_PLANNERS}RRT_pcs.cpp
 CPP_P_GD = ${INC_RUN}plan_GD.cpp ${INC_PLANNERS}CBiRRT_gd.cpp ${INC_PLANNERS}SBL_gd.cpp ${INC_PLANNERS}RRT_gd.cpp
 
 all:
 	$(CXX) ${CPP_P_PCS} ${CPPAPC} ${CPPVRF} -o ppcs $(CXXFLAGS) $(LDFLAGS) -DPCS -std=c++11
-	#$(CXX) ${CPP_P_GD} ${CPPGD} ${CPPVRF} -o pgd $(CXXFLAGS) $(LDFLAGS) -DPGD -std=c++11
+	$(CXX) ${CPP_P_GD} ${CPPGD} ${CPPVRF} -o pgd $(CXXFLAGS) $(LDFLAGS) -DPGD -std=c++11
 
 
 

@@ -264,7 +264,7 @@ int main(int argn, char ** args) {
 		break;
 	}
 	case 5: {// Benchmark the same scenario with varying step size
-		int N = 1000; // Number of points to take for each k<=m
+		int N = 10; // Number of points to take for each k<=m
 		string line;
 
 		State c_start = {1.6581, 0.17453, 0.17453, 0.17453, -0.034907, -0.17453, -0.17453, -0.5236, -0.69813, -0.5236, -0.87266, -0.17453, 0.087266, 0.34907, 0.17453, 0.17453, 0.17453, 0.18147, -0.80904, 2.4791};
@@ -275,7 +275,7 @@ int main(int argn, char ** args) {
 
 		std::ofstream mf;
 		std::ifstream pf;
-		mf.open("/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/matlab/benchmark_RRT_GD_obs_rangeB.txt", ios::app);
+		//mf.open("/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/matlab/benchmark_RRT_GD_obs_rangeB.txt", ios::app);
 
 		for (int i = 0; i < N; i++) { // N points for this number of passive chains
 			for (int j = 0; j < 16; j++) {
@@ -289,15 +289,15 @@ int main(int argn, char ** args) {
 					//cin.ignore();
 				}
 
-				mf << maxStep << " " << verf << " ";
+				/*mf << maxStep << " " << verf << " ";
 
 				pf.open("./paths/perf_log.txt");
 				getline(pf, line);
 				mf << line << endl;
-				pf.close();
+				pf.close();*/
 			}
 		}
-		mf.close();
+		//mf.close();
 		break;
 	}
 	case 6: { // Dimensionality analysis

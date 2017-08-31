@@ -177,7 +177,8 @@ ompl::geometric::RRTConnect::Motion* ompl::geometric::RRTConnect::growTree(TreeD
 		// find state to add
 		base::State *dstate = tmotion->state;
 		Vector dik = tmotion->ik_vect;
-		double d = activeDistance(nmotion, tmotion);
+		//double d = activeDistance(nmotion, tmotion);
+		double d = distanceFunction(nmotion, tmotion);
 
 		if (d > maxDistance_)
 		{
@@ -191,15 +192,15 @@ ompl::geometric::RRTConnect::Motion* ompl::geometric::RRTConnect::growTree(TreeD
 		if (mode==1 || !reach) { // equivalent to (!(mode==2 && reach))
 
 			// Try projecting one time
-			/*if (!IKproject(dstate, active_chain, nmotion->ik_vect[active_chain])) {
+			if (!IKproject(dstate, active_chain, nmotion->ik_vect[active_chain])) {
 				project_fail++;
 				return nmotion;
 			}
 			else
-				project_success++;*/
+				project_success++;
 
 			// Try projecting a few times
-			int max_proj_trials = 3;
+			/*int max_proj_trials = 3;
 			active_chain = 0;
 			for (int i = 0; i <= max_proj_trials; i++) {
 				active_chain = rand() % m;
@@ -213,7 +214,7 @@ ompl::geometric::RRTConnect::Motion* ompl::geometric::RRTConnect::growTree(TreeD
 					project_fail++;
 					return nmotion;
 				}
-			}
+			}*/
 
 			retrieveStateVector(dstate, q);
 			updateStateVector(tgi.xstate, q);

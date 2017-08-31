@@ -203,7 +203,7 @@ int main(int argn, char ** args) {
 
 	srand( time(NULL) );
 
-	int mode = 3;
+	int mode = 5;
 	switch (mode) {
 	case 1: {//Manual check
 		//c_start = {-0.166233, 0.33943, 0.953414, -1.24087, -0.806106, 2.22124};
@@ -286,13 +286,13 @@ int main(int argn, char ** args) {
 
 		std::ofstream mf;
 		std::ifstream pf;
-		mf.open("/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/matlab/benchmark_SBL_PCS_obs_rangeB2.txt", ios::app);
+		mf.open("/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/matlab/benchmark_BiRRT_PCS_obs_rangeB1.txt", ios::app);
 
 		for (int i = 0; i < N; i++) { // N points for this number of passive chains
-			for (int j = 0; j < 15; j++) {
+			for (int j = 0; j < 16; j++) {
 				double maxStep = 0.2 + 0.2*j;
 
-				Plan.plan(c_start, c_goal, n, n, runtime, ptype);
+				Plan.plan(c_start, c_goal, n, n, runtime, ptype, maxStep);
 
 				bool verf = vfc.verify_path();
 				if (!verf) {
