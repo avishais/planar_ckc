@@ -44,37 +44,37 @@ public:
 
 	/** Project a configuration in the ambient space to the constraint surface */
 	bool IKproject(ob::State *, int, int, bool = true);
-	bool IKproject(Vector &, int, int);
+	bool IKproject(State &, int, int);
 
 	/** Identify the IK solutions of a configuration using all passive chains defined */
-	Vector identify_state_ik(const ob::State *);
-	Vector identify_state_ik(Vector);
+	State identify_state_ik(const ob::State *);
+	State identify_state_ik(State);
 
 	/** Validity check using standard OMPL */
 	bool isValid(const ob::State *, int, int, bool);
 
 	/** Validity check for a vector<double> type  */
-	bool isValidRBS(Vector&, int, int);
+	bool isValidRBS(State&, int, int);
 
 	/** Serial local connection check  */
 	bool checkMotion(const ob::State *, const ob::State *, int, int);
 
 	/** Recursive Bi-Section local connection check  */
 	bool checkMotionRBS(const ob::State *, const ob::State *, int, int);
-	bool checkMotionRBS(Vector, Vector, int active_chain, int ik_sol, int recusion_depth, int);
+	bool checkMotionRBS(State, State, int active_chain, int ik_sol, int recusion_depth, int);
 
 	/** Reconstruct a local connection using RBS for post-processing  */
 	bool reconstructRBS(const ob::State *, const ob::State *, Matrix &, int, int);
-	bool reconstructRBS(Vector, Vector, int, int, Matrix &, int, int, int, int);
+	bool reconstructRBS(State, State, int, int, Matrix &, int, int, int, int);
 
-	Vector midpoint(Vector q1, Vector q2);
-	Vector angle_distance(Vector q1, Vector q2);
+	State midpoint(State q1, State q2);
+	State angle_distance(State q1, State q2);
 
 	/** Retrieve state from ob::State to vector<double> */
-	void retrieveStateVector(const ob::State *state, Vector &q);
+	void retrieveStateVector(const ob::State *state, State &q);
 
 	/** Update state to ob::State from vector<double> */
-	void updateStateVector(const ob::State *state, Vector q);
+	void updateStateVector(const ob::State *state, State q);
 
 	/** Print ob::State to console */
 	void printStateVector(const ob::State *state);
@@ -83,11 +83,11 @@ public:
 	void defaultSettings();
 
 	/** Calculate norm distance between two vectors */
-	double normDistance(Vector, Vector);
-	double normVector(Vector q);
+	double normDistance(State, State);
+	double normVector(State q);
 	
 	/** Sample a feasible configuration */
-	Vector sample_q();
+	State sample_q();
 
 	int get_valid_solution_index() {
 		return valid_solution_index;
@@ -110,10 +110,10 @@ public:
 	
 	// Include constraints?
 	const bool include_constraints = true; // Enable/Disable constraints
-	bool check_angles(Vector, double = 1);
-	bool self_collision(Vector, double = 1);
-	bool obstacle_collision(Vector, double = 0.3);
-	bool LinesIntersect(Vector, Vector, Vector, Vector, double);
+	bool check_angles(State, double = 1);
+	bool self_collision(State, double = 1);
+	bool obstacle_collision(State, double = 0.3);
+	bool LinesIntersect(State, State, State, State, double);
 
 	//Matrix obs = {{-4, 4, 1},{3.4, 7.5, 1}, {4.2, -2.9, 1.5}, {8, 2, 0.8}};
 	Matrix obs = {{-3.2, 4, 1},{2.6, 6.8, 1}, {4.2, -2.9, 1.5}, {8, 2, 0.8}};
@@ -121,7 +121,7 @@ public:
 private:
 	ob::StateSpace *stateSpace_;
 	ob::SpaceInformation *mysi_;
-	Vector q_temp;
+	State q_temp;
 	int valid_solution_index;
 	int n;
 	int m;

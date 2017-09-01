@@ -24,19 +24,21 @@
 namespace ob = ompl::base;
 using namespace std;
 
-class StateValidityChecker : public kdl
+class StateValidityChecker : public kdl, public ckc
 {
 public:
-	StateValidityChecker(const ob::SpaceInformationPtr &si, int joint_num, int passive_chains_num, double custom_num) : mysi_(si.get()), kdl(joint_num, custom_num), ckc(joints_num, custom_num) {
+	StateValidityChecker(const ob::SpaceInformationPtr &si, int joint_num, int passive_chains_num, double custom_num) : mysi_(si.get()), kdl(joint_num, custom_num), ckc(joint_num, custom_num) {
 
 		n = joint_num;
 		m = passive_chains_num;
 		q_prev.resize(n);
+		L = ckc::getL();
 
 	};
-	StateValidityChecker(int joint_num, double custom_num=-1) : kdl(joint_num, custom_num), ckc(joints_num, custom_num) { //Constructor
+	StateValidityChecker(int joint_num, int passive_chains_num, double custom_num=-1) : kdl(joint_num, custom_num), ckc(joint_num, custom_num) { //Constructor
 		n = joint_num;
 		m = passive_chains_num;
+		L = ckc::getL();
 	};
 
 	/** Project a configuration in the ambient space to the constraint surface */
@@ -52,18 +54,18 @@ public:
 	bool isValid(const ob::State *);
 
 	/** Validity check for a vector<double> type  */
-	bool isValidRBS(State&);
+	bool isValidRBS(State&, int, int);
 
 	/** Serial local connection check  */
 	bool checkMotion(const ob::State *, const ob::State *);
 
 	/** Recursive Bi-Section local connection check  */
-	bool checkMotionRBS(const ob::State *, const ob::State *, int = 0);
-	bool checkMotionRBS(State, State, int, int, int = 0);
+	bool checkMotionRBS(const ob::State *, const ob::State *, int, int);
+	bool checkMotionRBS(State, State, int active_chain, int ik_sol, int recusion_depth, int);
 
 	/** Reconstruct a local connection using RBS for post-processing  */
-	bool reconstructRBS(const ob::State *, const ob::State *, Matrix &);
-	bool reconstructRBS(State, State, Matrix &, int, int, int, int);
+	bool reconstructRBS(const ob::State *, const ob::State *, Matrix &, int, int);
+	bool reconstructRBS(State, State, int, int, Matrix &, int, int, int, int);
 
 	State midpoint(State, State, int = 0);
 	double midangle(double, double, int);
@@ -117,7 +119,7 @@ private:
 	ob::SpaceInformation    *mysi_;
 	State q_prev;
 
-
+	double L;
 	double dq = 0.1;
 	double RBS_tol = 0.05; // RBS local connection resolution
 	int RBS_max_depth = 100; // Maximum RBS recursion depth

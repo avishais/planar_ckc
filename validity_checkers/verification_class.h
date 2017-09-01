@@ -11,6 +11,9 @@
 #ifdef PGD
 #include "StateValidityCheckerGD.h"
 #endif
+#ifdef HB
+#include "StateValidityCheckerHB.h"
+#endif
 
 //#include <stdio.h>
 #include <iostream>
@@ -19,7 +22,8 @@
 
 #ifdef PCS
 using namespace pcs;
-#else
+#endif
+#ifdef PGD
 using namespace gd;
 #endif
 
@@ -29,7 +33,7 @@ typedef vector<vector< double >> Matrix;
 class verification_class : public StateValidityChecker
 {
 public:
-	verification_class(int joints_num, double custom_num = 0.3) : StateValidityChecker(joints_num, custom_num)
+	verification_class(int joints_num, double custom_num = 0.3) : StateValidityChecker(joints_num, joints_num, custom_num)
 	{
 		cout << "Initiated verification module." << endl;
 		continuity_tol = get_RBS_tol() * 1.1;

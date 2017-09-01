@@ -47,7 +47,7 @@ void StateValidityChecker::printStateVector(const ob::State *state) {
 	for (unsigned i = 0; i < n; i++) {
 		q[i] = Q->values[i]; // Set state of robot1
 	}
-	cout << "q: "; printVector(q);
+	cout << "q: "; ckc::printVector(q);
 }
 
 bool StateValidityChecker::IKproject(const ob::State *state, bool includeObs) {
@@ -88,8 +88,8 @@ State StateValidityChecker::sample_q() {
 	while (1) {
 		// Randomly generate a chain
 		for (int i = 0; i < n-1; i++)
-			q[i] = fRand(-PI, PI);
-		q[n-1] = fRand(0, 2*PI);
+			q[i] = kdl::fRand(-PI, PI);
+		q[n-1] = kdl::fRand(0, 2*PI);
 
 		bool valid = GD(q);
 		if (valid)
@@ -138,7 +138,7 @@ bool StateValidityChecker::IKprojectAPC(State &q, int nc, int IK_sol) {
 		if (pose[2] < -PI)
 			pose[2] += 2*PI;
 
-		if (IKp(pose, IK_sol, L))
+		if (ckc::IKp(pose, IK_sol, L))
 			q_IK = get_IK_sol_q();
 		else
 			return false;
@@ -158,13 +158,13 @@ bool StateValidityChecker::IKprojectAPC(State &q, int nc, int IK_sol) {
 		if (p_left[2] < -PI)
 			p_left[2] += 2*PI;
 
-		pose = {p_left[0] - get_bx(), p_left[1] - get_by(), p_left[2]};
+		pose = {p_left[0] - ckc::get_bx(), p_left[1] - ckc::get_by(), p_left[2]};
 		if (pose[2] > PI)
 			pose[2] -= 2*PI;
 		if (pose[2] < -PI)
 			pose[2] += 2*PI;
 
-		if (IKp(pose, IK_sol, L))
+		if (ckc::IKp(pose, IK_sol, L))
 			q_IK = get_IK_sol_q();
 		else
 			return false;
@@ -182,7 +182,7 @@ bool StateValidityChecker::IKprojectAPC(State &q, int nc, int IK_sol) {
 	if (nc == n-2) { // Passive chain including the base and the right base joint
 		p_left = {0,0,0};
 
-		Vector qr(n-3);
+		State qr(n-3);
 		for (int i = n-2, j = 0; i > 1; i--, j++)
 			qr[j] = -q[i];
 
@@ -215,7 +215,7 @@ bool StateValidityChecker::IKprojectAPC(State &q, int nc, int IK_sol) {
 		else
 			return false;
 
-		double al = atan(get_by()/get_bx());
+		double al = atan(ckc::get_by()/ckc::get_bx());
 
 		q[n-1] = PI - q_IK[0] + al;
 		q[0] = PI + q_IK[1] + al;
@@ -230,7 +230,7 @@ bool StateValidityChecker::IKprojectAPC(State &q, int nc, int IK_sol) {
 	}
 	if (nc == n-1) { // Passive chain including the base and the left base joint
 
-		Vector ql(n-3);
+		State ql(n-3);
 		for (int i = 1; i < n-2; i++)
 			ql[i-1] = q[i];
 		ql[0] = PI + ql[0];
@@ -264,7 +264,7 @@ bool StateValidityChecker::IKprojectAPC(State &q, int nc, int IK_sol) {
 		else
 			return false;
 
-		double al = atan(get_by()/get_bx());
+		double al = atan(ckc::get_by()/ckc::get_bx());
 
 		q[0] = PI - q_IK[0] + al;
 		q[n-1] = q_IK[1] + al;
@@ -361,7 +361,6 @@ bool StateValidityChecker::checkMotion(const ob::State *s1, const ob::State *s2)
 	retrieveStateVector(s2, q2);
 	int nd = normDistance(q1,q2)/dq;
 
-
 	if (nd > 2)
 	{
 		retrieveStateVector(s1, q);
@@ -419,7 +418,7 @@ double StateValidityChecker::MaxAngleDistance(State a1, State a2) {
 bool StateValidityChecker::check_angles(State q, double factor) {
 
 	for (int i = 0; i < n-1; i++)
-		if (q[i] > factor*get_qminmax() || q[i] < -factor*get_qminmax())
+		if (q[i] > factor*ckc::get_qminmax() || q[i] < -factor*ckc::get_qminmax())
 			return false;
 	if (q[n-1] < 0)
 		return false;
@@ -427,25 +426,25 @@ bool StateValidityChecker::check_angles(State q, double factor) {
 	return true;
 }
 
-bool StateValidityChecker::self_collision(State q, double factor) {
-	double Ax, Ay, Bx, By, Cx, Cy, Dx, Dy;
-	State L = getL();
+bool StateValidityChecker::self_collision(State q, double f) {
+
+	double Ax, Ay, Bx, By, Cx, Cy, Dx, Dy, l = ckc::getL();
 	Ax = Ay = 0;
 
 	double cum_q = 0, cum_q_CD;
 	for (int i = 0; i < n-3; i++) {
 		cum_q += q[i];
 
-		Bx = Ax + L[i]*cos(cum_q);
-		By = Ay + L[i]*sin(cum_q);
+		Bx = Ax + l*cos(cum_q);
+		By = Ay + l*sin(cum_q);
 
 		cum_q_CD = cum_q + q[i+1];
-		Cx = Bx + L[i]*cos(cum_q_CD);
-		Cy = By + L[i]*sin(cum_q_CD);
+		Cx = Bx + l*cos(cum_q_CD);
+		Cy = By + l*sin(cum_q_CD);
 		for (int j = i+2; j < n-1; j++) {
 			cum_q_CD += q[j];
-			Dx = Cx + L[j]*cos(cum_q_CD);
-			Dy = Cy + L[j]*sin(cum_q_CD);
+			Dx = Cx + l*cos(cum_q_CD);
+			Dy = Cy + l*sin(cum_q_CD);
 
 			// ---- Check if two lines intersect ---
 			double s1_x = Bx - Ax;
@@ -455,7 +454,7 @@ bool StateValidityChecker::self_collision(State q, double factor) {
 			double s = (-s1_y * (Ax - Cx) + s1_x * (Ay - Cy)) / (-s2_x * s1_y + s1_x * s2_y);
 			double t = ( s2_x * (Ay - Cy) - s2_y * (Ax - Cx)) / (-s2_x * s1_y + s1_x * s2_y);
 
-			double minLim = -0.2 * factor, maxLim = 1.2 * factor;
+			double minLim = -0.2 * f, maxLim = 1.2 * f;
 			if (s >= minLim && s <= maxLim && t >= minLim && t <= maxLim)
 				return false;
 			// -------------------------------------
@@ -491,20 +490,20 @@ bool StateValidityChecker::LinesIntersect(State A, State B, State C, State D) {
 	return true; // No collision
 }
 
-bool StateValidityChecker::obstacle_collision(State q, double factor) {
-	double x, y;
-	State L = getL();
+bool StateValidityChecker::obstacle_collision(State q, double f) {
+
+	double x, y, l = ckc::getL();
 	x = y = 0;
 
 	double cum_q = 0;
 	for (int i = 0; i < n-1; i++) {
 		cum_q += q[i];
 
-		x = x + L[i]*cos(cum_q);
-		y = y + L[i]*sin(cum_q);
+		x = x + l*cos(cum_q);
+		y = y + l*sin(cum_q);
 
 		for (int j = 0; j < obs.size(); j++) {
-			if ( (x-obs[j][0])*(x-obs[j][0]) + (y-obs[j][1])*(y-obs[j][1]) < (obs[j][2]+factor*L[i])*(obs[j][2]+factor*L[i]) )
+			if ( (x-obs[j][0])*(x-obs[j][0]) + (y-obs[j][1])*(y-obs[j][1]) < (obs[j][2]+f*l)*(obs[j][2]+f*l) )
 				return false;
 		}
 	}
@@ -513,25 +512,23 @@ bool StateValidityChecker::obstacle_collision(State q, double factor) {
 
 // ------------------------------------ RBS -------------------------------------------
 
-// Validates a state by switching between the two possible active chains and computing the specific IK solution (input) and checking collision
-bool StateValidityChecker::isValidRBS(State& q) {
+// Validates a state by computing the passive chain based on a specific IK solution (input) and checking collision
+bool StateValidityChecker::isValidRBS(State& q, int active_chain, int IK_sol) {
 
 	isValid_counter++;
 
-	if (!GD(q))
+	if (!IKprojectAPC(q, active_chain, IK_sol))
 		return false;
 
-	q = get_GD_result();
-
 	// Check Constraints
-	if (include_constraints && ( !check_angles(q) || !self_collision(q) || !obstacle_collision(q) ))
+	if (include_constraints && (!check_angles(q) || !obstacle_collision(q) || !self_collision(q)))
 		return false;
 
 	return true;
 }
 
 // Calls the Recursive Bi-Section algorithm (Hauser)
-bool StateValidityChecker::checkMotionRBS(const ob::State *s1, const ob::State *s2, int inter_inx)
+bool StateValidityChecker::checkMotionRBS(const ob::State *s1, const ob::State *s2, int active_chain, int ik_sol)
 {
 	// We assume motion starts and ends in a valid configuration - due to projection
 	bool result = true;
@@ -540,34 +537,34 @@ bool StateValidityChecker::checkMotionRBS(const ob::State *s1, const ob::State *
 	retrieveStateVector(s1, q1);
 	retrieveStateVector(s2, q2);
 
-	result = checkMotionRBS(q1, q2, 0, 0);
+	result = checkMotionRBS(q1, q2, active_chain, ik_sol, 0, 0);
 
 	return result;
 }
 
 // Implements local-connection using Recursive Bi-Section Technique (Hauser)
-bool StateValidityChecker::checkMotionRBS(State q1, State q2, int recursion_depth, int non_decrease_count, int inter_inx) {
+bool StateValidityChecker::checkMotionRBS(State q1, State q2, int active_chain, int ik_sol, int recursion_depth, int non_decrease_count) {
 
 	// Check if reached the required resolution
-	double d = normDistance(q1,q2); // for joint limit distance heuristic
-	//double d = normVector(angle_distance(q1, q2)); // for shortest distance heuristic
+	double d = normDistance(q1,q2); //normVector(angle_distance(q1, q2));
 	if (d < RBS_tol)
 		return true;
 
 	if (recursion_depth > RBS_max_depth || non_decrease_count > 100)
 		return false;
 
-	State q_mid = midpoint(q1, q2);
+	State q_mid(n); //= midpoint(q1, q2);
+	for (int i = 0; i < n; i++)
+		q_mid[i] = (q1[i]+q2[i])/2;
 
 	// Check obstacles collisions and joint limits
-	if (!isValidRBS(q_mid)) // Also updates q_mid with the projected value
+	if (!isValidRBS(q_mid, active_chain, ik_sol)) // Also updates s_mid with the projected value
 		return false;
 
-	//if ( normVector(angle_distance(q1, q_mid)) > d || normVector(angle_distance(q_mid, q2)) > d) // Shortest angle distance
-	if ( normDistance(q1, q_mid) > d || normDistance(q_mid, q2) > d) // joint limits
+	if ( normVector(angle_distance(q1, q_mid)) > d || normVector(angle_distance(q_mid, q2)) > d)
 		non_decrease_count++;
 
-	if ( checkMotionRBS(q1, q_mid, recursion_depth+1, non_decrease_count, 0) && checkMotionRBS(q_mid, q2, recursion_depth+1, non_decrease_count, 0) )
+	if ( checkMotionRBS(q1, q_mid, active_chain, ik_sol, recursion_depth+1, non_decrease_count) && checkMotionRBS(q_mid, q2, active_chain, ik_sol, recursion_depth+1, non_decrease_count) )
 		return true;
 	else
 		return false;
@@ -589,7 +586,7 @@ State StateValidityChecker::midpoint(State q1, State q2, int inter_inx) {
 // *************** Reconstruct the RBS - for post-processing and validation
 
 // Reconstruct local connection with the Recursive Bi-Section algorithm (Hauser)
-bool StateValidityChecker::reconstructRBS(const ob::State *s1, const ob::State *s2, Matrix &Confs)
+bool StateValidityChecker::reconstructRBS(const ob::State *s1, const ob::State *s2, Matrix &Confs, int active_chain, int ik_sol)
 {
 	State q1(n), q2(n);
 	retrieveStateVector(s1, q1);
@@ -598,10 +595,11 @@ bool StateValidityChecker::reconstructRBS(const ob::State *s1, const ob::State *
 	Confs.push_back(q1);
 	Confs.push_back(q2);
 
-	return reconstructRBS(q1, q2, Confs, 0, 1, 1, 0);
+	return reconstructRBS(q1, q2, active_chain, ik_sol, Confs, 0, 1, 1, 0);
 }
 
-bool StateValidityChecker::reconstructRBS(State q1, State q2, Matrix &M, int iteration, int last_index, int firstORsecond, int non_decrease_count) {
+bool StateValidityChecker::reconstructRBS(State q1, State q2, int active_chain, int ik_sol, Matrix &M, int iteration, int last_index, int firstORsecond, int non_decrease_count) {
+
 	// firstORsecond - tells if the iteration is from the first or second call for the recursion (in the last iteration).
 	// last_index - the last index that was added to M.
 
@@ -615,10 +613,12 @@ bool StateValidityChecker::reconstructRBS(State q1, State q2, Matrix &M, int ite
 	if (iteration > RBS_max_depth || non_decrease_count > 100)
 		return false;
 
-	State q_mid = midpoint(q1, q2);
+	State q_mid(n);
+	for (int i = 0; i < n; i++)
+		q_mid[i] = (q1[i]+q2[i])/2;
 
 	// Check obstacles collisions and joint limits
-	if (!isValidRBS(q_mid)) // Also updates s_mid with the projected value
+	if (!isValidRBS(q_mid, active_chain, ik_sol)) // Also updates s_mid with the projected value
 		return false;
 
 	if ( normVector(angle_distance(q1, q_mid)) > d || normVector(angle_distance(q_mid, q2)) > d)
@@ -630,10 +630,10 @@ bool StateValidityChecker::reconstructRBS(State q1, State q2, Matrix &M, int ite
 		M.insert(M.begin()+(++last_index), q_mid); // Inefficient operation, but this is only for post-processing and validation
 
 	int prev_size = M.size();
-	if (!reconstructRBS(q1, q_mid, M, iteration, last_index, 1, non_decrease_count))
+	if (!reconstructRBS(q1, q_mid, active_chain, ik_sol, M, iteration, last_index, 1, non_decrease_count))
 		return false;
 	last_index += M.size()-prev_size;
-	if (!reconstructRBS(q_mid, q2, M, iteration, last_index, 2, non_decrease_count))
+	if (!reconstructRBS(q_mid, q2, active_chain, ik_sol, M, iteration, last_index, 2, non_decrease_count))
 		return false;
 
 	return true;
@@ -701,7 +701,6 @@ State StateValidityChecker::dec2bin(int num, int k) {
 	State b;
 
 	do {
-
 		if ( (num&1) == 0 )
 			b.insert(b.begin(), 0);
 		else

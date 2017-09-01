@@ -48,7 +48,7 @@ class plan_C //: public StateValidityChecker
 {
 public:
 
-	bool plan(Vector c_start, Vector c_goal, int n, int m, double runtime, plannerType = PLANNER_BIRRT, double = 2);
+	bool plan(State c_start, State c_goal, int n, int m, double runtime, plannerType = PLANNER_BIRRT, double = 2);
 
 	// Construct the planner specified by our command line argument.
 	// This helper function is simply a switch statement.

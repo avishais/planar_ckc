@@ -192,7 +192,7 @@ protected:
 		/** \brief The parent motion in the exploration tree */
 		Motion            *parent;
 
-        Vector 			  ik_vect;
+        State 			  ik_vect;
 		int 			  a_chain;
 
 	};

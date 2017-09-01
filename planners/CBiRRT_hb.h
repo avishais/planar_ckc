@@ -43,8 +43,7 @@
 #include <iostream>
 #include <fstream>
 
-#include "../validity_checkers/StateValidityCheckerPCS.h"
-#include "../validity_checkers/StateValidityCheckerGD.h"
+#include "../validity_checkers/StateValidityCheckerHB.h"
 
 namespace ompl
 {
@@ -64,7 +63,7 @@ namespace ompl
         */
 
         /** \brief RRT-Connect (RRTConnect) */
-        class RRTConnect : public base::Planner, public pcs::StateValidityChecker, public gd::StateValidityChecker  // Avishai
+        class RRTConnect : public base::Planner, public StateValidityChecker  // Avishai
         {
         public:
 
@@ -119,11 +118,11 @@ namespace ompl
             
             /** Reset log paprameters */
             void initiate_log_parameters() {
-            	pcs::StateValidityChecker::IK_counter = 0;
-            	pcs::StateValidityChecker::IK_time = 0;
+            	ckc::IK_counter = 0;
+            	ckc::IK_time = 0;
             	//collisionCheck_counter = 0;
             	//collisionCheck_time = 0;
-            	pcs::StateValidityChecker::isValid_counter = 0;
+            	isValid_counter = 0;
             	nodes_in_path = 0;
             	nodes_in_trees = 0;
             	project_success = 0;

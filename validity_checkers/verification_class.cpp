@@ -128,7 +128,7 @@ void verification_class::log_path_file(Matrix M) {
 
 bool verification_class::test_constraint(State q) {
 
-	State C = constraint(q);
+	State C = kdl::constraint(q);
 
 	bool verify = true;
 	for (int j = 0; j < C.size() && verify; j++)

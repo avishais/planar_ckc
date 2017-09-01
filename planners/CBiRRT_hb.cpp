@@ -48,8 +48,7 @@ void o(T a) {
 
 ompl::geometric::RRTConnect::RRTConnect(const base::SpaceInformationPtr &si, int joints_num, int passive_chains_num, double custom_num) :
 		base::Planner(si, "RRTConnect"),
-		pcs::StateValidityChecker::StateValidityChecker(si, joints_num, passive_chains_num, 0.3),
-		gd::StateValidityChecker::StateValidityChecker(si, joints_num, 0.3)
+		StateValidityChecker(si, joints_num, passive_chains_num, 0.3)
 {
 	specs_.recognizedGoal = base::GOAL_SAMPLEABLE_REGION;
 	specs_.directed = true;
@@ -59,7 +58,7 @@ ompl::geometric::RRTConnect::RRTConnect(const base::SpaceInformationPtr &si, int
 	Planner::declareParam<double>("range", this, &RRTConnect::setRange, &RRTConnect::getRange, "0.:1.:10000.");
 	connectionPoint_ = std::make_pair<base::State*, base::State*>(nullptr, nullptr);
 
-	pcs::StateValidityChecker::defaultSettings(); // Avishai
+	defaultSettings(); // Avishai
 
 	n = joints_num;
 	m = passive_chains_num;
@@ -129,8 +128,8 @@ double ompl::geometric::RRTConnect::activeDistance(const Motion *a, const Motion
 	State qa(n);
 	State qb(n);
 
-	pcs::StateValidityChecker::retrieveStateVector(a->state, qa);
-	pcs::StateValidityChecker::retrieveStateVector(b->state, qb);
+	retrieveStateVector(a->state, qa);
+	retrieveStateVector(b->state, qb);
 
 	double sum = 0;
 	for (int i=0; i < qa.size(); i++) {
@@ -195,15 +194,15 @@ ompl::geometric::RRTConnect::Motion* ompl::geometric::RRTConnect::growTree(TreeD
 		if (mode==1 || !reach) { // equivalent to (!(mode==2 && reach))
 
 			// Try projecting one time
-			if (!gd::StateValidityChecker::IKproject(dstate)) {
+			if (!IKproject(dstate)) {
 				project_fail++;
 				return nmotion;
 			}
 			else
 				project_success++;
 
-			pcs::StateValidityChecker::retrieveStateVector(dstate, q);
-			pcs::StateValidityChecker::updateStateVector(tgi.xstate, q);
+			retrieveStateVector(dstate, q);
+			updateStateVector(tgi.xstate, q);
 			dstate = tgi.xstate;
 
 			ik = identify_state_ik(dstate);
@@ -226,7 +225,7 @@ ompl::geometric::RRTConnect::Motion* ompl::geometric::RRTConnect::growTree(TreeD
 		bool validMotion = false;
 		for (int i = 0; i < ik.size(); i++) {
 			if (nmotion->ik_vect[i] == ik[i])
-				validMotion = pcs::StateValidityChecker::checkMotionRBS(nmotion->state, dstate, i, nmotion->ik_vect[i]);
+				validMotion = checkMotionRBS(nmotion->state, dstate, i, nmotion->ik_vect[i]);
 			if (validMotion) {
 				active_chain = i;
 				break;
@@ -293,7 +292,7 @@ ompl::base::PlannerStatus ompl::geometric::RRTConnect::solve(const base::Planner
 		motion->a_chain = 0;
 		tStart_->add(motion);
 
-		cout << "Start: "; pcs::StateValidityChecker::printStateVector(st);
+		cout << "Start: "; printStateVector(st);
 		si_->copyState(start_node,st);
 	}
 
@@ -345,7 +344,7 @@ ompl::base::PlannerStatus ompl::geometric::RRTConnect::solve(const base::Planner
 				tGoal_->add(motion);
 				PlanDistance = si_->distance(start_node, st);
 
-				cout << "Goal: "; pcs::StateValidityChecker::printStateVector(st);
+				cout << "Goal: "; printStateVector(st);
 			}
 
 			if (tGoal_->size() == 0)
@@ -521,11 +520,11 @@ void ompl::geometric::RRTConnect::save2file(vector<Motion*> mpath1, vector<Motio
 	// Log env. info
 	std::ofstream mf;
 	mf.open("./paths/path_info.txt");
-	mf << n << endl << 0 << endl << pcs::StateValidityChecker::getL() << endl << pcs::StateValidityChecker::get_bx() << endl << pcs::StateValidityChecker::get_by() << endl << pcs::StateValidityChecker::get_qminmax() << endl;
-	if (pcs::StateValidityChecker::include_constraints)
-		for (int i = 0; i < pcs::StateValidityChecker::obs.size(); i++)
+	mf << n << endl << 0 << endl << ckc::getL() << endl << ckc::get_bx() << endl << ckc::get_by() << endl << ckc::get_qminmax() << endl;
+	if (include_constraints)
+		for (int i = 0; i < obs.size(); i++)
 			for (int j = 0; j < 3; j++)
-				mf << pcs::StateValidityChecker::obs[i][j] << endl;
+				mf << obs[i][j] << endl;
 	mf.close();
 
 	// Only milestones
@@ -536,7 +535,7 @@ void ompl::geometric::RRTConnect::save2file(vector<Motion*> mpath1, vector<Motio
 
 		State temp;
 		for (int i = mpath1.size() - 1 ; i >= 0 ; --i) {
-			pcs::StateValidityChecker::retrieveStateVector(mpath1[i]->state, q);
+			retrieveStateVector(mpath1[i]->state, q);
 			for (int j = 0; j < n; j++) {
 				myfile << q[j] << " ";
 			}
@@ -545,7 +544,7 @@ void ompl::geometric::RRTConnect::save2file(vector<Motion*> mpath1, vector<Motio
 			path.push_back(q);
 		}
 		for (unsigned int i = 0 ; i < mpath2.size() ; ++i) {
-			pcs::StateValidityChecker::retrieveStateVector(mpath2[i]->state, q);
+			retrieveStateVector(mpath2[i]->state, q);
 			for (int j = 0; j<n; j++) {
 				myfile << q[j] << " ";
 			}
@@ -570,7 +569,7 @@ void ompl::geometric::RRTConnect::save2file(vector<Motion*> mpath1, vector<Motio
 		for (unsigned int i = 0 ; i < mpath2.size() ; ++i)
 			path.push_back(mpath2[i]);
 
-		pcs::StateValidityChecker::retrieveStateVector(path[0]->state, q);
+		retrieveStateVector(path[0]->state, q);
 		for (int j = 0; j < q.size(); j++) {
 			myfile << q[j] << " ";
 		}
@@ -584,7 +583,7 @@ void ompl::geometric::RRTConnect::save2file(vector<Motion*> mpath1, vector<Motio
 			for (int j = 0; j < m; j++) {
 				M.clear();
 				if (path[i]->ik_vect[j] == path[i-1]->ik_vect[j]) {
-					valid =  pcs::StateValidityChecker::reconstructRBS(path[i-1]->state, path[i]->state, M, j, path[i-1]->ik_vect[j]);
+					valid =  reconstructRBS(path[i-1]->state, path[i]->state, M, j, path[i-1]->ik_vect[j]);
 				}
 					
 				if (valid)
@@ -629,11 +628,11 @@ void ompl::geometric::RRTConnect::LogPerf2file() {
 	myfile << final_solved << " ";
 	myfile << PlanDistance << " "; // Distance between nodes 1
 	myfile << total_runtime << " "; // Overall planning runtime 2
-	myfile << pcs::StateValidityChecker::get_IK_counter() << " "; // How many IK checks? 5
-	myfile << pcs::StateValidityChecker::get_IK_time() << " "; // IK computation time 6
+	myfile << ckc::get_IK_counter() << " "; // How many IK checks? 5
+	myfile << ckc::get_IK_time() << " "; // IK computation time 6
 	//myfile << get_collisionCheck_counter() << endl; // How many collision checks? 7
 	//myfile << get_collisionCheck_time() << endl; // Collision check computation time 8
-	myfile << pcs::StateValidityChecker::get_isValid_counter() << " "; // How many nodes checked 9
+	myfile << get_isValid_counter() << " "; // How many nodes checked 9
 	myfile << nodes_in_path << " "; // Nodes in path 10
 	myfile << nodes_in_trees << " "; // 11
 	myfile << RBS_success << " " << RBS_fail << " ";
