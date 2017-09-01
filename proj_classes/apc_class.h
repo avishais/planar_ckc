@@ -12,7 +12,7 @@
 using namespace std;
 
 typedef vector<double> State;
-typedef vector< double > State;
+typedef vector< double > Vector;
 typedef vector< int > VectorInt;
 typedef vector<vector< double >> Matrix;
 
@@ -27,33 +27,33 @@ private:
 	int n; // Number of joints
 	//int m; // Number of passive chains
 
-	State q_IK; // Result of the IK solution
-	State p_FK_l; // result of the FK_left solution
-	State p_FK_r; // result of the FK_right solution
+	Vector q_IK; // Result of the IK solution
+	Vector p_FK_l; // result of the FK_left solution
+	Vector p_FK_r; // result of the FK_right solution
 
 public:
 	// Constructor
 	ckc(int, double);
 
 	// Forward kinematics
-	void FK_left(State, int);
-	void FK_left_half(State, int); // Takes half of the last link
-	void FK_right(State, int);
-	State get_FK_sol_left();
-	State get_FK_sol_right();
+	void FK_left(Vector, int);
+	void FK_left_half(Vector, int); // Takes half of the last link
+	void FK_right(Vector, int);
+	Vector get_FK_sol_left();
+	Vector get_FK_sol_right();
 
 	// Inverse kinematics
-	bool IKp(State, int, double);
-	State get_IK_sol_q();
+	bool IKp(Vector, int, double);
+	Vector get_IK_sol_q();
 
 	// Project
-	bool project(State &q, int nc, int IK_sol);
+	bool project(Vector &q, int nc, int IK_sol);
 
 	// Misc
 	void printMatrix(Matrix M);
-	void printVector(State p);
-	void log_q(State q);
-	State constraint(State q);
+	void printVector(Vector p);
+	void log_q(Vector q);
+	Vector constraint(Vector q);
 
 	double get_bx() {
 		return bx;
@@ -70,7 +70,7 @@ public:
 	double get_qminmax() {
 		return qminmax;
 	}
-	State get_q_IK() {
+	Vector get_q_IK() {
 		return q_IK;
 	}
 
@@ -81,7 +81,7 @@ public:
 		return fMin + f * (fMax - fMin);
 	}
 
-	State LL;
+	Vector LL;
 
 	// Performance parameters
 	int IK_counter;

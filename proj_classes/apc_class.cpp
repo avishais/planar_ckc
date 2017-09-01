@@ -43,11 +43,11 @@ ckc::ckc(int joints_num, double custom_num) {
 
 // ----- project -----
 
-bool ckc::project(State &q, int nc, int IK_sol) {
+bool ckc::project(Vector &q, int nc, int IK_sol) {
 	// nc - passive chain number
 
-	State q_IK(3);
-	State p_left(3), p_right(3), pose(3);
+	Vector q_IK(3);
+	Vector p_left(3), p_right(3), pose(3);
 
 	if (nc < n-3) { // All passive chains except the last one
 		if (nc==0)
@@ -118,7 +118,7 @@ bool ckc::project(State &q, int nc, int IK_sol) {
 
 		p_left = {0,0,0};
 
-		State qr(n-3);
+		Vector qr(n-3);
 		for (int i = n-2, j = 0; i > 1; i--, j++)
 			qr[j] = -q[i];
 
@@ -166,7 +166,7 @@ bool ckc::project(State &q, int nc, int IK_sol) {
 	}
 	if (nc == n-1) { // Passive chain including the base and the left base joint
 
-		State ql(n-3);
+		Vector ql(n-3);
 		for (int i = 1; i < n-2; i++)
 			ql[i-1] = q[i];
 		ql[0] = PI_ + ql[0];
@@ -219,7 +219,7 @@ bool ckc::project(State &q, int nc, int IK_sol) {
 
 // -----FK-------
 
-void ckc::FK_left(State q, int nd) {
+void ckc::FK_left(Vector q, int nd) {
 	// IK solution for the arm based at the left
 	// takes nd joints
 
@@ -244,7 +244,7 @@ void ckc::FK_left(State q, int nd) {
 	p_FK_l = {x, y, theta};
 }
 
-void ckc::FK_left_half(State q, int nd) {
+void ckc::FK_left_half(Vector q, int nd) {
 	// IK solution for the arm based at the left
 	// takes nd joints and half of the last link
 
@@ -271,7 +271,7 @@ void ckc::FK_left_half(State q, int nd) {
 	p_FK_l = {x, y, theta};
 }
 
-void ckc::FK_right(State q, int nd) {
+void ckc::FK_right(Vector q, int nd) {
 	// IK solution for the arm based at the right
 	// takes nd joints
 
@@ -301,23 +301,23 @@ void ckc::FK_right(State q, int nd) {
 	p_FK_r = {x, y, theta};
 }
 
-State ckc::get_FK_sol_left() {
+Vector ckc::get_FK_sol_left() {
 	return p_FK_l;
 }
 
-State ckc::get_FK_sol_right() {
+Vector ckc::get_FK_sol_right() {
 	return p_FK_r;
 }
 
 
 // -------IK----------
 
-bool ckc::IKp(State pose, int ik_sol, double L1) {
+bool ckc::IKp(Vector pose, int ik_sol, double L1) {
 	IK_counter++;
 	clock_t begin = clock();
 
 	// Pose = {x3 ; y3; theta}
-	State q(3);
+	Vector q(3);
 	int sign;
 
 	double theta = pose[2];
@@ -366,15 +366,15 @@ bool ckc::IKp(State pose, int ik_sol, double L1) {
 	return true;
 }
 
-State ckc::get_IK_sol_q() {
+Vector ckc::get_IK_sol_q() {
 	return q_IK;
 }
 
-State ckc::constraint(State q) {
+Vector ckc::constraint(Vector q) {
 
 	FK_left(q, q.size()-1);
 
-	State C = get_FK_sol_left();
+	Vector C = get_FK_sol_left();
 
 	C[0] -= bx;
 	C[1] -= by;
@@ -394,7 +394,7 @@ void ckc::printMatrix(Matrix M) {
 	}
 }
 
-void ckc::printVector(State p) {
+void ckc::printVector(Vector p) {
 	cout << "[";
 	for (unsigned i = 0; i < p.size(); i++) {
 		if (fabs(p[i])<1e-5)
@@ -405,7 +405,7 @@ void ckc::printVector(State p) {
 	cout << "]" << endl;
 }
 
-void ckc::log_q(State q) {
+void ckc::log_q(Vector q) {
 	std::ofstream myfile;
 	myfile.open("../paths/path.txt");
 

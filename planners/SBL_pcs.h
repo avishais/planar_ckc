@@ -214,7 +214,7 @@ protected:
 		/** \brief The set of motions descending from the current motion */
 		std::vector<Motion*> children;
 
-        State 			  ik_vect;
+        Vector 			  ik_vect;
         int 			  a_chain;
 	};
 

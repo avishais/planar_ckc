@@ -148,7 +148,7 @@ ompl::base::PlannerStatus ompl::geometric::RRT::solve(const base::PlannerTermina
 	base::State *gstate = si_->allocState();
 	goal_s->sampleGoal(gstate);
 	PlanDistance = si_->distance(start_node, gstate);
-	State ik_goal = identify_state_ik(gstate);
+	Vector ik_goal = identify_state_ik(gstate);
 
 	int active_chain;
 	bool approximate;
@@ -334,7 +334,7 @@ void ompl::geometric::RRT::save2file(vector<Motion*> mpath) {
 
 	cout << "Logging path to files..." << endl;
 
-	State q(n);
+	Vector q(n);
 	int active_chain, ik_sol;
 	vector<Motion*> path;
 

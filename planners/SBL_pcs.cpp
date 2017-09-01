@@ -88,7 +88,7 @@ void ompl::geometric::SBL::freeGridMotions(Grid<MotionInfo> &grid)
 
 ompl::base::PlannerStatus ompl::geometric::SBL::solve(const base::PlannerTerminationCondition &ptc)
 {
-	State q(n), ik(m);
+	Vector q(n), ik(m);
 	initiate_log_parameters();
 	setRange(Range); // Maximum local connection distance *** will need to profile this value
 
@@ -245,8 +245,8 @@ bool ompl::geometric::SBL::checkSolution(bool start, TreeData &tree, TreeData &o
 		Motion *connectOther = cell->data[rng_.uniformInt(0, cell->data.size() - 1)];
 
 		// Check if connection is possible
-		State ikOther = connectOther->ik_vect;
-		State ik = motion->ik_vect;
+		Vector ikOther = connectOther->ik_vect;
+		Vector ik = motion->ik_vect;
 		bool common_ik = false;
 		for (int i = 0; i < ik.size(); i++)
 			if (ik[i] == ikOther[i]) {
@@ -484,7 +484,7 @@ void ompl::geometric::SBL::save2file(vector<Motion*> mpath1, vector<Motion*> mpa
 
 	cout << "Logging path to files..." << endl;
 
-	State q(n);
+	Vector q(n);
 	Matrix path;
 	int active_chain;
 
@@ -505,7 +505,7 @@ void ompl::geometric::SBL::save2file(vector<Motion*> mpath1, vector<Motion*> mpa
 		std::ofstream myfile, ikfile;
 		myfile.open("./paths/path_milestones.txt");
 
-		State temp;
+		Vector temp;
 		for (int i = mpath1.size() - 1 ; i >= 0 ; --i) {
 			retrieveStateVector(mpath1[i]->state, q);
 			for (int j = 0; j<n; j++) {

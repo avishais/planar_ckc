@@ -69,7 +69,7 @@ ob::PlannerPtr plan_C::allocatePlanner(ob::SpaceInformationPtr si, int n, int m,
 	}
 }
 
-bool plan_C::plan(State c_start, State c_goal, int n, int m, double runtime, plannerType ptype, double custom) {
+bool plan_C::plan(Vector c_start, Vector c_goal, int n, int m, double runtime, plannerType ptype, double custom) {
 
 	//int n = c_start.size();
 	//int m = n - 2;
@@ -210,8 +210,13 @@ int main(int argn, char ** args) {
 		//c_goal = {-0.955006, 1.40412, 0.213556 ,-1.30293, 1.01319, -2.76867+2*3.1416 };
 
 		int n = 5; // Dimensionality of CKC
+<<<<<<< HEAD
 		State c_start(n), c_goal(n);
 		StateValidityChecker svc(n); // The checker class
+=======
+		Vector c_start(n), c_goal(n);
+		StateValidityCheckerPCS svc(n); // The checker class
+>>>>>>> parent of 24d4194... Replaced Vector -> State in PCS files
 		c_start = svc.sample_q();
 		c_goal = svc.sample_q();
 
@@ -221,9 +226,9 @@ int main(int argn, char ** args) {
 		break;
 	}
 	case 3: { // Obstacle experiment
-		State c_start = {1.6581, 0.17453, 0.17453, 0.17453, -0.034907, -0.17453, -0.17453, -0.5236, -0.69813, -0.5236, -0.87266, -0.17453, 0.087266, 0.34907, 0.17453, 0.17453, 0.17453, 0.18147, -0.80904, 2.4791};
+		Vector c_start = {1.6581, 0.17453, 0.17453, 0.17453, -0.034907, -0.17453, -0.17453, -0.5236, -0.69813, -0.5236, -0.87266, -0.17453, 0.087266, 0.34907, 0.17453, 0.17453, 0.17453, 0.18147, -0.80904, 2.4791};
 		//c_goal = {-2.1293, 0.34907, 0.5236, 0.5236, 0.69813, 0.5236, 0.34907, 0.34907, -0.34907, -0.40143, -0.61087, -0.5236, 0.61087, 0.69813, 0.69813, 0.5236, 0.34907, -0.44059, 0.52295, 5.4056}; // 3 obs
-		State c_goal = {-2.1293, 0.34907, 0.5236, 0.5236, 0.69813, 0.61087, 0.61087, -0.17453, -0.7854, -0.5236, -0.34907, 0.5236, 0.7854, 0.7854, 0.2618, 0.43633, -0.17453, -1.2474, 1.2172, 5.0836}; // 4 obs
+		Vector c_goal = {-2.1293, 0.34907, 0.5236, 0.5236, 0.69813, 0.61087, 0.61087, -0.17453, -0.7854, -0.5236, -0.34907, 0.5236, 0.7854, 0.7854, 0.2618, 0.43633, -0.17453, -1.2474, 1.2172, 5.0836}; // 4 obs
 
 		int n = c_start.size();
 		int m = n;//n-2;//n-3;
@@ -239,9 +244,9 @@ int main(int argn, char ** args) {
 		int N = 1000; // Number of points to take for each k<=m
 		string line;
 
-		State c_start = {1.6581, 0.17453, 0.17453, 0.17453, -0.034907, -0.17453, -0.17453, -0.5236, -0.69813, -0.5236, -0.87266, -0.17453, 0.087266, 0.34907, 0.17453, 0.17453, 0.17453, 0.18147, -0.80904, 2.4791};
-		//State c_goal = {-2.1293, 0.34907, 0.5236, 0.5236, 0.69813, 0.5236, 0.34907, 0.34907, -0.34907, -0.40143, -0.61087, -0.5236, 0.61087, 0.69813, 0.69813, 0.5236, 0.34907, -0.44059, 0.52295, 5.4056}; // 3 obs
-		State c_goal = {-2.1293, 0.34907, 0.5236, 0.5236, 0.69813, 0.61087, 0.61087, -0.17453, -0.7854, -0.5236, -0.34907, 0.5236, 0.7854, 0.7854, 0.2618, 0.43633, -0.17453, -1.2474, 1.2172, 5.0836}; // 4 obs
+		Vector c_start = {1.6581, 0.17453, 0.17453, 0.17453, -0.034907, -0.17453, -0.17453, -0.5236, -0.69813, -0.5236, -0.87266, -0.17453, 0.087266, 0.34907, 0.17453, 0.17453, 0.17453, 0.18147, -0.80904, 2.4791};
+		//Vector c_goal = {-2.1293, 0.34907, 0.5236, 0.5236, 0.69813, 0.5236, 0.34907, 0.34907, -0.34907, -0.40143, -0.61087, -0.5236, 0.61087, 0.69813, 0.69813, 0.5236, 0.34907, -0.44059, 0.52295, 5.4056}; // 3 obs
+		Vector c_goal = {-2.1293, 0.34907, 0.5236, 0.5236, 0.69813, 0.61087, 0.61087, -0.17453, -0.7854, -0.5236, -0.34907, 0.5236, 0.7854, 0.7854, 0.2618, 0.43633, -0.17453, -1.2474, 1.2172, 5.0836}; // 4 obs
 
 		int n = c_start.size();
 
@@ -322,8 +327,13 @@ int main(int argn, char ** args) {
 		for (int j = 0; j < 11; j++)
 		{
 			int n = 5 + j * 5;
+<<<<<<< HEAD
 			StateValidityChecker svc(n); // The checker class
 			State c_start(n), c_goal(n);
+=======
+			StateValidityCheckerPCS svc(n); // The checker class
+			Vector c_start(n), c_goal(n);
+>>>>>>> parent of 24d4194... Replaced Vector -> State in PCS files
 			verification_class vfc(n);
 
 			int N = 200;//300; // Number of points to take for each d
@@ -371,8 +381,13 @@ int main(int argn, char ** args) {
 		for (int ir = 8; ir < 9; ir++) {
 			double r = (ir + 1) * 0.05;
 
+<<<<<<< HEAD
 			StateValidityChecker svc(n, r); // The checker class
 			State c_start(n), c_goal(n);
+=======
+			StateValidityCheckerPCS svc(n, r); // The checker class
+			Vector c_start(n), c_goal(n);
+>>>>>>> parent of 24d4194... Replaced Vector -> State in PCS files
 
 			for (int i = 0; i < N; i++) { // N points for this number of passive chains
 
@@ -412,8 +427,13 @@ int main(int argn, char ** args) {
 		for (int ir = 0; ir < 8; ir++) {
 			double r = ir * 0.15 + 1.25;
 
+<<<<<<< HEAD
 			StateValidityChecker svc(n, r); // The checker class
 			State c_start(n), c_goal(n);
+=======
+			StateValidityCheckerPCS svc(n, r); // The checker class
+			Vector c_start(n), c_goal(n);
+>>>>>>> parent of 24d4194... Replaced Vector -> State in PCS files
 
 			for (int i = 0; i < N; i++) { // N points for this number of passive chains
 
