@@ -211,9 +211,12 @@ int main(int argn, char ** args) {
 
 		int n = 5; // Dimensionality of CKC
 <<<<<<< HEAD
+<<<<<<< HEAD
 		State c_start(n), c_goal(n);
 		StateValidityChecker svc(n); // The checker class
 =======
+=======
+>>>>>>> parent of 24d4194... Replaced Vector -> State in PCS files
 		Vector c_start(n), c_goal(n);
 		StateValidityCheckerPCS svc(n); // The checker class
 >>>>>>> parent of 24d4194... Replaced Vector -> State in PCS files
@@ -328,8 +331,13 @@ int main(int argn, char ** args) {
 		{
 			int n = 5 + j * 5;
 <<<<<<< HEAD
+<<<<<<< HEAD
 			StateValidityChecker svc(n); // The checker class
 			State c_start(n), c_goal(n);
+=======
+			StateValidityCheckerPCS svc(n); // The checker class
+			Vector c_start(n), c_goal(n);
+>>>>>>> parent of 24d4194... Replaced Vector -> State in PCS files
 =======
 			StateValidityCheckerPCS svc(n); // The checker class
 			Vector c_start(n), c_goal(n);
@@ -382,8 +390,13 @@ int main(int argn, char ** args) {
 			double r = (ir + 1) * 0.05;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 			StateValidityChecker svc(n, r); // The checker class
 			State c_start(n), c_goal(n);
+=======
+			StateValidityCheckerPCS svc(n, r); // The checker class
+			Vector c_start(n), c_goal(n);
+>>>>>>> parent of 24d4194... Replaced Vector -> State in PCS files
 =======
 			StateValidityCheckerPCS svc(n, r); // The checker class
 			Vector c_start(n), c_goal(n);
@@ -428,8 +441,13 @@ int main(int argn, char ** args) {
 			double r = ir * 0.15 + 1.25;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 			StateValidityChecker svc(n, r); // The checker class
 			State c_start(n), c_goal(n);
+=======
+			StateValidityCheckerPCS svc(n, r); // The checker class
+			Vector c_start(n), c_goal(n);
+>>>>>>> parent of 24d4194... Replaced Vector -> State in PCS files
 =======
 			StateValidityCheckerPCS svc(n, r); // The checker class
 			Vector c_start(n), c_goal(n);

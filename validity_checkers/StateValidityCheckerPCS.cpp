@@ -51,8 +51,13 @@ void pcs::StateValidityChecker::printStateVector(const ob::State *state) {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 State pcs::StateValidityChecker::sample_q() {
 	State q(n);
+=======
+Vector StateValidityCheckerPCS::sample_q() {
+	Vector q(n);
+>>>>>>> parent of 24d4194... Replaced Vector -> State in PCS files
 =======
 Vector StateValidityCheckerPCS::sample_q() {
 	Vector q(n);
@@ -101,7 +106,11 @@ bool pcs::StateValidityChecker::IKproject(ob::State *state, int nc, int IK_sol, 
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 bool pcs::StateValidityChecker::IKproject(State &q, int nc, int IK_sol) {
+=======
+bool StateValidityCheckerPCS::IKproject(Vector &q, int nc, int IK_sol) {
+>>>>>>> parent of 24d4194... Replaced Vector -> State in PCS files
 =======
 bool StateValidityCheckerPCS::IKproject(Vector &q, int nc, int IK_sol) {
 >>>>>>> parent of 24d4194... Replaced Vector -> State in PCS files
@@ -277,7 +286,11 @@ bool StateValidityCheckerPCS::IKproject(Vector &q, int nc, int IK_sol) {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 State pcs::StateValidityChecker::identify_state_ik(const ob::State *state) {
+=======
+Vector StateValidityCheckerPCS::identify_state_ik(const ob::State *state) {
+>>>>>>> parent of 24d4194... Replaced Vector -> State in PCS files
 =======
 Vector StateValidityCheckerPCS::identify_state_ik(const ob::State *state) {
 >>>>>>> parent of 24d4194... Replaced Vector -> State in PCS files
@@ -288,7 +301,11 @@ Vector StateValidityCheckerPCS::identify_state_ik(const ob::State *state) {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 State pcs::StateValidityChecker::identify_state_ik(State q) {
+=======
+Vector StateValidityCheckerPCS::identify_state_ik(Vector q) {
+>>>>>>> parent of 24d4194... Replaced Vector -> State in PCS files
 =======
 Vector StateValidityCheckerPCS::identify_state_ik(Vector q) {
 >>>>>>> parent of 24d4194... Replaced Vector -> State in PCS files
@@ -414,7 +431,11 @@ bool pcs::StateValidityChecker::checkMotion(const ob::State *s1, const ob::State
 
 // Validates a state by computing the passive chain based on a specific IK solution (input) and checking collision
 <<<<<<< HEAD
+<<<<<<< HEAD
 bool pcs::StateValidityChecker::isValidRBS(State& q, int active_chain, int IK_sol) {
+=======
+bool StateValidityCheckerPCS::isValidRBS(Vector& q, int active_chain, int IK_sol) {
+>>>>>>> parent of 24d4194... Replaced Vector -> State in PCS files
 =======
 bool StateValidityCheckerPCS::isValidRBS(Vector& q, int active_chain, int IK_sol) {
 >>>>>>> parent of 24d4194... Replaced Vector -> State in PCS files
@@ -448,7 +469,11 @@ bool pcs::StateValidityChecker::checkMotionRBS(const ob::State *s1, const ob::St
 
 // Implements local-connection using Recursive Bi-Section Technique (Hauser)
 <<<<<<< HEAD
+<<<<<<< HEAD
 bool pcs::StateValidityChecker::checkMotionRBS(State q1, State q2, int active_chain, int ik_sol, int recursion_depth, int non_decrease_count) {
+=======
+bool StateValidityCheckerPCS::checkMotionRBS(Vector q1, Vector q2, int active_chain, int ik_sol, int recursion_depth, int non_decrease_count) {
+>>>>>>> parent of 24d4194... Replaced Vector -> State in PCS files
 =======
 bool StateValidityCheckerPCS::checkMotionRBS(Vector q1, Vector q2, int active_chain, int ik_sol, int recursion_depth, int non_decrease_count) {
 >>>>>>> parent of 24d4194... Replaced Vector -> State in PCS files
@@ -494,7 +519,11 @@ bool pcs::StateValidityChecker::reconstructRBS(const ob::State *s1, const ob::St
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 bool pcs::StateValidityChecker::reconstructRBS(State q1, State q2, int active_chain, int ik_sol, Matrix &M, int iteration, int last_index, int firstORsecond, int non_decrease_count) {
+=======
+bool StateValidityCheckerPCS::reconstructRBS(Vector q1, Vector q2, int active_chain, int ik_sol, Matrix &M, int iteration, int last_index, int firstORsecond, int non_decrease_count) {
+>>>>>>> parent of 24d4194... Replaced Vector -> State in PCS files
 =======
 bool StateValidityCheckerPCS::reconstructRBS(Vector q1, Vector q2, int active_chain, int ik_sol, Matrix &M, int iteration, int last_index, int firstORsecond, int non_decrease_count) {
 >>>>>>> parent of 24d4194... Replaced Vector -> State in PCS files
@@ -538,7 +567,11 @@ bool StateValidityCheckerPCS::reconstructRBS(Vector q1, Vector q2, int active_ch
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 State pcs::StateValidityChecker::midpoint(State q1, State q2) {
+=======
+Vector StateValidityCheckerPCS::midpoint(Vector q1, Vector q2) {
+>>>>>>> parent of 24d4194... Replaced Vector -> State in PCS files
 =======
 Vector StateValidityCheckerPCS::midpoint(Vector q1, Vector q2) {
 >>>>>>> parent of 24d4194... Replaced Vector -> State in PCS files
@@ -567,7 +600,11 @@ Vector StateValidityCheckerPCS::midpoint(Vector q1, Vector q2) {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 State pcs::StateValidityChecker::angle_distance(State q1, State q2) {
+=======
+Vector StateValidityCheckerPCS::angle_distance(Vector q1, Vector q2) {
+>>>>>>> parent of 24d4194... Replaced Vector -> State in PCS files
 =======
 Vector StateValidityCheckerPCS::angle_distance(Vector q1, Vector q2) {
 >>>>>>> parent of 24d4194... Replaced Vector -> State in PCS files
@@ -582,7 +619,11 @@ Vector StateValidityCheckerPCS::angle_distance(Vector q1, Vector q2) {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 double pcs::StateValidityChecker::normDistance(State a1, State a2) {
+=======
+double StateValidityCheckerPCS::normDistance(Vector a1, Vector a2) {
+>>>>>>> parent of 24d4194... Replaced Vector -> State in PCS files
 =======
 double StateValidityCheckerPCS::normDistance(Vector a1, Vector a2) {
 >>>>>>> parent of 24d4194... Replaced Vector -> State in PCS files
@@ -594,7 +635,11 @@ double StateValidityCheckerPCS::normDistance(Vector a1, Vector a2) {
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 double pcs::StateValidityChecker::normVector(State q) {
+=======
+double StateValidityCheckerPCS::normVector(Vector q) {
+>>>>>>> parent of 24d4194... Replaced Vector -> State in PCS files
 =======
 double StateValidityCheckerPCS::normVector(Vector q) {
 >>>>>>> parent of 24d4194... Replaced Vector -> State in PCS files
@@ -609,7 +654,11 @@ double StateValidityCheckerPCS::normVector(Vector q) {
 // ------------------------------- Constraints functions ---------------------------
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 bool pcs::StateValidityChecker::check_angles(State q, double f) {
+=======
+bool StateValidityCheckerPCS::check_angles(Vector q, double f) {
+>>>>>>> parent of 24d4194... Replaced Vector -> State in PCS files
 =======
 bool StateValidityCheckerPCS::check_angles(Vector q, double f) {
 >>>>>>> parent of 24d4194... Replaced Vector -> State in PCS files
@@ -624,7 +673,11 @@ bool StateValidityCheckerPCS::check_angles(Vector q, double f) {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 bool pcs::StateValidityChecker::self_collision(State q, double f) {
+=======
+bool StateValidityCheckerPCS::self_collision(Vector q, double f) {
+>>>>>>> parent of 24d4194... Replaced Vector -> State in PCS files
 =======
 bool StateValidityCheckerPCS::self_collision(Vector q, double f) {
 >>>>>>> parent of 24d4194... Replaced Vector -> State in PCS files
@@ -673,7 +726,11 @@ bool StateValidityCheckerPCS::self_collision(Vector q, double f) {
 // Returns false if the lines AB and CD intersect, otherwise true.
 // Currently only checks when lines are not parallel
 <<<<<<< HEAD
+<<<<<<< HEAD
 bool pcs::StateValidityChecker::LinesIntersect(State A, State B, State C, State D, double f) {
+=======
+bool StateValidityCheckerPCS::LinesIntersect(Vector A, Vector B, Vector C, Vector D, double f) {
+>>>>>>> parent of 24d4194... Replaced Vector -> State in PCS files
 =======
 bool StateValidityCheckerPCS::LinesIntersect(Vector A, Vector B, Vector C, Vector D, double f) {
 >>>>>>> parent of 24d4194... Replaced Vector -> State in PCS files
@@ -695,7 +752,11 @@ bool StateValidityCheckerPCS::LinesIntersect(Vector A, Vector B, Vector C, Vecto
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 bool pcs::StateValidityChecker::obstacle_collision(State q, double f) {
+=======
+bool StateValidityCheckerPCS::obstacle_collision(Vector q, double f) {
+>>>>>>> parent of 24d4194... Replaced Vector -> State in PCS files
 =======
 bool StateValidityCheckerPCS::obstacle_collision(Vector q, double f) {
 >>>>>>> parent of 24d4194... Replaced Vector -> State in PCS files
