@@ -22,7 +22,7 @@ CPPHB = ${INC_CLASSES}apc_class.cpp ${INC_CLASSES}kdl_class.cpp ${INC_VALIDITY}S
 
 CPP_P_PCS = ${INC_RUN}plan_PCS.cpp ${INC_PLANNERS}CBiRRT_pcs.cpp ${INC_PLANNERS}SBL_pcs.cpp ${INC_PLANNERS}RRT_pcs.cpp
 CPP_P_GD = ${INC_RUN}plan_GD.cpp ${INC_PLANNERS}CBiRRT_gd.cpp ${INC_PLANNERS}SBL_gd.cpp ${INC_PLANNERS}RRT_gd.cpp
-CPP_P_HB = ${INC_RUN}plan_HB.cpp ${INC_PLANNERS}CBiRRT_hb.cpp 
+CPP_P_HB = ${INC_RUN}plan_HB.cpp ${INC_PLANNERS}CBiRRT_hb.cpp ${INC_PLANNERS}SBL_hb.cpp ${INC_PLANNERS}RRT_hb.cpp
 
 all:
 

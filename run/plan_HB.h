@@ -16,8 +16,8 @@
 
 // Modified and custom planners
 #include "CBiRRT_hb.h"
-//#include "RRT_pcs.h"
-//#include "SBL_pcs.h"
+#include "RRT_hb.h"
+#include "SBL_hb.h"
 
 #include "../validity_checkers/verification_class.h"
 

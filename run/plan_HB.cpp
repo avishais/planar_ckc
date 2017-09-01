@@ -50,7 +50,7 @@ ob::PlannerPtr plan_C::allocatePlanner(ob::SpaceInformationPtr si, int n, int m,
 		return std::make_shared<og::RRTConnect>(si, n, m, maxStep);
 		break;
 	}
-	/*case PLANNER_RRT:
+	case PLANNER_RRT:
 	{
 		return std::make_shared<og::RRT>(si, n, m, maxStep);
 		break;
@@ -59,7 +59,7 @@ ob::PlannerPtr plan_C::allocatePlanner(ob::SpaceInformationPtr si, int n, int m,
 	{
 		return std::make_shared<og::SBL>(si, n, m, maxStep);
 		break;
-	}*/
+	}
 	default:
 	{
 		OMPL_ERROR("Planner-type enum is not implemented in allocation function.");
@@ -286,10 +286,10 @@ int main(int argn, char ** args) {
 
 		std::ofstream mf;
 		std::ifstream pf;
-		mf.open("/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/matlab/benchmark_BiRRT_HB_obs_rangeB.txt", ios::app);
+		mf.open("/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/matlab/benchmark_SBL_HB_obs_rangeB.txt", ios::app);
 
 		for (int i = 0; i < N; i++) { // N points for this number of passive chains
-			for (int j = 0; j < 16; j++) {
+			for (int j = 0; j < 7; j++) {
 				double maxStep = 0.2 + 0.2*j;
 
 				Plan.plan(c_start, c_goal, n, n, runtime, ptype, maxStep);

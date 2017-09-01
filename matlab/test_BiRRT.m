@@ -59,8 +59,7 @@ disp(['Minimum avg. runtime for PCS is ' num2str(tdmin) 'msec with d = ' num2str
 [tgmin, ig] = min(tg);
 disp(['Minimum avg. runtime for GD is ' num2str(tgmin) 'msec with d = ' num2str(rg(ig)) ]);
 [tbmin, ib] = min(tb);
-disp(['Minimum avg. runtime for GD is ' num2str(tbmin) 'msec with d = ' num2str(rb(ib)) ]);
-
+disp(['Minimum avg. runtime for HB is ' num2str(tbmin) 'msec with d = ' num2str(rb(ib)) ]);
 
 %%
 h = figure(1);
@@ -72,7 +71,7 @@ errorbar(rb,tb,tb_ste,':k','linewidth',2);
 hold off
 ylabel('mean runtime [msec]');
 xlabel('max. local-connection distance');
-legend('PCS','GD');
+legend('PCS','GD','HB');
 % xlim([0 6]);
 xlim([0 max([rd; rg])]);
 
@@ -81,6 +80,7 @@ D1 = D1(D1(:,1)==rd(id), 2:end);
 verf = D1(:,1)==1;
 suc = D1(:,2)==1;
 
+disp('------------------------------------');
 disp('PCS - with optimized step size:');
 disp(['Results of ' num2str(size(D1,1)) ' queries.']);
 disp(['Percent of successful queries verified: ' num2str(sum(verf & suc)/sum(suc)*100) '%']);
@@ -95,6 +95,7 @@ D2 = D2(D2(:,1)==rg(ig), 2:end);
 verf = D2(:,1)==1;
 suc = D2(:,2)==1;
 
+disp('------------------------------------');
 disp('GD - with optimized step size:');
 disp(['Results of ' num2str(size(D2,1)) ' queries.']);
 disp(['Percent of successful queries verified: ' num2str(sum(verf & suc)/sum(suc)*100) '%']);
@@ -109,6 +110,7 @@ D3 = D3(D3(:,1)==rb(ib), 2:end);
 verf = D3(:,1)==1;
 suc = D3(:,2)==1;
 
+disp('------------------------------------');
 disp('HB - with optimized step size:');
 disp(['Results of ' num2str(size(D3,1)) ' queries.']);
 disp(['Percent of successful queries verified: ' num2str(sum(verf & suc)/sum(suc)*100) '%']);
@@ -170,6 +172,8 @@ title('BiRRT');
 
 %% 
 disp(' ');
-disp(['Speed-up t_{gd}/t_{pcs}: ' num2str(tgmin/tdmin) ]);
-disp(['Speed-up t_{gb}/t_{hb}: ' num2str(tgmin/tbmin) ]);
+disp(['Speed-up t_{pcs}/t_{gd}: ' num2str(tgmin/tdmin) ]);
+disp(['Speed-up t_{gd}/t_{hb}: ' num2str(tgmin/tbmin) ]);
+disp(['Speed-up t_{pcs}/t_{hb}: ' num2str(tdmin/tbmin) ]);
+
 
