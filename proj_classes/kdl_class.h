@@ -74,6 +74,7 @@ public:
 	void printMatrix(Matrix);
 	void printVector(State);
 	void clearMatrix(Matrix &);
+	State rand_q();
 
 	// Generate random number
 	double fRand(double fMin, double fMax)

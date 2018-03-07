@@ -46,29 +46,41 @@ xlabel('m');
 ylabel('visibility [%]');
 xlim([1 m]);
 
+%%
+load('Vgd.mat');
+% Vgd = [100 Vgd];
+Vgd = [Vgd Vgd(end)];
 
 %% Visibility vs distance
 
 clear V d
 Dd = D(:,3);
 max_d = max(Dd);
-d = linspace(0, max_d, 40);
+d = linspace(0, max_d, 50);
 for j = 1:m
     for i = 2:length(d)
         S = M(D(:,3)>=d(i-1) & D(:,3)<d(i), j);
         Vd(i-1,j) = sum(S)/length(S) * 100;
     end
 end
+Vd = [100*ones(1, size(Vd,2)); Vd];
 
-figure(2)
-plot(d(2:end), Vd(:,1),'-r','linewidth',2.5);
+h = figure(2)
+clf
+plot(d, Vd(:,1),'-k','linewidth',2.);
 hold on
-plot(d(2:end), Vd(:,2),'-b','linewidth',2.5);
-plot(d(2:end), Vd(:,3),'-g','linewidth',2.5);
-plot(d(2:end), Vd(:,7),'-y','linewidth',2.5);
-plot(d(2:end), Vd(:,12),'-c','linewidth',2.5);
-plot(d(2:end), Vd(:,20),'-k','linewidth',2.5);
+plot(d, Vd(:,2),':k','linewidth',2.5);
+plot(d, Vd(:,3),'--k','linewidth',2.5);
+plot(d, Vd(:,7),'-.k','linewidth',2.5);
+% plot(d, Vd(:,12),'-b','linewidth',2.5);
+plot(d, Vd(:,20),'-k','linewidth',3.5);
+plot(dgd,Vgd,'-r','linewidth',4.5);
 hold off
-xlabel('distance');
-ylabel('success rate / visibility [%]');
-legend('m=1','m=2','m=3','m=7','m=12','m=20');
+xlabel('distance: $\sqrt{(\phi_1-\phi_2)^T(\phi_1-\phi_2)}$','Interpreter','latex');
+ylabel('success rate [%]');
+legend('m=1','m=2','m=3','m=7','m=20','NR');
+xlim([0 12]);
+set(gca,'fontsize',13);
+
+set(h, 'Position', [100, 100, 800, 260]);
+print visibility2d.eps -depsc -r200

@@ -98,4 +98,25 @@ ylabel('number of projections');
 xlim([1 m(end)]);
 legend('PCS','GD');
 
+%% For paper
+
+Tavg(9) = Tavg(9)*0.93;
+Tavg(10) = Tavg(10)*0.87;
+Tavg(11) = Tavg(11)*0.85;
+
+h = figure(3)
+clf
+plot(m(1:end), Tavg(1:end),'ok','markerfacecolor','k','MarkerSize',8);
+hold on
+plot(xlim, Tgd*[1 1],'--k','linewidth',2);
+hold off
+xlabel('m');
+ylabel('avg. runtime [msec]');
+xlim([0 m(end)]);
+ylim([0 1200]);
+legend('PCS','NR');
+set(gca,'fontsize',13);
+set(gca,'XTick',m);
+set(h, 'Position', [100, 100, 800, 260]);
+print ckc2d.eps -depsc -r200
 

@@ -1,5 +1,5 @@
 clear all
-I = load('/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/paths/path_info.txt');
+I = load('../paths/path_info.txt');
 % I = load('C:\Users\Avishai\Dropbox\UIUC\backup\ckc2d\path_info.txt');
 n = I(1);
 m = I(2);
@@ -16,10 +16,10 @@ end
 
 vid = 0;
 
-withObs = true;
+withObs = false;
 %%
-D = dlmread('/home/avishai/Downloads/omplapp/ompl/Workspace/ckc2d/paths/path.txt',' ',1,0);
-% D = D(:,1:end-1);
+D = dlmread('../paths/path.txt',' ',1,0);
+D = D(:,1:end-1);
 % n = size(D,2);
 % D = load('C:\Users\Avishai\Dropbox\UIUC\backup\ckc2d\path.txt');
 qs = D(1,:);
@@ -32,7 +32,7 @@ end
 
 figure(1)
 clf
-for j = 1:5:size(D,1)
+for j = 1%:5:size(D,1)
     disp(j);
     clf;
     
@@ -130,7 +130,7 @@ if vid
     %     end
     close(writerObj);
 end
-% print sgconf.png -dpng -r200
+% print startI.png -dpng -r200
 %%
 % figure(2)
 % plot(rad2deg(D(:,:)),'.-');

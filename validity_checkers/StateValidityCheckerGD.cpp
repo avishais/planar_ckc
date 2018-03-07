@@ -107,6 +107,36 @@ State gd::StateValidityChecker::sample_q() {
 	return q;
 }
 
+void gd::StateValidityChecker::log_q(State q, bool New) {
+
+	// Log env. info
+	std::ofstream mf;
+	mf.open("../paths/path_info.txt");
+	State Lp = getL();
+	mf << q.size() << endl << 0 << endl << Lp[0] << endl << get_bx() << endl << get_by() << endl << get_qminmax() << endl;
+	if (include_constraints)
+		for (int i = 0; i < obs.size(); i++)
+			for (int j = 0; j < 3; j++)
+				mf << obs[i][j] << endl;
+	mf.close();
+
+
+	std::ofstream myfile;
+
+	if (New) {
+		myfile.open("../paths/path.txt");
+		myfile << 1 << endl;
+	}
+	else
+		myfile.open("../paths/path.txt", ios::app);
+
+	for (int j = 0; j < q.size(); j++)
+		myfile << q[j] << " ";
+	myfile << endl;
+
+	myfile.close();
+}
+
 // ------------------- Validity check
 
 // Validates a state by switching between the two possible active chains and computing the specific IK solution (input) and checking collision

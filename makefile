@@ -27,6 +27,6 @@ CPP_P_HB = ${INC_RUN}plan_HB.cpp ${INC_PLANNERS}CBiRRT_hb.cpp ${INC_PLANNERS}SBL
 all:
 
 	#$(CXX) ${CPP_P_PCS} ${CPPAPC} ${CPPVRF} -o ppcs $(CXXFLAGS) $(LDFLAGS) -DPCS -std=c++11
-	#$(CXX) ${CPP_P_GD} ${CPPGD} ${CPPVRF} -o pgd $(CXXFLAGS) $(LDFLAGS) -DPGD -std=c++11
-	$(CXX) ${CPP_P_HB} ${CPPHB} ${CPPVRF} -o phb $(CXXFLAGS) $(LDFLAGS) -DHB -std=c++11
+	$(CXX) ${CPP_P_GD} ${CPPGD} ${CPPVRF} -o pgd $(CXXFLAGS) $(LDFLAGS) -DPGD -std=c++11
+	#$(CXX) ${CPP_P_HB} ${CPPHB} ${CPPVRF} -o phb $(CXXFLAGS) $(LDFLAGS) -DHB -std=c++11
 

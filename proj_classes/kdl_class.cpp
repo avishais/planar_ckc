@@ -5,28 +5,29 @@ kdl::kdl(int joints_num, double custom_num) {
 	double l;
 
 	if (joints_num == 20) {
-		bx = 7; // Base for scenarion with obs (n = 20)
+		bx = 7; // Base for scenario with obs (n = 20)
 		by = 4;
 		l = 1;
 
 	}
 	else {
-		bx = 1.5;
+		bx = 1.5;//4;//
 		by = 0;
 		l = 1;
 	}
 
-	/*if (custom_num==-1)
+	if (custom_num==-1)
 		custom_num = 0.3;
 
 	double total_length = 6.5;
 	double base_links_ratio = 0.3;
 
-	l = total_length/((joints_num-1)*(1+base_links_ratio)); // Link length.
-	bx = base_links_ratio*(l*(joints_num-1));
-	by = 0;*/
+	// l = total_length/((joints_num-1)*(1+base_links_ratio)); // Link length.
+	// bx = base_links_ratio*(l*(joints_num-1));
+	// by = 0;
 
 	L.resize(joints_num-1);
+	// L = {1, 3, 7};
 	for (int i = 0; i < joints_num-1; i++)
 		L[i] = l;
 
@@ -231,19 +232,34 @@ void kdl::clearMatrix(Matrix &M) {
 }
 
 void kdl::log_q(State q, bool New) {
+
+	// Log env. info
+	std::ofstream mf;
+	mf.open("../paths/path_info.txt");
+	mf << n << endl << 0 << endl << L[0] << endl << bx << endl << by << endl << qminmax << endl;
+	mf.close();
+
 	// New=true, erase and write new file
 	std::ofstream myfile;
 
 	if (New) {
-		myfile.open("./paths/path.txt");
+		myfile.open("../paths/path.txt");
 		myfile << 1 << endl;
 	}
 	else
-		myfile.open("./paths/path.txt", ios::app);
+		myfile.open("../paths/path.txt", ios::app);
 
 	for (int i = 0; i < q.size(); i++)
 		myfile << q[i] << " ";
 	myfile << endl;
 
 	myfile.close();
+}
+
+State kdl::rand_q() {
+	State q(n);
+	for (int i = 0; i < q.size(); i++)
+		q[i] = -PI + (double)rand()/RAND_MAX * 2*PI;
+
+	return q;
 }
